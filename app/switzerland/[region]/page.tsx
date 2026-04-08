@@ -146,7 +146,7 @@ export default async function RegionPage({ params }: RegionPageProps) {
                   Switzerland / {regionCode}
                 </p>
 
-                <h1 className="mt-2 text-[30px] font-bold leading-tight tracking-tight text-white">
+                <h1 className="mt-2 text-[24px] font-semibold leading-snug tracking-tight text-white">
                   Golf in {regionName} for independent guests
                 </h1>
 
