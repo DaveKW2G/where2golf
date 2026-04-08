@@ -98,7 +98,7 @@ export default function HomePage() {
 
           <div className="mb-8">
             <div className="text-[15px] font-semibold uppercase tracking-[0.28em] text-white/85">
-              Where2Golf
+              GuestPlayGolf
             </div>
 
             <p className="mt-2 text-[13px] font-medium uppercase tracking-[0.18em] text-emerald-100/80">
@@ -106,11 +106,11 @@ export default function HomePage() {
             </p>
 
             <h1 className="mt-4 text-[32px] font-bold leading-[1.08] text-white">
-              Where can you play golf today?
+              Find golf courses you can actually play
             </h1>
 
             <p className="mt-4 text-[15px] text-white/85">
-              Where2Golf helps you find golf courses where you can actually play as an independent guest — without needing a membership or host.
+              GuestPlayGolf helps you find golf courses where you can actually play as an independent guest — without needing a membership or host.
             </p>
 
             <p className="mt-3 text-[15px] text-white/85">
