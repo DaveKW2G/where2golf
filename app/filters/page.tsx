@@ -72,7 +72,7 @@ export default function FiltersPage() {
             </Link>
 
             <div className="text-[13px] uppercase tracking-wide text-white/80">
-              Where2Golf
+              GuestPlayGolf
             </div>
 
             <button onClick={handleClear} className="text-sm text-white/80">
