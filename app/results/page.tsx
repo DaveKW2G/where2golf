@@ -178,7 +178,7 @@ export default async function ResultsPage({ searchParams }: ResultsPageProps) {
             </Link>
 
             <div className="text-[14px] font-semibold uppercase tracking-wide text-white/85">
-              Where2Golf
+              GuestPlayGolf
             </div>
 
             <div className="text-[13px] text-white/75">
