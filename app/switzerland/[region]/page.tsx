@@ -128,6 +128,10 @@ export default async function RegionPage({ params }: RegionPageProps) {
     <main className="min-h-screen bg-stone-100">
       <div className="bg-gradient-to-b from-emerald-800 via-emerald-900 to-emerald-950 px-5 pb-8 pt-8 text-white">
         <div className="mx-auto max-w-[480px]">
+          <div className="mb-4 text-[13px] font-semibold tracking-wide text-emerald-100/90">
+            GuestPlayGolf
+          </div>
+
           <Link
             href="/switzerland"
             className="mb-4 inline-block text-sm text-emerald-200 no-underline transition hover:text-white"
