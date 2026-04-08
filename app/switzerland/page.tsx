@@ -92,7 +92,7 @@ export default function SwitzerlandPage() {
             </Link>
 
             <div className="text-[13px] uppercase tracking-wide text-white/80">
-              Where2Golf
+              GuestPlayGolf
             </div>
 
             <div className="w-10" />
@@ -107,7 +107,6 @@ export default function SwitzerlandPage() {
               Golf in Switzerland for Independent Guests
             </h1>
 
-            {/* ✅ KEY DIFFERENTIATOR TEXT (RESTORED + OPTIMISED) */}
             <p className="mt-4 text-[15px] leading-6 text-white/85">
               Switzerland offers some of Europe’s most scenic golf, with courses set around lakes, mountains and countryside. Many courses allow independent guest play, but access is often structured and requires planning.
             </p>
@@ -117,7 +116,7 @@ export default function SwitzerlandPage() {
             </p>
 
             <p className="mt-4 text-[15px] font-medium text-white">
-              Where2Golf makes this simple — showing where you can play, when you can play, and the exact requirements for each course.
+              GuestPlayGolf makes this simple — showing where you can play, when you can play, and the exact requirements for each course.
             </p>
           </div>
         </div>
