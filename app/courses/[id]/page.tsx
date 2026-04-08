@@ -1,5 +1,5 @@
-import Link from "next/link"
 import { createClient } from "@/lib/supabase/server"
+import BackButton from "@/components/BackButton"
 
 type CoursePageProps = {
   params: Promise<{
@@ -55,7 +55,7 @@ function getSingleParam(value: string | string[] | undefined): string | undefine
   return value
 }
 
-function buildBackHref(searchParams: {
+function buildFallbackHref(searchParams: {
   [key: string]: string | string[] | undefined
 }) {
   const params = new URLSearchParams()
@@ -133,15 +133,19 @@ export default async function CoursePage({
     .eq("id", Number(resolvedParams.id))
     .single()
 
-  const backHref = buildBackHref(resolvedSearchParams)
+  const fallbackHref = buildFallbackHref(resolvedSearchParams)
 
   if (error || !data) {
     return (
       <main className="min-h-screen bg-stone-100 px-4 py-6">
         <div className="mx-auto max-w-[480px] rounded-[28px] bg-white p-6 shadow-sm">
-          <Link href={backHref} className="inline-block text-slate-700 no-underline">
+          <BackButton
+            fallbackHref={fallbackHref}
+            className="inline-block text-slate-700"
+          >
             ← Back
-          </Link>
+          </BackButton>
+
           <h1 className="mt-4 text-xl font-semibold text-slate-900">
             Course not found
           </h1>
@@ -195,7 +199,6 @@ export default async function CoursePage({
     <main className="min-h-screen bg-stone-100 px-4 py-4 pb-28">
       <div className="mx-auto max-w-[480px] overflow-hidden rounded-[30px] bg-white shadow-sm">
 
-        {/* Image */}
         <div className="relative h-60 w-full overflow-hidden bg-slate-200">
           {course.course_image ? (
             <img
@@ -210,18 +213,17 @@ export default async function CoursePage({
           )}
 
           <div className="absolute inset-x-0 top-0 p-4">
-            <Link
-              href={backHref}
-              className="rounded-full bg-white px-3 py-2 text-[14px] font-medium text-slate-800 shadow-sm no-underline"
+            <BackButton
+              fallbackHref={fallbackHref}
+              className="rounded-full bg-white px-3 py-2 text-[14px] font-medium text-slate-800 shadow-sm"
             >
               ← Back
-            </Link>
+            </BackButton>
           </div>
 
           <div className="absolute bottom-0 h-24 w-full bg-gradient-to-t from-black/40 to-transparent" />
         </div>
 
-        {/* Header */}
         <div className="px-5 pt-5 pb-4 space-y-2">
           <h1 className="text-[22px] font-bold text-slate-900">
             {course.course_name}
@@ -252,13 +254,11 @@ export default async function CoursePage({
           </div>
         </div>
 
-        {/* Season + Price */}
         <div className="border-t border-slate-200">
           <DetailRow label="Season" value={course.season} />
           <DetailRow label="Price" value={course.price_range || "Not listed"} />
         </div>
 
-        {/* Notes */}
         {course.notes && (
           <div className="border-t border-slate-200 px-5 py-5">
             <p className="text-[15px] leading-7 text-slate-600 whitespace-pre-line">
@@ -268,7 +268,6 @@ export default async function CoursePage({
         )}
       </div>
 
-      {/* Sticky Buttons */}
       <div className="fixed bottom-6 left-0 right-0 flex justify-center px-4">
         <div className="flex w-full max-w-[480px] gap-3">
 
