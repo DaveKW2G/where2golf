@@ -38,32 +38,73 @@ const regionNames: Record<string, string> = {
 }
 
 const regionInsights: Record<string, string> = {
-  ZH: "Zurich offers some of the most accessible golf in Switzerland, with several courses allowing independent guest play. Layouts are generally flat and walkable, making it a convenient option for regular play, though weekend availability can be more restricted.",
-  VD: "Vaud combines scenic lakeside golf with a strong selection of courses open to independent guests. The region offers variety in layout and pricing, with generally good weekday availability and more limited access at peak times.",
-  VS: "Valais provides a unique alpine golf experience, with dramatic mountain surroundings and a longer playing season in lower valleys. Course access can vary depending on time of year and demand.",
-  TI: "Ticino offers one of the longest golf seasons in Switzerland, with a milder climate and more consistent playing conditions. Courses tend to be more accessible for independent guests, particularly outside peak weekends.",
-  BE: "Bern features a mix of traditional parkland courses and more rural layouts, with varying levels of guest access. Availability is generally good during the week, with some restrictions depending on the club.",
-  GE: "Geneva has a limited number of courses, many of which are highly private. Independent guest access is more restricted, making advance planning essential.",
-  SG: "St. Gallen offers a range of courses across varied terrain, from flatter layouts to more undulating designs. Guest access is typically available, though conditions can vary depending on the club.",
-  GR: "Graubünden is known for high-altitude golf with spectacular views and shorter seasonal windows. Access depends heavily on weather and opening periods.",
-  LU: "Lucerne provides a small but quality selection of courses, often set in scenic central locations. Guest play is available, though availability can be influenced by club demand.",
-  SZ: "Schwyz offers a limited number of courses in a compact region, with generally good accessibility for independent players. Layouts are typically straightforward and playable.",
-  ZG: "Zug has very limited golf options, with most courses operating on a more private basis. Independent guest play is possible but typically requires careful timing.",
-  AG: "Aargau features several well-established parkland courses with relatively good access for independent guests. The region offers consistent playing conditions and straightforward layouts.",
-  TG: "Thurgau provides a quieter golf experience with less crowded courses and generally good availability. Layouts are often flat and accessible for a wide range of players.",
-  SH: "Schaffhausen has a small number of courses with a relaxed playing environment. Independent guest access is usually straightforward, particularly during weekdays.",
-  SO: "Solothurn offers a limited but accessible selection of courses, typically with fewer restrictions for independent players. Conditions are generally consistent throughout the main season.",
-  BL: "Basel-Landschaft provides access to a small number of courses, often with moderate availability for guests. Booking ahead is recommended at busier times.",
-  BS: "Basel-Stadt has very limited golf availability within the canton itself, with most options located nearby. Access depends on neighbouring course policies.",
-  FR: "Fribourg combines scenic countryside golf with a mix of accessible and more restricted courses. Guest play is generally possible but varies by club.",
-  NE: "Neuchâtel offers a smaller selection of courses, often set in picturesque surroundings. Guest access is typically available but may vary.",
-  JU: "Jura provides a quieter and less commercial golf experience, with generally good accessibility for independent players. Courses tend to be less crowded and more relaxed.",
-  GL: "Glarus has very limited golf infrastructure, with few nearby options. Access depends on surrounding regions rather than within the canton itself.",
-  UR: "Uri has minimal golf presence, with most playable courses located in neighbouring cantons. Planning ahead is required.",
-  OW: "Obwalden offers access to a small number of scenic courses with generally good availability. Conditions are influenced by altitude and season.",
-  NW: "Nidwalden provides limited but attractive golf options in lake and mountain settings. Access is typically available but may vary.",
-  AI: "Appenzell Innerrhoden has very limited golf facilities, with most play taking place in nearby regions. Access depends on surrounding courses.",
-  AR: "Appenzell Ausserrhoden offers access to a small number of courses with generally relaxed playing conditions. Independent guests are typically welcomed.",
+  ZH: "Zurich is one of the most practical regions in Switzerland for independent guest play, with convenient access, flatter layouts and strong day-trip appeal.",
+  VD: "Vaud combines lakeside scenery, varied course settings and a good mix of golf options for independent guests, especially on weekdays.",
+  VS: "Valais offers a distinctive alpine golf experience, with dramatic mountain scenery and stronger seasonal variation depending on altitude.",
+  TI: "Ticino benefits from a milder climate and one of the longer golf seasons in Switzerland, making it especially appealing for independent guest play.",
+  BE: "Bern mixes traditional parkland golf with more rural settings, offering a broad range of playing environments across the canton.",
+  GE: "Geneva is a more restricted golf market, with fewer options and a generally more private club landscape, so planning matters more here.",
+  SG: "St. Gallen offers a varied golf landscape, from flatter courses to more rolling terrain, with a solid mix of guest-friendly options.",
+  GR: "Graubünden is known for scenic mountain golf, where altitude, season length and weather can have a bigger impact on playing conditions.",
+  LU: "Lucerne offers a smaller but high-quality golf selection in an attractive central Swiss setting.",
+  SZ: "Schwyz is a compact golf region with scenic surroundings and a smaller number of accessible options for independent guests.",
+  ZG: "Zug has limited golf inventory, so finding the right independent guest option is more about quality and timing than volume.",
+  AG: "Aargau offers a solid cluster of established courses, making it one of the steadier regions for independent guest golf.",
+  TG: "Thurgau is a quieter golf region with a more relaxed feel and generally straightforward access for independent guests.",
+  SH: "Schaffhausen offers a smaller, less crowded golf scene with a relaxed pace and practical access.",
+  SO: "Solothurn is a smaller golf market, but can still offer good independent guest options with less competition for tee times.",
+  BL: "Basel-Landschaft has a limited but relevant golf offering, with access depending more on club policy and timing.",
+  BS: "Basel-Stadt itself has very limited golf inventory, with most practical playing options found just outside the canton.",
+  FR: "Fribourg combines countryside golf with a mix of more accessible and more restricted clubs.",
+  NE: "Neuchâtel offers a smaller golf selection in attractive surroundings, with access varying by club.",
+  JU: "Jura has a quieter, less commercial golf feel and can suit independent guests looking for a more relaxed round.",
+  GL: "Glarus has very limited golf infrastructure, so nearby regional access matters more than in-canton volume.",
+  UR: "Uri has minimal golf inventory, with most practical options located in neighbouring cantons.",
+  OW: "Obwalden offers a small number of scenic golf options where seasonality and location play a bigger role.",
+  NW: "Nidwalden combines attractive scenery with a limited but potentially appealing golf offering for independent guests.",
+  AI: "Appenzell Innerrhoden has very limited golf inventory, so nearby guest-friendly options are especially important.",
+  AR: "Appenzell Ausserrhoden offers access to a small golf market with a more relaxed regional feel.",
+}
+
+function getTagline(regionName: string) {
+  return `Find where you can play golf as an independent guest in ${regionName}.`
+}
+
+function getCourseCountLabel(courseCount: number) {
+  if (courseCount === 1) return "1 course"
+  return `${courseCount} courses`
+}
+
+function getAvailabilityLabel(courseCount: number) {
+  if (courseCount === 0) return "Currently no listed courses"
+  if (courseCount === 1) return "1 listed option"
+  if (courseCount <= 3) return "Small but relevant selection"
+  if (courseCount <= 7) return "Good regional selection"
+  return "Strong regional selection"
+}
+
+function getInsightText(
+  regionCode: string,
+  regionName: string,
+  courseCount: number
+) {
+  const baseInsight =
+    regionInsights[regionCode] ||
+    `${regionName} offers golf opportunities for independent guests, with access varying by club, season and demand.`
+
+  if (courseCount === 0) {
+    return `${baseInsight} There are currently no listed courses in this region, so nearby cantons may offer the best alternatives.`
+  }
+
+  if (courseCount === 1) {
+    return `${baseInsight} At the moment, only 1 listed course appears here, so this page is best used as a focused local option rather than a broad regional comparison.`
+  }
+
+  if (courseCount <= 3) {
+    return `${baseInsight} With ${courseCount} listed courses, this is a more limited regional market, but still worth checking if you want a nearby independent guest option.`
+  }
+
+  return `${baseInsight} With ${courseCount} listed courses, this region offers a useful range of options for comparing access, location and playing style.`
 }
 
 export default async function RegionPage({ params }: RegionPageProps) {
@@ -81,67 +122,93 @@ export default async function RegionPage({ params }: RegionPageProps) {
 
   const regionName = regionNames[regionCode] || regionCode
   const courseCount = courses?.length || 0
+  const insightText = getInsightText(regionCode, regionName, courseCount)
 
   return (
     <main className="min-h-screen bg-stone-100">
-
-      {/* HERO */}
-      <div className="bg-gradient-to-b from-emerald-800 to-emerald-900 px-5 py-8 text-white">
+      <div className="bg-gradient-to-b from-emerald-800 via-emerald-900 to-emerald-950 px-5 pb-8 pt-8 text-white">
         <div className="mx-auto max-w-[480px]">
-
           <Link
             href="/switzerland"
-            className="text-sm text-emerald-200 no-underline block mb-3"
+            className="mb-4 inline-block text-sm text-emerald-200 no-underline transition hover:text-white"
           >
             ← Switzerland
           </Link>
 
-          <div className="flex items-start justify-between">
-            <h1 className="text-2xl font-bold">
-              {regionName}
-            </h1>
+          <div className="space-y-4">
+            <div className="flex items-start justify-between gap-4">
+              <div className="min-w-0">
+                <p className="text-[12px] font-medium uppercase tracking-[0.18em] text-emerald-200/90">
+                  Switzerland / {regionCode}
+                </p>
 
-            <span className="text-sm text-emerald-200">
-              {courseCount} courses
-            </span>
+                <h1 className="mt-2 text-[30px] font-bold leading-tight tracking-tight text-white">
+                  Golf in {regionName} for independent guests
+                </h1>
+
+                <p className="mt-3 max-w-[38ch] text-[15px] leading-6 text-emerald-50/95">
+                  {getTagline(regionName)}
+                </p>
+              </div>
+
+              <div className="shrink-0 rounded-2xl border border-white/15 bg-white/10 px-3 py-2 text-right backdrop-blur-sm">
+                <div className="text-[18px] font-semibold text-white">
+                  {courseCount}
+                </div>
+                <div className="text-[11px] uppercase tracking-[0.14em] text-emerald-100/80">
+                  {courseCount === 1 ? "course" : "courses"}
+                </div>
+              </div>
+            </div>
+
+            <div className="flex flex-wrap gap-2">
+              <span className="rounded-full border border-white/12 bg-white/10 px-3 py-1.5 text-[12px] font-medium text-emerald-50 backdrop-blur-sm">
+                {getCourseCountLabel(courseCount)}
+              </span>
+              <span className="rounded-full border border-white/12 bg-white/10 px-3 py-1.5 text-[12px] font-medium text-emerald-50 backdrop-blur-sm">
+                {getAvailabilityLabel(courseCount)}
+              </span>
+            </div>
+
+            <div className="rounded-3xl border border-white/12 bg-white/10 p-4 shadow-[0_8px_30px_rgba(0,0,0,0.16)] backdrop-blur-md">
+              <p className="text-[14px] leading-7 text-emerald-50/95">
+                {insightText}
+              </p>
+            </div>
           </div>
-
-          <p className="mt-2 text-sm text-emerald-100">
-            Where2Golf shows where independent guests can play.
-          </p>
-
         </div>
       </div>
 
-      {/* REGION INSIGHT PANEL */}
-      {regionInsights[regionCode] && (
-        <div className="mx-auto max-w-[480px] px-5 pt-4">
-          <div className="rounded-xl bg-slate-50 px-4 py-4">
-            <p className="text-sm text-slate-700 leading-relaxed">
-              {regionInsights[regionCode]}
-            </p>
-          </div>
-        </div>
-      )}
-
-      {/* CONTENT */}
       <div className="mx-auto max-w-[480px] px-5 py-6">
-
         {error && (
-          <p className="text-red-500">
+          <div className="rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
             Error loading courses for this region.
-          </p>
+          </div>
         )}
 
-        <div className="grid gap-4">
-          {courses?.map((course) => (
-            <CourseCard key={course.id} {...course} />
-          ))}
-        </div>
-
-        {courses?.length === 0 && !error && (
-          <div className="mt-6 rounded-xl bg-white p-5 shadow-sm">
-            No courses found in this region.
+        {courses?.length === 0 && !error ? (
+          <div className="mt-1 rounded-3xl bg-white p-5 shadow-sm ring-1 ring-slate-200/70">
+            <h2 className="text-base font-semibold text-slate-900">
+              No listed courses in {regionName}
+            </h2>
+            <p className="mt-2 text-sm leading-6 text-slate-600">
+              There are currently no courses listed for independent guests in this region.
+              Try nearby cantons or return to Switzerland to browse all available options.
+            </p>
+            <div className="mt-4">
+              <Link
+                href="/switzerland"
+                className="inline-flex rounded-xl bg-emerald-700 px-4 py-2.5 text-sm font-semibold text-white no-underline transition hover:bg-emerald-800"
+              >
+                Browse Switzerland
+              </Link>
+            </div>
+          </div>
+        ) : (
+          <div className="grid gap-4">
+            {courses?.map((course) => (
+              <CourseCard key={course.id} {...course} />
+            ))}
           </div>
         )}
       </div>
