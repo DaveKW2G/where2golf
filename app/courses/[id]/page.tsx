@@ -1,5 +1,6 @@
 import { createClient } from "@/lib/supabase/server"
 import BackButton from "@/components/BackButton"
+import CourseCTAButtons from "@/components/CourseCTAButtons"
 
 type CoursePageProps = {
   params: Promise<{
@@ -188,6 +189,8 @@ export default async function CoursePage({
     `${course.course_name}, ${course.town}, ${course.region}`
   )
 
+  const directionsUrl = `https://www.google.com/maps/search/?api=1&query=${directionsQuery}`
+
   const handicapText =
     course.max_handicap != null
       ? `Max Handicap ${course.max_handicap}`
@@ -198,7 +201,6 @@ export default async function CoursePage({
   return (
     <main className="min-h-screen bg-stone-100 px-4 py-4 pb-28">
       <div className="mx-auto max-w-[480px] overflow-hidden rounded-[30px] bg-white shadow-sm">
-
         <div className="relative h-60 w-full overflow-hidden bg-slate-200">
           {course.course_image ? (
             <img
@@ -268,47 +270,13 @@ export default async function CoursePage({
         )}
       </div>
 
-      <div className="fixed bottom-6 left-0 right-0 flex justify-center px-4">
-        <div className="flex w-full max-w-[480px] gap-3">
-
-          {websiteUrl ? (
-            <a
-              href={websiteUrl}
-              target="_blank"
-              rel="noreferrer"
-              className="flex-[1.5] rounded-xl bg-emerald-700 px-4 py-3 text-center text-[14px] font-semibold text-white shadow-lg no-underline"
-            >
-              Website
-            </a>
-          ) : (
-            <div className="flex-[1.5] rounded-xl bg-slate-300 px-4 py-3 text-center text-[14px] text-slate-600">
-              Website
-            </div>
-          )}
-
-          {course.phone_number ? (
-            <a
-              href={`tel:${course.phone_number}`}
-              className="flex-1 rounded-xl bg-slate-800 px-4 py-3 text-center text-[14px] font-semibold text-white shadow-md no-underline"
-            >
-              Call
-            </a>
-          ) : (
-            <div className="flex-1 rounded-xl bg-slate-300 px-4 py-3 text-center text-[14px] text-slate-600">
-              Call
-            </div>
-          )}
-
-          <a
-            href={`https://www.google.com/maps/search/?api=1&query=${directionsQuery}`}
-            target="_blank"
-            rel="noreferrer"
-            className="flex-1 rounded-xl bg-green-700 px-4 py-3 text-center text-[14px] font-semibold text-white shadow-md no-underline"
-          >
-            Directions
-          </a>
-        </div>
-      </div>
+      <CourseCTAButtons
+        websiteUrl={websiteUrl}
+        phoneNumber={course.phone_number}
+        directionsUrl={directionsUrl}
+        courseName={course.course_name}
+        region={course.region}
+      />
     </main>
   )
 }
