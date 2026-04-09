@@ -15,7 +15,27 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: "GuestPlayGolf",
-  description: "Find golf courses you can actually play as an independent guest.",
+  description: "Find where you can play golf as an independent guest.",
+  openGraph: {
+    title: "GuestPlayGolf",
+    description: "Find where you can play golf as an independent guest.",
+    url: "https://guestplaygolf.com",
+    siteName: "GuestPlayGolf",
+    images: [
+      {
+        url: "https://guestplaygolf.com/og-image.jpg",
+        width: 1200,
+        height: 630,
+      },
+    ],
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "GuestPlayGolf",
+    description: "Find where you can play golf as an independent guest.",
+    images: ["https://guestplaygolf.com/og-image.jpg"],
+  },
 };
 
 export default function RootLayout({
