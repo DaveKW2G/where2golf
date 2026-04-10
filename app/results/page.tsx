@@ -101,6 +101,7 @@ export default async function ResultsPage({ searchParams }: ResultsPageProps) {
 
   const userLat = params.lat ? Number(params.lat) : null
   const userLng = params.lng ? Number(params.lng) : null
+  const hasLocation = userLat != null && userLng != null
 
   const backHref = params.source === "home" ? "/" : "/filters"
 
@@ -139,12 +140,18 @@ export default async function ResultsPage({ searchParams }: ResultsPageProps) {
 
   let sortedCourses = courses ? [...courses] : []
 
-  if (userLat != null && userLng != null) {
+  if (!hasLocation) {
+    sortedCourses.sort((a: any, b: any) =>
+      a.course_name.localeCompare(b.course_name)
+    )
+  }
+
+  if (hasLocation) {
     sortedCourses = sortedCourses.map((c: any) => {
       let distance
 
       if (c.latitude && c.longitude) {
-        distance = getDistanceKm(userLat, userLng, c.latitude, c.longitude)
+        distance = getDistanceKm(userLat!, userLng!, c.latitude, c.longitude)
       }
 
       return { ...c, distance }
@@ -196,6 +203,10 @@ export default async function ResultsPage({ searchParams }: ResultsPageProps) {
             <p className="mt-2 text-[14px] text-white/80">
               Courses available for independent guests with clear access rules.
             </p>
+
+            <p className="mt-2 text-[13px] text-white/70">
+              {hasLocation ? "Sorted by distance" : "Sorted A–Z"}
+            </p>
           </div>
         </div>
       </section>
@@ -228,7 +239,7 @@ export default async function ResultsPage({ searchParams }: ResultsPageProps) {
           </p>
         )}
 
-        {userLat != null && userLng != null && (
+        {hasLocation && (
           <div className="mt-3 flex gap-2">
             <Link
               href={buildResultsHref(params, { radius: "25" })}
