@@ -104,6 +104,7 @@ export default async function ResultsPage({ searchParams }: ResultsPageProps) {
   const hasLocation = userLat != null && userLng != null
 
   const backHref = params.source === "home" ? "/" : "/filters"
+  const selectedHandicap = params.handicap ? Number(params.handicap) : null
 
   let query = supabase
     .from("courses")
@@ -128,10 +129,10 @@ export default async function ResultsPage({ searchParams }: ResultsPageProps) {
   if (params.holes) query = query.eq("holes", Number(params.holes))
   if (params.season) query = query.eq("season", params.season)
 
-  if (params.handicap) {
+  if (selectedHandicap != null && !Number.isNaN(selectedHandicap)) {
     query = query
       .not("max_handicap", "is", null)
-      .gte("max_handicap", Number(params.handicap))
+      .gte("max_handicap", selectedHandicap)
   }
 
   if (params.price) query = query.eq("price_range", params.price)
@@ -139,6 +140,19 @@ export default async function ResultsPage({ searchParams }: ResultsPageProps) {
   const { data: courses, error } = await query.limit(200)
 
   let sortedCourses = courses ? [...courses] : []
+
+  // Defensive filter: remove any rows with missing or invalid handicap values
+  // when a handicap filter is selected, even if they slipped through the DB query.
+  if (selectedHandicap != null && !Number.isNaN(selectedHandicap)) {
+    sortedCourses = sortedCourses.filter((course: any) => {
+      const maxHandicap =
+        typeof course.max_handicap === "number"
+          ? course.max_handicap
+          : Number(course.max_handicap)
+
+      return !Number.isNaN(maxHandicap) && maxHandicap >= selectedHandicap
+    })
+  }
 
   if (!hasLocation) {
     sortedCourses.sort((a: any, b: any) =>
