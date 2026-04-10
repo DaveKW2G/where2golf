@@ -47,6 +47,7 @@ export default function FiltersPage() {
   }) {
     return (
       <button
+        type="button"
         onClick={() => onClick(value)}
         className={`rounded-full px-4 py-2.5 text-sm font-medium border transition ${
           selected
@@ -61,11 +62,8 @@ export default function FiltersPage() {
 
   return (
     <main className="min-h-screen bg-stone-100">
-
-      {/* HERO HEADER */}
       <section className="relative overflow-hidden bg-gradient-to-b from-emerald-950 via-emerald-900 to-emerald-800 px-5 pt-5 pb-6 text-white">
         <div className="mx-auto max-w-[480px]">
-
           <div className="flex items-center justify-between">
             <Link href="/" className="text-white no-underline">
               ← Back
@@ -75,7 +73,7 @@ export default function FiltersPage() {
               GuestPlayGolf
             </div>
 
-            <button onClick={handleClear} className="text-sm text-white/80">
+            <button type="button" onClick={handleClear} className="text-sm text-white/80">
               Clear
             </button>
           </div>
@@ -89,14 +87,10 @@ export default function FiltersPage() {
               Refine your search to find where you can play as an independent guest.
             </p>
           </div>
-
         </div>
       </section>
 
-      {/* CONTENT */}
       <div className="mx-auto max-w-[480px] px-5 py-6 space-y-6 pb-24">
-
-        {/* GUEST PLAY */}
         <section className="rounded-2xl bg-white p-5 shadow-sm">
           <h2 className="mb-3 text-sm font-semibold text-slate-700">
             Guest Access
@@ -115,7 +109,6 @@ export default function FiltersPage() {
           </div>
         </section>
 
-        {/* HOLES */}
         <section className="rounded-2xl bg-white p-5 shadow-sm">
           <h2 className="mb-3 text-sm font-semibold text-slate-700">
             Holes
@@ -134,17 +127,20 @@ export default function FiltersPage() {
           </div>
         </section>
 
-        {/* HANDICAP */}
         <section className="rounded-2xl bg-white p-5 shadow-sm">
-          <h2 className="mb-3 text-sm font-semibold text-slate-700">
-            Max Handicap
+          <h2 className="mb-2 text-sm font-semibold text-slate-700">
+            Your Handicap
           </h2>
 
+          <p className="mb-3 text-[13px] leading-5 text-slate-500">
+            Show courses that accept your handicap or higher. Courses with unspecified handicap limits are excluded.
+          </p>
+
           <div className="flex gap-2 flex-wrap">
-            {['36', '45', '54'].map((option) => (
+            {['18', '24', '28', '36', '45', '54'].map((option) => (
               <Chip
                 key={option}
-                label={`Up to ${option}`}
+                label={option}
                 value={option}
                 selected={handicap === option}
                 onClick={(v) => toggle(v, handicap, setHandicap)}
@@ -153,7 +149,6 @@ export default function FiltersPage() {
           </div>
         </section>
 
-        {/* PRICE */}
         <section className="rounded-2xl bg-white p-5 shadow-sm">
           <h2 className="mb-3 text-sm font-semibold text-slate-700">
             Price
@@ -171,13 +166,12 @@ export default function FiltersPage() {
             ))}
           </div>
         </section>
-
       </div>
 
-      {/* APPLY BUTTON */}
       <div className="fixed bottom-6 left-0 right-0 px-5">
         <div className="mx-auto max-w-[480px]">
           <button
+            type="button"
             onClick={handleSearch}
             className="w-full rounded-2xl bg-emerald-700 py-4 font-semibold text-white shadow-lg"
           >
@@ -185,7 +179,6 @@ export default function FiltersPage() {
           </button>
         </div>
       </div>
-
     </main>
   )
 }
