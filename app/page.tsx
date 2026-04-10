@@ -8,6 +8,8 @@ export default function HomePage() {
   const [search, setSearch] = useState('')
   const [isLocatingToday, setIsLocatingToday] = useState(false)
   const [isLocatingNearMe, setIsLocatingNearMe] = useState(false)
+  const [playTodayError, setPlayTodayError] = useState('')
+  const [nearMeError, setNearMeError] = useState('')
   const router = useRouter()
 
   function handleSearch(e: React.KeyboardEvent<HTMLInputElement>) {
@@ -19,22 +21,24 @@ export default function HomePage() {
   function getLocationErrorMessage(error: GeolocationPositionError) {
     switch (error.code) {
       case error.PERMISSION_DENIED:
-        return 'Location access was denied. Please allow location access.'
+        return 'Location access was denied. Please allow location access in your browser settings.'
       case error.POSITION_UNAVAILABLE:
-        return 'Location unavailable. Please try again.'
+        return 'Your location is currently unavailable. Please try again.'
       case error.TIMEOUT:
         return 'Location request timed out. Please try again.'
       default:
-        return 'Unable to access location.'
+        return 'Unable to access your location.'
     }
   }
 
   function handleNearMe() {
     if (isLocatingNearMe) return
+
+    setNearMeError('')
     setIsLocatingNearMe(true)
 
     if (!navigator.geolocation) {
-      alert('Geolocation is not supported.')
+      setNearMeError('Geolocation is not supported on this device.')
       setIsLocatingNearMe(false)
       return
     }
@@ -44,11 +48,11 @@ export default function HomePage() {
         const lat = position.coords.latitude
         const lng = position.coords.longitude
 
-        router.push(`/results?lat=${lat}&lng=${lng}&source=home`)
         setIsLocatingNearMe(false)
+        router.push(`/results?lat=${lat}&lng=${lng}&source=home`)
       },
       (error) => {
-        alert(getLocationErrorMessage(error))
+        setNearMeError(getLocationErrorMessage(error))
         setIsLocatingNearMe(false)
       },
       {
@@ -61,10 +65,12 @@ export default function HomePage() {
 
   function handlePlayToday() {
     if (isLocatingToday) return
+
+    setPlayTodayError('')
     setIsLocatingToday(true)
 
     if (!navigator.geolocation) {
-      alert('Geolocation is not supported.')
+      setPlayTodayError('Geolocation is not supported on this device.')
       setIsLocatingToday(false)
       return
     }
@@ -74,11 +80,11 @@ export default function HomePage() {
         const lat = position.coords.latitude
         const lng = position.coords.longitude
 
-        router.push(`/results?lat=${lat}&lng=${lng}&today=true&radius=50&source=home`)
         setIsLocatingToday(false)
+        router.push(`/results?lat=${lat}&lng=${lng}&today=true&radius=50&source=home`)
       },
       (error) => {
-        alert(getLocationErrorMessage(error))
+        setPlayTodayError(getLocationErrorMessage(error))
         setIsLocatingToday(false)
       },
       {
@@ -91,11 +97,8 @@ export default function HomePage() {
 
   return (
     <main className="min-h-screen bg-stone-100 text-slate-800">
-
-      {/* HERO */}
       <section className="relative overflow-hidden bg-gradient-to-b from-emerald-950 via-emerald-900 to-emerald-800 px-5 pt-8 pb-10 text-white">
         <div className="relative z-10 mx-auto max-w-[480px] text-left">
-
           <div className="mb-8">
             <div className="text-[15px] font-semibold uppercase tracking-[0.28em] text-white/85">
               GuestPlayGolf
@@ -118,7 +121,6 @@ export default function HomePage() {
             </p>
           </div>
 
-          {/* SEARCH */}
           <div className="rounded-[28px] bg-white p-4 shadow-lg">
             <input
               type="text"
@@ -132,11 +134,8 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* ACTIONS */}
       <section className="mx-auto max-w-[480px] px-5 py-6 text-left">
-
         <div className="grid gap-3">
-
           <Link
             href="/filters"
             className="block rounded-2xl border border-slate-200 bg-white px-5 py-5 shadow-sm"
@@ -144,36 +143,52 @@ export default function HomePage() {
             <div className="text-[17px] font-semibold text-slate-900">
               Advanced Filters
             </div>
-            <p className="text-sm text-slate-600 mt-1">
+            <p className="mt-1 text-sm text-slate-600">
               Filter by handicap, price, holes and guest access
             </p>
           </Link>
 
-          <button
-            onClick={handlePlayToday}
-            disabled={isLocatingToday}
-            className="rounded-2xl bg-emerald-800 px-5 py-5 text-left text-white shadow-sm"
-          >
-            <div className="text-[17px] font-semibold">
-              {isLocatingToday ? 'Getting your location...' : 'Play Golf Today'}
-            </div>
-            <p className="text-sm text-white/80 mt-1">
-              Find courses near you that may be playable today
-            </p>
-          </button>
+          <div>
+            <button
+              onClick={handlePlayToday}
+              disabled={isLocatingToday}
+              className="w-full rounded-2xl bg-emerald-800 px-5 py-5 text-left text-white shadow-sm disabled:opacity-90"
+            >
+              <div className="text-[17px] font-semibold">
+                {isLocatingToday ? 'Getting your location...' : 'Play Golf Today'}
+              </div>
+              <p className="mt-1 text-sm text-white/80">
+                Find courses near you that may be playable today
+              </p>
+            </button>
 
-          <button
-            onClick={handleNearMe}
-            disabled={isLocatingNearMe}
-            className="rounded-2xl border border-slate-200 bg-white px-5 py-5 text-left shadow-sm"
-          >
-            <div className="text-[17px] font-semibold text-slate-900">
-              {isLocatingNearMe ? 'Getting your location...' : 'Near Me'}
-            </div>
-            <p className="text-sm text-slate-600 mt-1">
-              Explore golf courses closest to your location
-            </p>
-          </button>
+            {playTodayError && (
+              <p className="mt-2 text-sm text-red-600">
+                {playTodayError}
+              </p>
+            )}
+          </div>
+
+          <div>
+            <button
+              onClick={handleNearMe}
+              disabled={isLocatingNearMe}
+              className="w-full rounded-2xl border border-slate-200 bg-white px-5 py-5 text-left shadow-sm disabled:opacity-90"
+            >
+              <div className="text-[17px] font-semibold text-slate-900">
+                {isLocatingNearMe ? 'Getting your location...' : 'Near Me'}
+              </div>
+              <p className="mt-1 text-sm text-slate-600">
+                Explore golf courses closest to your location
+              </p>
+            </button>
+
+            {nearMeError && (
+              <p className="mt-2 text-sm text-red-600">
+                {nearMeError}
+              </p>
+            )}
+          </div>
 
           <Link
             href="/switzerland"
@@ -182,7 +197,7 @@ export default function HomePage() {
             <div className="text-[17px] font-semibold text-slate-900">
               Browse by Location
             </div>
-            <p className="text-sm text-slate-600 mt-1">
+            <p className="mt-1 text-sm text-slate-600">
               Explore by region and destination
             </p>
           </Link>
@@ -191,7 +206,6 @@ export default function HomePage() {
         <div className="mt-6 text-center text-sm text-slate-500">
           Location not working? Use Advanced Filters instead.
         </div>
-
       </section>
     </main>
   )
