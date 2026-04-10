@@ -127,8 +127,11 @@ export default async function ResultsPage({ searchParams }: ResultsPageProps) {
   if (params.holes) query = query.eq("holes", Number(params.holes))
   if (params.season) query = query.eq("season", params.season)
 
-  // FIXED: if user selects handicap 36, show courses that allow 36 or higher
-  if (params.handicap) query = query.gte("max_handicap", Number(params.handicap))
+  if (params.handicap) {
+    query = query
+      .not("max_handicap", "is", null)
+      .gte("max_handicap", Number(params.handicap))
+  }
 
   if (params.price) query = query.eq("price_range", params.price)
 
@@ -214,13 +217,19 @@ export default async function ResultsPage({ searchParams }: ResultsPageProps) {
           {params.guestPlay && <FilterChip label={params.guestPlay} />}
           {params.holes && <FilterChip label={`${params.holes} Holes`} />}
           {params.handicap && (
-            <FilterChip label={`Allows HCP ${params.handicap}+`} />
+            <FilterChip label={`Your handicap: ${params.handicap}`} />
           )}
           {params.radius && <FilterChip label={`Within ${params.radius}km`} />}
         </div>
 
+        {params.handicap && (
+          <p className="mt-2 text-[13px] text-slate-500">
+            Courses with unspecified handicap requirements are excluded from handicap-filtered results.
+          </p>
+        )}
+
         {userLat != null && userLng != null && (
-          <div className="flex gap-2">
+          <div className="mt-3 flex gap-2">
             <Link
               href={buildResultsHref(params, { radius: "25" })}
               className={`rounded-xl border px-3 py-1 text-sm ${
