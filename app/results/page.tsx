@@ -75,7 +75,6 @@ function getDistanceKm(lat1: number, lng1: number, lat2: number, lng2: number) {
   return R * c
 }
 
-/* ✅ FIXED: preserves lat/lng + all params */
 function buildResultsHref(
   params: ResultsSearchParams,
   updates: Partial<Record<keyof ResultsSearchParams, string>>
@@ -127,7 +126,10 @@ export default async function ResultsPage({ searchParams }: ResultsPageProps) {
   if (params.guestPlay) query = query.eq("independent_guest_days", params.guestPlay)
   if (params.holes) query = query.eq("holes", Number(params.holes))
   if (params.season) query = query.eq("season", params.season)
-  if (params.handicap) query = query.lte("max_handicap", Number(params.handicap))
+
+  // FIXED: if user selects handicap 36, show courses that allow 36 or higher
+  if (params.handicap) query = query.gte("max_handicap", Number(params.handicap))
+
   if (params.price) query = query.eq("price_range", params.price)
 
   const { data: courses, error } = await query.limit(200)
@@ -167,11 +169,8 @@ export default async function ResultsPage({ searchParams }: ResultsPageProps) {
 
   return (
     <main className="min-h-screen bg-stone-100">
-
-      {/* HERO */}
       <section className="relative overflow-hidden bg-gradient-to-b from-emerald-950 via-emerald-900 to-emerald-800 px-5 pt-5 pb-6 text-white">
         <div className="relative z-10 mx-auto max-w-[480px]">
-          
           <div className="flex items-center justify-between">
             <Link href={backHref} className="text-white no-underline">
               ← Back
@@ -198,38 +197,36 @@ export default async function ResultsPage({ searchParams }: ResultsPageProps) {
         </div>
       </section>
 
-      {/* SUBTLE DISCLAIMER */}
       {params.today === "true" && (
-        <div className="mx-auto max-w-[480px] px-5 mt-3">
+        <div className="mx-auto mt-3 max-w-[480px] px-5">
           <p className="text-[13px] text-slate-500">
             Availability is based on typical season and access rules. Always confirm with the club.
           </p>
         </div>
       )}
 
-      {/* FILTER CHIPS + RADIUS */}
       <div className="mx-auto max-w-[480px] px-5 py-3">
-
-        <div className="flex flex-wrap gap-2 mb-3">
+        <div className="mb-3 flex flex-wrap gap-2">
           {params.price && <FilterChip label={`Price: ${params.price}`} />}
           {params.region && (
             <FilterChip label={regionNames[params.region] || params.region} />
           )}
           {params.guestPlay && <FilterChip label={params.guestPlay} />}
           {params.holes && <FilterChip label={`${params.holes} Holes`} />}
-          {params.handicap && <FilterChip label={`HCP ≤ ${params.handicap}`} />}
+          {params.handicap && (
+            <FilterChip label={`Allows HCP ${params.handicap}+`} />
+          )}
           {params.radius && <FilterChip label={`Within ${params.radius}km`} />}
         </div>
 
-        {/* ✅ RADIUS BUTTONS */}
         {userLat != null && userLng != null && (
           <div className="flex gap-2">
             <Link
               href={buildResultsHref(params, { radius: "25" })}
               className={`rounded-xl border px-3 py-1 text-sm ${
                 params.radius === "25"
-                  ? "bg-emerald-700 text-white border-emerald-700"
-                  : "bg-white border-slate-300 text-slate-700"
+                  ? "border-emerald-700 bg-emerald-700 text-white"
+                  : "border-slate-300 bg-white text-slate-700"
               }`}
             >
               25km
@@ -239,8 +236,8 @@ export default async function ResultsPage({ searchParams }: ResultsPageProps) {
               href={buildResultsHref(params, { radius: "50" })}
               className={`rounded-xl border px-3 py-1 text-sm ${
                 params.radius === "50"
-                  ? "bg-emerald-700 text-white border-emerald-700"
-                  : "bg-white border-slate-300 text-slate-700"
+                  ? "border-emerald-700 bg-emerald-700 text-white"
+                  : "border-slate-300 bg-white text-slate-700"
               }`}
             >
               50km
@@ -250,18 +247,16 @@ export default async function ResultsPage({ searchParams }: ResultsPageProps) {
               href={buildResultsHref(params, { radius: "100" })}
               className={`rounded-xl border px-3 py-1 text-sm ${
                 params.radius === "100"
-                  ? "bg-emerald-700 text-white border-emerald-700"
-                  : "bg-white border-slate-300 text-slate-700"
+                  ? "border-emerald-700 bg-emerald-700 text-white"
+                  : "border-slate-300 bg-white text-slate-700"
               }`}
             >
               100km
             </Link>
           </div>
         )}
-
       </div>
 
-      {/* RESULTS */}
       <div className="mx-auto max-w-[480px] px-5 pb-24">
         {error && <p className="text-red-600">Error loading courses</p>}
 
@@ -289,7 +284,6 @@ export default async function ResultsPage({ searchParams }: ResultsPageProps) {
         )}
       </div>
 
-      {/* MAP BUTTON */}
       <div className="fixed bottom-6 left-0 right-0 flex justify-center">
         <Link
           href={mapHref}
