@@ -1,3 +1,4 @@
+import Script from "next/script"
 import { createClient } from "@/lib/supabase/server"
 import BackButton from "@/components/BackButton"
 import CourseCTAButtons from "@/components/CourseCTAButtons"
@@ -200,6 +201,16 @@ export default async function CoursePage({
 
   return (
     <main className="min-h-screen bg-stone-100 px-4 py-4 pb-28">
+      <Script id="view-course-detail-event" strategy="afterInteractive">
+        {`
+          window.gtag && window.gtag('event', 'view_course_detail', {
+            course_name: ${JSON.stringify(course.course_name)},
+            course_id: ${JSON.stringify(String(course.id))},
+            region: ${JSON.stringify(course.region)}
+          });
+        `}
+      </Script>
+
       <div className="mx-auto max-w-[480px] overflow-hidden rounded-[30px] bg-white shadow-sm">
         <div className="relative h-60 w-full overflow-hidden bg-slate-200">
           {course.course_image ? (
