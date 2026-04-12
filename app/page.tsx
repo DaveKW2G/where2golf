@@ -123,10 +123,11 @@ export default function HomePage() {
             <p className="mt-4 text-[15px] text-white/85">
               Discover clear information on guest access, handicap requirements, pricing, and when you can play — all in one place.
             </p>
+          </div>
 
-            <p className="mt-4 text-[16px] font-semibold text-white">
-              Where are you playing next?
-            </p>
+          {/* CTA now directly above search */}
+          <div className="mb-3 text-[18px] font-semibold text-white">
+            Where are you playing next?
           </div>
 
           <div className="rounded-[28px] bg-white p-4 shadow-lg">
