@@ -125,7 +125,15 @@ export default async function ResultsPage({ searchParams }: ResultsPageProps) {
   }
 
   if (params.region) query = query.eq("region", params.region)
-  if (params.guestPlay) query = query.eq("independent_guest_days", params.guestPlay)
+
+  if (params.guestPlay === "Weekend") {
+    query = query.in("independent_guest_days", ["Weekend", "Everyday"])
+  } else if (params.guestPlay === "Weekdays") {
+    query = query.in("independent_guest_days", ["Weekdays", "Everyday"])
+  } else if (params.guestPlay === "Everyday") {
+    query = query.eq("independent_guest_days", "Everyday")
+  }
+
   if (params.holes) query = query.eq("holes", Number(params.holes))
   if (params.season) query = query.eq("season", params.season)
 

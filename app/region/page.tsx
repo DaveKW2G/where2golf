@@ -10,20 +10,17 @@ type RegionPageProps = {
 
 export default async function RegionPage({ searchParams }: RegionPageProps) {
   const params = await searchParams
-
   const region = params.region?.toLowerCase()
 
-  // Preserve location params if they exist
   if (region) {
-    if (params.lat && params.lng) {
-      return redirect(
-        `/switzerland/${region}?lat=${params.lat}&lng=${params.lng}`
-      )
-    }
+    const query = new URLSearchParams()
 
-    return redirect(`/switzerland/${region}`)
+    if (params.lat) query.set("lat", params.lat)
+    if (params.lng) query.set("lng", params.lng)
+
+    const qs = query.toString()
+    return redirect(`/switzerland/${region}${qs ? `?${qs}` : ""}`)
   }
 
-  // fallback
   return redirect("/switzerland")
 }
