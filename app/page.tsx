@@ -109,8 +109,16 @@ export default function HomePage() {
             </p>
 
             <h1 className="mt-4 text-[32px] font-bold leading-[1.08] text-white">
-              Find golf courses you can actually play
+              Find golf courses you can play
             </h1>
+
+            <p className="mt-2 text-[18px] font-semibold text-emerald-50">
+              Without being a member
+            </p>
+
+            <p className="mt-4 text-[15px] italic text-white/85">
+              Golf isn&apos;t easy. Finding where you can play should be.
+            </p>
 
             <p className="mt-4 text-[15px] text-white/85">
               GuestPlayGolf helps you find golf courses where you can actually play as an independent guest — without needing a membership or host.
@@ -207,7 +215,7 @@ export default function HomePage() {
           Location not working? Use Advanced Filters instead.
         </div>
 
-        <div className="mt-6 text-center text-sm text-slate-500 space-y-1">
+        <div className="mt-6 space-y-1 text-center text-sm text-slate-500">
           <div>
             Contact: guestplaygolf@gmail.com
           </div>
