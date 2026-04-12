@@ -106,6 +106,13 @@ export default async function ResultsPage({ searchParams }: ResultsPageProps) {
   const backHref = params.source === "home" ? "/" : "/filters"
   const selectedHandicap = params.handicap ? Number(params.handicap) : null
 
+  const zurichWeekday = new Intl.DateTimeFormat("en-US", {
+    weekday: "short",
+    timeZone: "Europe/Zurich",
+  }).format(new Date())
+
+  const isWeekendToday = zurichWeekday === "Sat" || zurichWeekday === "Sun"
+
   let query = supabase
     .from("courses")
     .select(
@@ -117,11 +124,10 @@ export default async function ResultsPage({ searchParams }: ResultsPageProps) {
   }
 
   if (params.today === "true") {
-    query = query.in("independent_guest_days", [
-      "Everyday",
-      "Weekdays",
-      "Weekend",
-    ])
+    query = query.in(
+      "independent_guest_days",
+      isWeekendToday ? ["Weekend", "Everyday"] : ["Weekdays", "Everyday"]
+    )
   }
 
   if (params.region) query = query.eq("region", params.region)
