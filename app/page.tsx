@@ -121,11 +121,11 @@ export default function HomePage() {
             </p>
 
             <p className="mt-4 text-[15px] text-white/85">
-              GuestPlayGolf helps you find golf courses where you can actually play as an independent guest — without needing a membership or host.
+              Discover clear information on guest access, handicap requirements, pricing, and when you can play — all in one place.
             </p>
 
-            <p className="mt-3 text-[15px] text-white/85">
-              Discover clear information on guest access, handicap requirements, pricing, and when you can play — all in one place.
+            <p className="mt-4 text-[16px] font-semibold text-white">
+              Where are you playing next?
             </p>
           </div>
 
