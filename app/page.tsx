@@ -206,6 +206,22 @@ export default function HomePage() {
         <div className="mt-6 text-center text-sm text-slate-500">
           Location not working? Use Advanced Filters instead.
         </div>
+
+        <div className="mt-6 text-center text-sm text-slate-500 space-y-1">
+          <div>
+            Contact: guestplaygolf@gmail.com
+          </div>
+          <div>
+            <a
+              href="https://www.instagram.com/guestplaygolf"
+              target="_blank"
+              rel="noreferrer"
+              className="font-medium text-emerald-700 no-underline"
+            >
+              Instagram: @guestplaygolf
+            </a>
+          </div>
+        </div>
       </section>
     </main>
   )
