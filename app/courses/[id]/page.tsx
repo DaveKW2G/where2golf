@@ -201,13 +201,21 @@ export default async function CoursePage({
 
   return (
     <main className="min-h-screen bg-stone-100 px-4 py-4 pb-28">
-      <Script id="view-course-detail-event" strategy="afterInteractive">
+      <Script id="course-view-events" strategy="afterInteractive">
         {`
-          window.gtag && window.gtag('event', 'view_course_detail', {
-            course_name: ${JSON.stringify(course.course_name)},
-            course_id: ${JSON.stringify(String(course.id))},
-            region: ${JSON.stringify(course.region)}
-          });
+          if (window.gtag) {
+            window.gtag('event', 'view_course_detail', {
+              course_name: ${JSON.stringify(course.course_name)},
+              course_id: ${JSON.stringify(String(course.id))},
+              region: ${JSON.stringify(course.region)}
+            });
+
+            window.gtag('event', 'course_view', {
+              course_name: ${JSON.stringify(course.course_name)},
+              course_id: ${JSON.stringify(String(course.id))},
+              region: ${JSON.stringify(course.region)}
+            });
+          }
         `}
       </Script>
 
