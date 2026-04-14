@@ -11,6 +11,7 @@ type ResultsPageProps = {
     handicap?: string
     lat?: string
     lng?: string
+    where?: string
     search?: string
     today?: string
     radius?: string
@@ -27,6 +28,7 @@ type ResultsSearchParams = {
   handicap?: string
   lat?: string
   lng?: string
+  where?: string
   search?: string
   today?: string
   radius?: string
@@ -75,6 +77,35 @@ function getDistanceKm(lat1: number, lng1: number, lat2: number, lng2: number) {
   return R * c
 }
 
+async function geocodePlace(place: string) {
+  try {
+    const response = await fetch(
+      `https://nominatim.openstreetmap.org/search?format=json&limit=1&q=${encodeURIComponent(
+        `${place}, Switzerland`
+      )}`,
+      {
+        headers: {
+          "User-Agent": "GuestPlayGolf/1.0",
+        },
+        cache: "no-store",
+      }
+    )
+
+    if (!response.ok) return null
+
+    const data = await response.json()
+
+    if (!data || data.length === 0) return null
+
+    return {
+      lat: Number(data[0].lat),
+      lng: Number(data[0].lon),
+    }
+  } catch {
+    return null
+  }
+}
+
 function buildResultsHref(
   params: ResultsSearchParams,
   updates: Partial<Record<keyof ResultsSearchParams, string>>
@@ -99,12 +130,24 @@ export default async function ResultsPage({ searchParams }: ResultsPageProps) {
   const params = await searchParams
   const supabase = await createClient()
 
-  const userLat = params.lat ? Number(params.lat) : null
-  const userLng = params.lng ? Number(params.lng) : null
+  let userLat = params.lat ? Number(params.lat) : null
+  let userLng = params.lng ? Number(params.lng) : null
+
+  if ((userLat == null || userLng == null) && params.where) {
+    const geocoded = await geocodePlace(params.where)
+    if (geocoded) {
+      userLat = geocoded.lat
+      userLng = geocoded.lng
+    }
+  }
+
   const hasLocation = userLat != null && userLng != null
 
   const backHref = params.source === "home" ? "/" : "/filters"
-  const selectedHandicap = params.handicap ? Number(params.handicap) : null
+  const selectedHandicap =
+    params.handicap && params.handicap !== "N/A"
+      ? Number(params.handicap)
+      : null
 
   const zurichWeekday = new Intl.DateTimeFormat("en-US", {
     weekday: "short",
@@ -143,7 +186,9 @@ export default async function ResultsPage({ searchParams }: ResultsPageProps) {
   if (params.holes) query = query.eq("holes", Number(params.holes))
   if (params.season) query = query.eq("season", params.season)
 
-  if (selectedHandicap != null && !Number.isNaN(selectedHandicap)) {
+  if (params.handicap === "N/A") {
+    query = query.is("max_handicap", null)
+  } else if (selectedHandicap != null && !Number.isNaN(selectedHandicap)) {
     query = query
       .not("max_handicap", "is", null)
       .gte("max_handicap", selectedHandicap)
@@ -155,8 +200,12 @@ export default async function ResultsPage({ searchParams }: ResultsPageProps) {
 
   let sortedCourses = courses ? [...courses] : []
 
+  if (params.handicap === "N/A") {
+    sortedCourses = sortedCourses.filter((course: any) => course.max_handicap == null)
+  }
+
   // Defensive filter: remove any rows with missing or invalid handicap values
-  // when a handicap filter is selected, even if they slipped through the DB query.
+  // when a numeric handicap filter is selected, even if they slipped through the DB query.
   if (selectedHandicap != null && !Number.isNaN(selectedHandicap)) {
     sortedCourses = sortedCourses.filter((course: any) => {
       const maxHandicap =
@@ -253,6 +302,7 @@ export default async function ResultsPage({ searchParams }: ResultsPageProps) {
           {params.region && (
             <FilterChip label={regionNames[params.region] || params.region} />
           )}
+          {params.where && <FilterChip label={`Near ${params.where}`} />}
           {params.guestPlay && <FilterChip label={params.guestPlay} />}
           {params.holes && <FilterChip label={`${params.holes} Holes`} />}
           {params.handicap && (
@@ -261,7 +311,7 @@ export default async function ResultsPage({ searchParams }: ResultsPageProps) {
           {params.radius && <FilterChip label={`Within ${params.radius}km`} />}
         </div>
 
-        {params.handicap && (
+        {params.handicap && params.handicap !== "N/A" && (
           <p className="mt-2 text-[13px] text-slate-500">
             Courses with unspecified handicap requirements are excluded from handicap-filtered results.
           </p>
