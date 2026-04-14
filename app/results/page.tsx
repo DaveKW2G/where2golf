@@ -159,7 +159,7 @@ export default async function ResultsPage({ searchParams }: ResultsPageProps) {
   let query = supabase
     .from("courses")
     .select(
-      "id, course_name, town, region, holes, independent_guest_days, season, price_range, course_image, latitude, longitude, max_handicap, search_text"
+      "id, course_name, town, region, holes, independent_guest_days, season, price_range, course_image, latitude, longitude, handicap_required, max_handicap, search_text"
     )
 
   if (params.search) {
@@ -187,7 +187,7 @@ export default async function ResultsPage({ searchParams }: ResultsPageProps) {
   if (params.season) query = query.eq("season", params.season)
 
   if (params.handicap === "N/A") {
-    query = query.is("max_handicap", null)
+    query = query.eq("handicap_required", false)
   } else if (selectedHandicap != null && !Number.isNaN(selectedHandicap)) {
     query = query
       .not("max_handicap", "is", null)
@@ -201,7 +201,9 @@ export default async function ResultsPage({ searchParams }: ResultsPageProps) {
   let sortedCourses = courses ? [...courses] : []
 
   if (params.handicap === "N/A") {
-    sortedCourses = sortedCourses.filter((course: any) => course.max_handicap == null)
+    sortedCourses = sortedCourses.filter(
+      (course: any) => course.handicap_required === false
+    )
   }
 
   // Defensive filter: remove any rows with missing or invalid handicap values
