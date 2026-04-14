@@ -7,6 +7,8 @@ import { useRouter } from 'next/navigation'
 export default function FiltersPage() {
   const router = useRouter()
 
+  const [where, setWhere] = useState('')
+  const [radius, setRadius] = useState('50')
   const [guestPlay, setGuestPlay] = useState('')
   const [holes, setHoles] = useState('')
   const [handicap, setHandicap] = useState('')
@@ -19,6 +21,8 @@ export default function FiltersPage() {
   function handleSearch() {
     const params = new URLSearchParams()
 
+    if (where) params.set('where', where)
+    if (radius) params.set('radius', radius)
     if (guestPlay) params.set('guestPlay', guestPlay)
     if (holes) params.set('holes', holes)
     if (handicap) params.set('handicap', handicap)
@@ -28,6 +32,8 @@ export default function FiltersPage() {
   }
 
   function handleClear() {
+    setWhere('')
+    setRadius('50')
     setGuestPlay('')
     setHoles('')
     setHandicap('')
@@ -93,6 +99,38 @@ export default function FiltersPage() {
       <div className="mx-auto max-w-[480px] px-5 py-6 space-y-6 pb-24">
         <section className="rounded-2xl bg-white p-5 shadow-sm">
           <h2 className="mb-3 text-sm font-semibold text-slate-700">
+            Play Near
+          </h2>
+
+          <input
+            type="text"
+            value={where}
+            onChange={(e) => setWhere(e.target.value)}
+            placeholder="Zurich, Geneva, Zug..."
+            className="w-full rounded-xl border border-slate-300 px-4 py-3 text-sm text-slate-700 placeholder:text-slate-400 focus:border-emerald-700 focus:outline-none"
+          />
+
+          <div className="mt-4">
+            <h3 className="mb-3 text-sm font-semibold text-slate-700">
+              Radius
+            </h3>
+
+            <div className="flex gap-2 flex-wrap">
+              {['25', '50', '100'].map((option) => (
+                <Chip
+                  key={option}
+                  label={`${option} km`}
+                  value={option}
+                  selected={radius === option}
+                  onClick={(v) => setRadius(v)}
+                />
+              ))}
+            </div>
+          </div>
+        </section>
+
+        <section className="rounded-2xl bg-white p-5 shadow-sm">
+          <h2 className="mb-3 text-sm font-semibold text-slate-700">
             Guest Access
           </h2>
 
@@ -133,16 +171,16 @@ export default function FiltersPage() {
           </h2>
 
           <p className="mb-3 text-[13px] leading-5 text-slate-500">
-            Show courses that accept your handicap or higher. Courses with unspecified handicap limits are excluded.
+            Show courses that accept your handicap or higher. Enter N/A for courses that do not require a handicap.
           </p>
 
           <div className="flex gap-2 flex-wrap">
-            {['18', '24', '28', '36', '45', '54'].map((option) => (
+            {['N/A', '18', '24', '28', '36', '45', '54'].map((option) => (
               <Chip
                 key={option}
                 label={option}
-                value={option}
-                selected={handicap === option}
+                value={option === 'N/A' ? 'N/A' : option}
+                selected={handicap === (option === 'N/A' ? 'N/A' : option)}
                 onClick={(v) => toggle(v, handicap, setHandicap)}
               />
             ))}
