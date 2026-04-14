@@ -276,7 +276,7 @@ export default async function ResultsPage({ searchParams }: ResultsPageProps) {
 
           <div className="mt-5">
             <h1 className="text-[24px] font-bold text-white">
-              Golf Courses
+              {params.where ? `Golf near ${params.where}` : "Golf Courses"}
             </h1>
 
             <p className="mt-2 text-[14px] text-white/80">
@@ -284,7 +284,11 @@ export default async function ResultsPage({ searchParams }: ResultsPageProps) {
             </p>
 
             <p className="mt-2 text-[13px] text-white/70">
-              {hasLocation ? "Sorted by distance" : "Sorted A–Z"}
+              {hasLocation
+                ? params.radius
+                  ? `Within ${params.radius} km • Sorted by distance`
+                  : "Sorted by distance"
+                : "Sorted A–Z"}
             </p>
           </div>
         </div>
@@ -366,7 +370,7 @@ export default async function ResultsPage({ searchParams }: ResultsPageProps) {
               No courses match your filters
             </div>
             <p className="mt-2 text-sm text-slate-600">
-              Try adjusting your filters or expanding your search.
+              Try increasing your radius or adjusting your filters.
             </p>
           </div>
         ) : (
