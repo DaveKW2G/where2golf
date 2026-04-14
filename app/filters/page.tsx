@@ -8,7 +8,7 @@ export default function FiltersPage() {
   const router = useRouter()
 
   const [where, setWhere] = useState('')
-  const [radius, setRadius] = useState('50')
+  const [radius, setRadius] = useState('')
   const [guestPlay, setGuestPlay] = useState('')
   const [holes, setHoles] = useState('')
   const [handicap, setHandicap] = useState('')
@@ -33,7 +33,7 @@ export default function FiltersPage() {
 
   function handleClear() {
     setWhere('')
-    setRadius('50')
+    setRadius('')
     setGuestPlay('')
     setHoles('')
     setHandicap('')
@@ -122,7 +122,7 @@ export default function FiltersPage() {
                   label={`${option} km`}
                   value={option}
                   selected={radius === option}
-                  onClick={(v) => setRadius(v)}
+                  onClick={(v) => toggle(v, radius, setRadius)}
                 />
               ))}
             </div>
