@@ -75,7 +75,7 @@ export default function FiltersPage() {
               ← Back
             </Link>
 
-            <div className="text-[13px] uppercase tracking-wide text-white/80">
+            <div className="text-[13px] font-semibold uppercase tracking-wide text-white/90">
               GuestPlayGolf
             </div>
 
