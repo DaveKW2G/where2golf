@@ -188,10 +188,6 @@ export default async function ResultsPage({ searchParams }: ResultsPageProps) {
 
   if (params.handicap === "N/A") {
     query = query.eq("handicap_required", false)
-  } else if (selectedHandicap != null && !Number.isNaN(selectedHandicap)) {
-    query = query
-      .not("max_handicap", "is", null)
-      .gte("max_handicap", selectedHandicap)
   }
 
   if (params.price) query = query.eq("price_range", params.price)
@@ -206,10 +202,15 @@ export default async function ResultsPage({ searchParams }: ResultsPageProps) {
     )
   }
 
-  // Defensive filter: remove any rows with missing or invalid handicap values
-  // when a numeric handicap filter is selected, even if they slipped through the DB query.
+  // Numeric handicap logic:
+  // include courses that accept the selected handicap OR do not require a handicap.
+  // exclude courses where handicap rules are unspecified.
   if (selectedHandicap != null && !Number.isNaN(selectedHandicap)) {
     sortedCourses = sortedCourses.filter((course: any) => {
+      if (course.handicap_required === false) {
+        return true
+      }
+
       const maxHandicap =
         typeof course.max_handicap === "number"
           ? course.max_handicap
