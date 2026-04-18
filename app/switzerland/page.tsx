@@ -74,19 +74,13 @@ export default function SwitzerlandPage() {
 
             <p className="mt-4 text-[15px] leading-6 text-white/85">
               Find golf courses in Switzerland where independent guests can play.
-              Browse by region, check guest access rules, and see handicap
-              requirements before you book.
-            </p>
-
-            <p className="mt-4 text-[15px] leading-6 text-white/85">
-              Golf in Switzerland is scenic and high quality, but guest access is
-              often structured. Many clubs require a recognised handicap and valid
-              golf membership, and weekend access can be more limited than weekdays.
+              Browse by region, understand access rules, and see where you can play
+              before contacting the club.
             </p>
 
             <p className="mt-4 text-[15px] font-medium text-white">
-              GuestPlayGolf helps you quickly see where you can play, when you can
-              play, and what each club requires.
+              GuestPlayGolf makes it easy to see where you can play, when you can
+              play, and what each course requires.
             </p>
           </div>
         </div>
@@ -134,35 +128,30 @@ export default function SwitzerlandPage() {
           </h2>
 
           <p className="mt-3 text-sm leading-6 text-slate-700">
-            Finding golf in Switzerland as an independent guest can be slower than it should be.
-            Many clubs have different rules on guest access, handicap requirements and when
-            visitors are allowed to play.
+            Most golf directories in Switzerland do not clearly show whether independent
+            guests can play. You often need to visit multiple club websites or contact
+            clubs directly just to understand access rules.
           </p>
 
           <p className="mt-3 text-sm leading-6 text-slate-700">
-            GuestPlayGolf helps you compare golf courses in Switzerland quickly, with clear
-            information on independent guest access, weekday or weekend availability, and key
-            playing requirements before you contact the club.
+            GuestPlayGolf brings this together in one place — showing which courses allow
+            independent guest play, when access is available, and what requirements apply.
           </p>
         </div>
 
         {/* RULES SECTION */}
         <div className="mt-6 rounded-2xl bg-white p-5 shadow-sm">
           <h2 className="text-[18px] font-semibold text-slate-900">
-            What to know before playing golf in Switzerland
+            Golf in Switzerland — key things to know
           </h2>
 
-          <p className="mt-3 text-sm leading-6 text-slate-700">
-            Many golf courses in Switzerland allow independent guest play, but access is often
-            structured. A recognised handicap is commonly required, and some clubs also expect
-            players to hold a valid golf membership card.
-          </p>
-
-          <p className="mt-3 text-sm leading-6 text-slate-700">
-            Weekend access can be more restricted than weekdays, and mountain or higher-altitude
-            courses may have shorter playing seasons. Checking access rules before booking is one
-            of the easiest ways to avoid wasted calls and unnecessary planning.
-          </p>
+          <ul className="mt-3 space-y-2 text-sm leading-6 text-slate-700">
+            <li>• Most courses require a recognised handicap</li>
+            <li>• A valid golf membership or Swiss Golf Card is often expected</li>
+            <li>• Weekend guest access can be more limited than weekdays</li>
+            <li>• Booking in advance is usually required</li>
+            <li>• Playing seasons vary, especially for higher-altitude courses</li>
+          </ul>
         </div>
 
       </section>
