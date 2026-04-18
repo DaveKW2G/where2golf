@@ -1,3 +1,4 @@
+import type { Metadata } from "next"
 import Link from "next/link"
 import { createClient } from "../../../lib/supabase/server"
 import CourseCard from "../../../components/CourseCard"
@@ -107,6 +108,49 @@ function getInsightText(
   return `${baseInsight} With ${courseCount} listed courses, this region offers a useful range of options for comparing access, location and playing style.`
 }
 
+function getRegionIntro(regionCode: string, regionName: string) {
+  if (regionCode === "ZH") {
+    return "Looking for golf near Zurich? This page helps you find golf courses in Zurich that welcome independent guests, with clear visibility on access rules and key playing requirements."
+  }
+
+  if (regionCode === "GE") {
+    return "Explore golf in Geneva for independent guests and compare the limited but relevant options available in and around the canton."
+  }
+
+  if (regionCode === "VD") {
+    return "Explore golf in Vaud for independent guests, with a strong mix of lakeside and inland golf courses across one of Switzerland’s most attractive playing regions."
+  }
+
+  if (regionCode === "TI") {
+    return "Explore golf in Ticino for independent guests and discover courses in one of Switzerland’s mildest and longest-playing golf regions."
+  }
+
+  return `Explore golf in ${regionName} for independent guests and compare courses by location, access and playing requirements.`
+}
+
+export async function generateMetadata({
+  params,
+}: RegionPageProps): Promise<Metadata> {
+  const resolvedParams = await params
+  const regionCode = resolvedParams.region.toUpperCase()
+  const regionName = regionNames[regionCode] || regionCode
+
+  const title =
+    regionCode === "ZH"
+      ? "Golf near Zurich | Play as an independent guest"
+      : `Golf in ${regionName} | Play as an independent guest`
+
+  const description =
+    regionCode === "ZH"
+      ? "Find golf near Zurich for independent guests. Compare golf courses in Zurich by guest access, handicap requirements and playing availability."
+      : `Find golf in ${regionName} for independent guests. Compare courses by guest access, handicap requirements and playing availability.`
+
+  return {
+    title,
+    description,
+  }
+}
+
 export default async function RegionPage({ params }: RegionPageProps) {
   const supabase = await createClient()
 
@@ -123,6 +167,7 @@ export default async function RegionPage({ params }: RegionPageProps) {
   const regionName = regionNames[regionCode] || regionCode
   const courseCount = courses?.length || 0
   const insightText = getInsightText(regionCode, regionName, courseCount)
+  const introText = getRegionIntro(regionCode, regionName)
 
   return (
     <main className="min-h-screen bg-stone-100">
@@ -147,7 +192,9 @@ export default async function RegionPage({ params }: RegionPageProps) {
                 </p>
 
                 <h1 className="mt-2 text-[24px] font-semibold leading-snug tracking-tight text-white">
-                  Golf in {regionName} for independent guests
+                  {regionCode === "ZH"
+                    ? "Golf near Zurich for independent guests"
+                    : `Golf in ${regionName} for independent guests`}
                 </h1>
 
                 <p className="mt-3 max-w-[38ch] text-[15px] leading-6 text-emerald-50/95">
@@ -176,7 +223,7 @@ export default async function RegionPage({ params }: RegionPageProps) {
 
             <div className="rounded-3xl border border-white/12 bg-white/10 p-4 shadow-[0_8px_30px_rgba(0,0,0,0.16)] backdrop-blur-md">
               <p className="text-[14px] leading-7 text-emerald-50/95">
-                {insightText}
+                {introText}
               </p>
             </div>
           </div>
@@ -184,14 +231,35 @@ export default async function RegionPage({ params }: RegionPageProps) {
       </div>
 
       <div className="mx-auto max-w-[480px] px-5 py-6">
+        <div className="rounded-3xl bg-white p-5 shadow-sm ring-1 ring-slate-200/70">
+          <h2 className="text-base font-semibold text-slate-900">
+            Golf in {regionName} — what to expect
+          </h2>
+          <p className="mt-2 text-sm leading-6 text-slate-600">
+            {insightText}
+          </p>
+        </div>
+
+        <div className="mt-6 rounded-3xl bg-white p-5 shadow-sm ring-1 ring-slate-200/70">
+          <h2 className="text-base font-semibold text-slate-900">
+            Before you book
+          </h2>
+          <ul className="mt-3 space-y-2 text-sm leading-6 text-slate-600">
+            <li>• Independent guest access can vary by club and day of week</li>
+            <li>• Many courses require a recognised handicap</li>
+            <li>• Some clubs expect a valid golf membership or Swiss Golf Card</li>
+            <li>• Booking in advance is often required</li>
+          </ul>
+        </div>
+
         {error && (
-          <div className="rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+          <div className="mt-6 rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
             Error loading courses for this region.
           </div>
         )}
 
         {courses?.length === 0 && !error ? (
-          <div className="mt-1 rounded-3xl bg-white p-5 shadow-sm ring-1 ring-slate-200/70">
+          <div className="mt-6 rounded-3xl bg-white p-5 shadow-sm ring-1 ring-slate-200/70">
             <h2 className="text-base font-semibold text-slate-900">
               No listed courses in {regionName}
             </h2>
@@ -209,7 +277,7 @@ export default async function RegionPage({ params }: RegionPageProps) {
             </div>
           </div>
         ) : (
-          <div className="grid gap-4">
+          <div className="mt-6 grid gap-4">
             {courses?.map((course) => (
               <CourseCard key={course.id} {...course} />
             ))}
