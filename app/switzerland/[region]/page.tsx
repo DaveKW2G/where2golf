@@ -197,7 +197,7 @@ export default async function RegionPage({ params }: RegionPageProps) {
                     : `Golf in ${regionName} for independent guests`}
                 </h1>
 
-                <p className="mt-3 max-w-[38ch] text-[15px] leading-6 text-emerald-50/95">
+                <p className="mt-3 text-[15px] leading-6 text-emerald-50/95">
                   {getTagline(regionName)}
                 </p>
               </div>
@@ -240,18 +240,6 @@ export default async function RegionPage({ params }: RegionPageProps) {
           </p>
         </div>
 
-        <div className="mt-6 rounded-3xl bg-white p-5 shadow-sm ring-1 ring-slate-200/70">
-          <h2 className="text-base font-semibold text-slate-900">
-            Before you book
-          </h2>
-          <ul className="mt-3 space-y-2 text-sm leading-6 text-slate-600">
-            <li>• Independent guest access can vary by club and day of week</li>
-            <li>• Many courses require a recognised handicap</li>
-            <li>• Some clubs expect a valid golf membership or Swiss Golf Card</li>
-            <li>• Booking in advance is often required</li>
-          </ul>
-        </div>
-
         {error && (
           <div className="mt-6 rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
             Error loading courses for this region.
@@ -283,6 +271,16 @@ export default async function RegionPage({ params }: RegionPageProps) {
             ))}
           </div>
         )}
+
+        <div className="mt-6 rounded-3xl bg-white p-5 shadow-sm ring-1 ring-slate-200/70">
+          <h2 className="text-base font-semibold text-slate-900">
+            Access and requirements
+          </h2>
+          <p className="mt-2 text-sm leading-6 text-slate-600">
+            Most golf courses in {regionName} require a recognised handicap and may
+            limit independent guest access by day or availability.
+          </p>
+        </div>
       </div>
     </main>
   )
