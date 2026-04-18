@@ -30,12 +30,14 @@ const regions = [
 export const metadata: Metadata = {
   title: 'Golf in Switzerland | Play as an independent guest',
   description:
-    'Find golf courses in Switzerland where independent guests can play. Browse by region and see guest access, handicap requirements and where to play today.',
+    'Find golf courses in Switzerland where independent guests can play. Browse by region, check guest access, handicap requirements and where to play today.',
 }
 
 export default function SwitzerlandPage() {
   return (
     <main className="min-h-screen bg-stone-100 text-slate-800">
+
+      {/* HERO */}
       <section className="relative overflow-hidden px-5 pt-5 pb-8 text-white">
         <div
           className="absolute inset-0 bg-cover bg-center"
@@ -90,9 +92,13 @@ export default function SwitzerlandPage() {
         </div>
       </section>
 
+      {/* CONTENT */}
       <section className="mx-auto max-w-[480px] px-5 py-6">
+
+        {/* QUICK ACCESS */}
         <SwitzerlandPageClient />
 
+        {/* REGIONS */}
         <div className="mt-6 rounded-2xl bg-white p-5 shadow-sm">
           <h2 className="text-[18px] font-semibold text-slate-900">
             Browse golf in Switzerland by region
@@ -113,11 +119,52 @@ export default function SwitzerlandPage() {
                 <div className="font-semibold text-slate-900">
                   {region.name}
                 </div>
-                <div className="text-sm text-slate-500">{region.code}</div>
+                <div className="text-sm text-slate-500">
+                  {region.code}
+                </div>
               </Link>
             ))}
           </div>
         </div>
+
+        {/* WHY SECTION */}
+        <div className="mt-6 rounded-2xl bg-white p-5 shadow-sm">
+          <h2 className="text-[18px] font-semibold text-slate-900">
+            Why use GuestPlayGolf in Switzerland
+          </h2>
+
+          <p className="mt-3 text-sm leading-6 text-slate-700">
+            Finding golf in Switzerland as an independent guest can be slower than it should be.
+            Many clubs have different rules on guest access, handicap requirements and when
+            visitors are allowed to play.
+          </p>
+
+          <p className="mt-3 text-sm leading-6 text-slate-700">
+            GuestPlayGolf helps you compare golf courses in Switzerland quickly, with clear
+            information on independent guest access, weekday or weekend availability, and key
+            playing requirements before you contact the club.
+          </p>
+        </div>
+
+        {/* RULES SECTION */}
+        <div className="mt-6 rounded-2xl bg-white p-5 shadow-sm">
+          <h2 className="text-[18px] font-semibold text-slate-900">
+            What to know before playing golf in Switzerland
+          </h2>
+
+          <p className="mt-3 text-sm leading-6 text-slate-700">
+            Many golf courses in Switzerland allow independent guest play, but access is often
+            structured. A recognised handicap is commonly required, and some clubs also expect
+            players to hold a valid golf membership card.
+          </p>
+
+          <p className="mt-3 text-sm leading-6 text-slate-700">
+            Weekend access can be more restricted than weekdays, and mountain or higher-altitude
+            courses may have shorter playing seasons. Checking access rules before booking is one
+            of the easiest ways to avoid wasted calls and unnecessary planning.
+          </p>
+        </div>
+
       </section>
     </main>
   )
