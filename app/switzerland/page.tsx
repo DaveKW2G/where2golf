@@ -36,7 +36,6 @@ export const metadata: Metadata = {
 export default function SwitzerlandPage() {
   return (
     <main className="min-h-screen bg-stone-100 text-slate-800">
-
       {/* HERO */}
       <section className="relative overflow-hidden px-5 pt-5 pb-8 text-white">
         <div
@@ -88,7 +87,6 @@ export default function SwitzerlandPage() {
 
       {/* CONTENT */}
       <section className="mx-auto max-w-[480px] px-5 py-6">
-
         {/* QUICK ACCESS */}
         <SwitzerlandPageClient />
 
@@ -111,7 +109,9 @@ export default function SwitzerlandPage() {
                 className="rounded-xl border p-4 no-underline"
               >
                 <div className="font-semibold text-slate-900">
-                  {region.name}
+                  {region.code === 'ZH'
+                    ? 'Golf near Zurich'
+                    : `Golf in ${region.name}`}
                 </div>
                 <div className="text-sm text-slate-500">
                   {region.code}
@@ -153,7 +153,6 @@ export default function SwitzerlandPage() {
             <li>• Playing seasons vary, especially for higher-altitude courses</li>
           </ul>
         </div>
-
       </section>
     </main>
   )
