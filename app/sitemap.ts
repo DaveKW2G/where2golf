@@ -13,7 +13,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
       lastModified: new Date(),
     },
     {
-      url: `${baseUrl}/region?region=ZH`,
+      url: `${baseUrl}/switzerland/zh`,
       lastModified: new Date(),
     },
   ]
