@@ -80,7 +80,11 @@ const nearbyRegions: Record<string, string[]> = {
   GR: ["TI", "SG"],
 }
 
-function getTagline(regionName: string) {
+function getTagline(regionCode: string, regionName: string) {
+  if (regionCode === "ZH") {
+    return "Find golf courses near Zurich where you can play without being a member of that club."
+  }
+
   return `Find where you can play golf as an independent guest in ${regionName}.`
 }
 
@@ -211,7 +215,7 @@ export default async function RegionPage({ params }: RegionPageProps) {
                 </h1>
 
                 <p className="mt-3 text-[15px] leading-6 text-emerald-50/95">
-                  {getTagline(regionName)}
+                  {getTagline(regionCode, regionName)}
                 </p>
               </div>
 
