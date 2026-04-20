@@ -67,6 +67,19 @@ const regionInsights: Record<string, string> = {
   AR: "Appenzell Ausserrhoden offers access to a small golf market with a more relaxed regional feel.",
 }
 
+const nearbyRegions: Record<string, string[]> = {
+  ZH: ["ZG", "AG", "SZ"],
+  GE: ["VD"],
+  VD: ["GE", "FR", "VS"],
+  TI: ["GR"],
+  ZG: ["ZH", "SZ", "AG"],
+  AG: ["ZH", "ZG", "SO"],
+  SZ: ["ZH", "ZG", "LU"],
+  FR: ["VD", "BE"],
+  VS: ["VD", "TI"],
+  GR: ["TI", "SG"],
+}
+
 function getTagline(regionName: string) {
   return `Find where you can play golf as an independent guest in ${regionName}.`
 }
@@ -110,7 +123,7 @@ function getInsightText(
 
 function getRegionIntro(regionCode: string, regionName: string) {
   if (regionCode === "ZH") {
-    return "Looking for golf near Zurich? This page helps you find golf courses in Zurich that welcome independent guests, with clear visibility on access rules and key playing requirements."
+    return "Looking for golf near Zurich? Compare golf courses in Zurich for independent guests, with clear information on guest access, handicap requirements and when you can play."
   }
 
   if (regionCode === "GE") {
@@ -265,10 +278,43 @@ export default async function RegionPage({ params }: RegionPageProps) {
             </div>
           </div>
         ) : (
-          <div className="mt-6 grid gap-4">
-            {courses?.map((course) => (
-              <CourseCard key={course.id} {...course} />
-            ))}
+          <>
+            <div className="mt-6 rounded-3xl bg-white p-5 shadow-sm ring-1 ring-slate-200/70">
+              <h2 className="text-base font-semibold text-slate-900">
+                Golf courses in {regionName}
+              </h2>
+              <p className="mt-2 text-sm leading-6 text-slate-600">
+                Browse listed golf courses in {regionName} that welcome independent guests.
+              </p>
+            </div>
+
+            <div className="mt-6 grid gap-4">
+              {courses?.map((course) => (
+                <CourseCard key={course.id} {...course} />
+              ))}
+            </div>
+          </>
+        )}
+
+        {nearbyRegions[regionCode] && (
+          <div className="mt-6 rounded-3xl bg-white p-5 shadow-sm ring-1 ring-slate-200/70">
+            <h2 className="text-base font-semibold text-slate-900">
+              Nearby regions
+            </h2>
+
+            <div className="mt-3 flex flex-wrap gap-2">
+              {nearbyRegions[regionCode].map((code) => (
+                <Link
+                  key={code}
+                  href={`/switzerland/${code.toLowerCase()}`}
+                  className="rounded-full border px-3 py-1.5 text-sm text-slate-700 no-underline"
+                >
+                  {code === "ZH"
+                    ? "Golf near Zurich"
+                    : `Golf in ${regionNames[code]}`}
+                </Link>
+              ))}
+            </div>
           </div>
         )}
 
