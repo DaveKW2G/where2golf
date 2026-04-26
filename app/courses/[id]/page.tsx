@@ -1,3 +1,4 @@
+import type { Metadata } from "next"
 import Script from "next/script"
 import { createClient } from "@/lib/supabase/server"
 import BackButton from "@/components/BackButton"
@@ -30,6 +31,30 @@ type Course = {
   course_image?: string | null
   latitude?: number | null
   longitude?: number | null
+}
+
+export async function generateMetadata({
+  params,
+}: CoursePageProps): Promise<Metadata> {
+  const resolvedParams = await params
+  const supabase = await createClient()
+
+  const { data } = await supabase
+    .from("courses")
+    .select("course_name, town, region")
+    .eq("id", Number(resolvedParams.id))
+    .single()
+
+  if (!data) {
+    return {
+      title: "Golf Course",
+    }
+  }
+
+  return {
+    title: `${data.course_name} | Golf in ${data.town}, ${data.region}`,
+    description: `Play ${data.course_name} in ${data.town}, ${data.region}. Check independent guest access, handicap requirements and course details on GuestPlayGolf.`,
+  }
 }
 
 function DetailRow({
@@ -141,10 +166,7 @@ export default async function CoursePage({
     return (
       <main className="min-h-screen bg-stone-100 px-4 py-6">
         <div className="mx-auto max-w-[480px] rounded-[28px] bg-white p-6 shadow-sm">
-          <BackButton
-            fallbackHref={fallbackHref}
-            className="inline-block text-slate-700"
-          >
+          <BackButton fallbackHref={fallbackHref}>
             ← Back
           </BackButton>
 
@@ -209,12 +231,6 @@ export default async function CoursePage({
               course_id: ${JSON.stringify(String(course.id))},
               region: ${JSON.stringify(course.region)}
             });
-
-            window.gtag('event', 'course_view', {
-              course_name: ${JSON.stringify(course.course_name)},
-              course_id: ${JSON.stringify(String(course.id))},
-              region: ${JSON.stringify(course.region)}
-            });
           }
         `}
       </Script>
@@ -224,7 +240,7 @@ export default async function CoursePage({
           {course.course_image ? (
             <img
               src={course.course_image}
-              alt={course.course_name}
+              alt={`${course.course_name} golf course in ${course.town}`}
               className="h-full w-full object-cover"
             />
           ) : (
@@ -234,10 +250,7 @@ export default async function CoursePage({
           )}
 
           <div className="absolute inset-x-0 top-0 p-4">
-            <BackButton
-              fallbackHref={fallbackHref}
-              className="rounded-full bg-white px-3 py-2 text-[14px] font-medium text-slate-800 shadow-sm"
-            >
+            <BackButton fallbackHref={fallbackHref}>
               ← Back
             </BackButton>
           </div>
