@@ -1,5 +1,6 @@
 import type { Metadata } from "next"
 import Script from "next/script"
+import Link from "next/link"
 import { createClient } from "@/lib/supabase/server"
 import BackButton from "@/components/BackButton"
 import CourseCTAButtons from "@/components/CourseCTAButtons"
@@ -33,6 +34,35 @@ type Course = {
   longitude?: number | null
 }
 
+const regionNames: Record<string, string> = {
+  AG: "Aargau",
+  AI: "Appenzell Innerrhoden",
+  AR: "Appenzell Ausserrhoden",
+  BE: "Bern",
+  BL: "Basel-Landschaft",
+  BS: "Basel-Stadt",
+  FR: "Fribourg",
+  GE: "Geneva",
+  GL: "Glarus",
+  GR: "Graubünden",
+  JU: "Jura",
+  LU: "Lucerne",
+  NE: "Neuchâtel",
+  NW: "Nidwalden",
+  OW: "Obwalden",
+  SG: "St. Gallen",
+  SH: "Schaffhausen",
+  SO: "Solothurn",
+  SZ: "Schwyz",
+  TG: "Thurgau",
+  TI: "Ticino",
+  UR: "Uri",
+  VD: "Vaud",
+  VS: "Valais",
+  ZG: "Zug",
+  ZH: "Zurich",
+}
+
 export async function generateMetadata({
   params,
 }: CoursePageProps): Promise<Metadata> {
@@ -41,19 +71,41 @@ export async function generateMetadata({
 
   const { data } = await supabase
     .from("courses")
-    .select("course_name, town, region")
+    .select("id, course_name, town, region, course_image")
     .eq("id", Number(resolvedParams.id))
     .single()
 
   if (!data) {
     return {
-      title: "Golf Course",
+      title: "Golf Course | GuestPlayGolf",
+      description: "Find golf courses for independent guests on GuestPlayGolf.",
     }
   }
 
+  const regionName = regionNames[data.region] || data.region
+  const canonicalUrl = `https://guestplaygolf.com/courses/${data.id}`
+
   return {
-    title: `${data.course_name} | Golf in ${data.town}, ${data.region}`,
-    description: `Play ${data.course_name} in ${data.town}, ${data.region}. Check independent guest access, handicap requirements and course details on GuestPlayGolf.`,
+    title: `${data.course_name} | Golf in ${data.town}, ${regionName}`,
+    description: `Play ${data.course_name} in ${data.town}, ${regionName}. Check independent guest access, handicap requirements, season and course details on GuestPlayGolf.`,
+    alternates: {
+      canonical: canonicalUrl,
+    },
+    openGraph: {
+      title: `${data.course_name} | GuestPlayGolf`,
+      description: `Golf course information for independent guests in ${data.town}, ${regionName}.`,
+      url: canonicalUrl,
+      siteName: "GuestPlayGolf",
+      images: data.course_image
+        ? [
+            {
+              url: data.course_image,
+              alt: `${data.course_name} golf course in ${data.town}`,
+            },
+          ]
+        : undefined,
+      type: "website",
+    },
   }
 }
 
@@ -66,9 +118,7 @@ function DetailRow({
 }) {
   return (
     <div className="flex items-center justify-between px-5 py-4 border-b border-slate-200 last:border-b-0">
-      <span className="text-sm text-slate-500">
-        {label}
-      </span>
+      <span className="text-sm text-slate-500">{label}</span>
 
       <span className="text-sm font-semibold text-slate-900">
         {value || "—"}
@@ -166,7 +216,10 @@ export default async function CoursePage({
     return (
       <main className="min-h-screen bg-stone-100 px-4 py-6">
         <div className="mx-auto max-w-[480px] rounded-[28px] bg-white p-6 shadow-sm">
-          <BackButton fallbackHref={fallbackHref}>
+          <BackButton
+            fallbackHref={fallbackHref}
+            className="inline-block text-slate-700"
+          >
             ← Back
           </BackButton>
 
@@ -179,6 +232,8 @@ export default async function CoursePage({
   }
 
   const course = data as Course
+  const regionName = regionNames[course.region] || course.region
+  const regionHref = `/switzerland/${course.region.toLowerCase()}`
 
   const latParam = getSingleParam(resolvedSearchParams.lat)
   const lngParam = getSingleParam(resolvedSearchParams.lng)
@@ -221,12 +276,46 @@ export default async function CoursePage({
       ? "Handicap Required"
       : "Max Handicap —"
 
+  const structuredData = {
+    "@context": "https://schema.org",
+    "@type": "GolfCourse",
+    name: course.course_name,
+    url: `https://guestplaygolf.com/courses/${course.id}`,
+    image: course.course_image || undefined,
+    telephone: course.phone_number || undefined,
+    address: {
+      "@type": "PostalAddress",
+      streetAddress: course.full_address || undefined,
+      addressLocality: course.town,
+      addressRegion: regionName,
+      addressCountry: "CH",
+    },
+    geo:
+      course.latitude != null && course.longitude != null
+        ? {
+            "@type": "GeoCoordinates",
+            latitude: course.latitude,
+            longitude: course.longitude,
+          }
+        : undefined,
+  }
+
   return (
     <main className="min-h-screen bg-stone-100 px-4 py-4 pb-28">
+      <Script id="course-structured-data" type="application/ld+json">
+        {JSON.stringify(structuredData)}
+      </Script>
+
       <Script id="course-view-events" strategy="afterInteractive">
         {`
           if (window.gtag) {
             window.gtag('event', 'view_course_detail', {
+              course_name: ${JSON.stringify(course.course_name)},
+              course_id: ${JSON.stringify(String(course.id))},
+              region: ${JSON.stringify(course.region)}
+            });
+
+            window.gtag('event', 'course_view', {
               course_name: ${JSON.stringify(course.course_name)},
               course_id: ${JSON.stringify(String(course.id))},
               region: ${JSON.stringify(course.region)}
@@ -250,7 +339,10 @@ export default async function CoursePage({
           )}
 
           <div className="absolute inset-x-0 top-0 p-4">
-            <BackButton fallbackHref={fallbackHref}>
+            <BackButton
+              fallbackHref={fallbackHref}
+              className="rounded-full bg-white px-3 py-2 text-[14px] font-medium text-slate-800 shadow-sm"
+            >
               ← Back
             </BackButton>
           </div>
@@ -264,13 +356,16 @@ export default async function CoursePage({
           </h1>
 
           <p className="text-[14px] text-slate-500">
-            {course.town}, {course.region}
+            {course.town}, {regionName}
+          </p>
+
+          <p className="text-[14px] leading-6 text-slate-600">
+            Golf course in {course.town}, {regionName} with independent guest
+            access listed on GuestPlayGolf.
           </p>
 
           {distanceBadge && (
-            <p className="text-sm text-slate-600">
-              {distanceBadge}
-            </p>
+            <p className="text-sm text-slate-600">{distanceBadge}</p>
           )}
 
           <div className="flex flex-wrap gap-2 pt-2">
@@ -300,6 +395,15 @@ export default async function CoursePage({
             </p>
           </div>
         )}
+
+        <div className="border-t border-slate-200 px-5 py-5">
+          <Link
+            href={regionHref}
+            className="text-sm font-medium text-emerald-700 no-underline"
+          >
+            Explore more golf in {regionName} →
+          </Link>
+        </div>
       </div>
 
       <CourseCTAButtons
