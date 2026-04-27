@@ -1,6 +1,17 @@
+import type { Metadata } from "next"
 import Link from "next/link"
 import { createClient } from "@/lib/supabase/server"
 import CourseCard from "@/components/CourseCard"
+
+export const metadata: Metadata = {
+  title: "Golf Course Results | GuestPlayGolf",
+  description:
+    "Browse golf course results by guest access, region, handicap, price and distance.",
+  robots: {
+    index: false,
+    follow: true,
+  },
+}
 
 type ResultsPageProps = {
   searchParams: Promise<{
@@ -202,9 +213,6 @@ export default async function ResultsPage({ searchParams }: ResultsPageProps) {
     )
   }
 
-  // Numeric handicap logic:
-  // include courses that accept the selected handicap OR do not require a handicap.
-  // exclude courses where handicap rules are unspecified.
   if (selectedHandicap != null && !Number.isNaN(selectedHandicap)) {
     sortedCourses = sortedCourses.filter((course: any) => {
       if (course.handicap_required === false) {
