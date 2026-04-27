@@ -34,6 +34,8 @@ type Course = {
   longitude?: number | null
 }
 
+const siteUrl = "https://guestplaygolf.com"
+
 const regionNames: Record<string, string> = {
   AG: "Aargau",
   AI: "Appenzell Innerrhoden",
@@ -77,19 +79,26 @@ export async function generateMetadata({
 
   if (!data) {
     return {
+      metadataBase: new URL(siteUrl),
       title: "Golf Course | GuestPlayGolf",
       description: "Find golf courses for independent guests on GuestPlayGolf.",
+      robots: {
+        index: false,
+        follow: false,
+      },
     }
   }
 
   const regionName = regionNames[data.region] || data.region
-  const canonicalUrl = `https://guestplaygolf.com/courses/${data.id}`
+  const canonicalPath = `/courses/${data.id}`
+  const canonicalUrl = `${siteUrl}${canonicalPath}`
 
   return {
+    metadataBase: new URL(siteUrl),
     title: `${data.course_name} | Golf in ${data.town}, ${regionName}`,
     description: `Play ${data.course_name} in ${data.town}, ${regionName}. Check independent guest access, handicap requirements, season and course details on GuestPlayGolf.`,
     alternates: {
-      canonical: canonicalUrl,
+      canonical: canonicalPath,
     },
     openGraph: {
       title: `${data.course_name} | GuestPlayGolf`,
@@ -280,7 +289,7 @@ export default async function CoursePage({
     "@context": "https://schema.org",
     "@type": "GolfCourse",
     name: course.course_name,
-    url: `https://guestplaygolf.com/courses/${course.id}`,
+    url: `${siteUrl}/courses/${course.id}`,
     image: course.course_image || undefined,
     telephone: course.phone_number || undefined,
     address: {
