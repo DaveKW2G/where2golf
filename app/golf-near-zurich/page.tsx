@@ -72,7 +72,7 @@ export default async function GolfNearZurichPage() {
         const distance =
           course.latitude != null && course.longitude != null
             ? getDistanceKm(zurichLat, zurichLng, course.latitude, course.longitude)
-            : null
+            : undefined
 
         return {
           ...course,
