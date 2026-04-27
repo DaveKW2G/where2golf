@@ -29,6 +29,14 @@ const regions = [
   { code: 'ZH', name: 'Zurich' },
 ]
 
+const popularDestinations = [
+  {
+    title: 'Golf near Zurich',
+    href: '/golf-near-zurich',
+    description: 'Explore guest-friendly golf courses around Zurich, Zug, Aargau and Schwyz.',
+  },
+]
+
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
   title: 'Golf in Switzerland | Play as an independent guest',
@@ -50,7 +58,6 @@ export const metadata: Metadata = {
 export default function SwitzerlandPage() {
   return (
     <main className="min-h-screen bg-stone-100 text-slate-800">
-      {/* HERO */}
       <section className="relative overflow-hidden px-5 pt-5 pb-8 text-white">
         <div
           className="absolute inset-0 bg-cover bg-center"
@@ -99,12 +106,37 @@ export default function SwitzerlandPage() {
         </div>
       </section>
 
-      {/* CONTENT */}
       <section className="mx-auto max-w-[480px] px-5 py-6">
-        {/* QUICK ACCESS */}
         <SwitzerlandPageClient />
 
-        {/* REGIONS */}
+        <div className="mt-6 rounded-2xl bg-white p-5 shadow-sm">
+          <h2 className="text-[18px] font-semibold text-slate-900">
+            Popular golf destinations
+          </h2>
+
+          <p className="mt-2 text-sm leading-6 text-slate-600">
+            Start with high-demand locations where golfers commonly search for nearby
+            courses and independent guest access.
+          </p>
+
+          <div className="mt-4 grid gap-3">
+            {popularDestinations.map((destination) => (
+              <Link
+                key={destination.href}
+                href={destination.href}
+                className="block rounded-xl border border-slate-200 bg-slate-50 p-4 no-underline transition hover:bg-slate-100"
+              >
+                <div className="font-semibold text-slate-900">
+                  {destination.title}
+                </div>
+                <p className="mt-1 text-sm leading-5 text-slate-600">
+                  {destination.description}
+                </p>
+              </Link>
+            ))}
+          </div>
+        </div>
+
         <div className="mt-6 rounded-2xl bg-white p-5 shadow-sm">
           <h2 className="text-[18px] font-semibold text-slate-900">
             Browse golf in Switzerland by region
@@ -124,18 +156,15 @@ export default function SwitzerlandPage() {
               >
                 <div className="font-semibold text-slate-900">
                   {region.code === 'ZH'
-                    ? 'Golf near Zurich'
+                    ? 'Golf in Zurich'
                     : `Golf in ${region.name}`}
                 </div>
-                <div className="text-sm text-slate-500">
-                  {region.code}
-                </div>
+                <div className="text-sm text-slate-500">{region.code}</div>
               </Link>
             ))}
           </div>
         </div>
 
-        {/* WHY SECTION */}
         <div className="mt-6 rounded-2xl bg-white p-5 shadow-sm">
           <h2 className="text-[18px] font-semibold text-slate-900">
             Why use GuestPlayGolf in Switzerland
@@ -153,7 +182,6 @@ export default function SwitzerlandPage() {
           </p>
         </div>
 
-        {/* RULES SECTION */}
         <div className="mt-6 rounded-2xl bg-white p-5 shadow-sm">
           <h2 className="text-[18px] font-semibold text-slate-900">
             Golf in Switzerland — key things to know
