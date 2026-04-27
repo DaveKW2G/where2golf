@@ -5,11 +5,14 @@ import CourseCard from "@/components/CourseCard"
 
 const siteUrl = "https://guestplaygolf.com"
 
+const zurichLat = 47.3769
+const zurichLng = 8.5417
+
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
   title: "Golf near Zurich | Play as an independent guest",
   description:
-    "Find golf courses near Zurich where independent guests can play. Compare guest access, handicap requirements, season and course details.",
+    "Find golf courses near Zurich where independent guests can play. Compare guest access, handicap requirements, distance from Zurich and course details.",
   alternates: {
     canonical: "/golf-near-zurich",
   },
@@ -32,25 +35,60 @@ const regionNames: Record<string, string> = {
   SZ: "Schwyz",
 }
 
+function toRad(value: number) {
+  return (value * Math.PI) / 180
+}
+
+function getDistanceKm(lat1: number, lng1: number, lat2: number, lng2: number) {
+  const earthRadiusKm = 6371
+  const dLat = toRad(lat2 - lat1)
+  const dLng = toRad(lng2 - lng1)
+
+  const a =
+    Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+    Math.cos(toRad(lat1)) *
+      Math.cos(toRad(lat2)) *
+      Math.sin(dLng / 2) *
+      Math.sin(dLng / 2)
+
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a))
+
+  return earthRadiusKm * c
+}
+
 export default async function GolfNearZurichPage() {
   const supabase = await createClient()
 
   const { data: courses, error } = await supabase
     .from("courses")
     .select(
-      "id, course_name, town, region, holes, independent_guest_days, season, price_range, course_image, max_handicap"
+      "id, course_name, town, region, holes, independent_guest_days, season, price_range, course_image, max_handicap, latitude, longitude"
     )
     .in("region", zurichAreaRegions)
-    .order("course_name", { ascending: true })
 
-  const courseCount = courses?.length || 0
+  const coursesWithDistance =
+    courses
+      ?.map((course) => {
+        const distance =
+          course.latitude != null && course.longitude != null
+            ? getDistanceKm(zurichLat, zurichLng, course.latitude, course.longitude)
+            : null
+
+        return {
+          ...course,
+          distance,
+        }
+      })
+      .sort((a, b) => (a.distance ?? 9999) - (b.distance ?? 9999)) || []
+
+  const courseCount = coursesWithDistance.length
 
   return (
     <main className="min-h-screen bg-stone-100 text-slate-800">
       <section className="bg-gradient-to-b from-emerald-950 via-emerald-900 to-emerald-800 px-5 pb-8 pt-6 text-white">
         <div className="mx-auto max-w-[480px]">
-          <Link href="/" className="text-sm text-white/90 no-underline">
-            ← Back
+          <Link href="/switzerland" className="text-sm text-white/90 no-underline">
+            ← Switzerland
           </Link>
 
           <p className="mt-6 text-[12px] font-medium uppercase tracking-[0.18em] text-emerald-200">
@@ -64,7 +102,8 @@ export default async function GolfNearZurichPage() {
           <p className="mt-4 text-[15px] leading-6 text-emerald-50/95">
             Find golf courses near Zurich where you can play without being a
             member of that specific club. Compare guest access, handicap
-            requirements, season and course details before contacting the club.
+            requirements, distance from Zurich and course details before
+            contacting the club.
           </p>
 
           <div className="mt-5 rounded-3xl border border-white/15 bg-white/10 p-4 backdrop-blur-sm">
@@ -97,11 +136,15 @@ export default async function GolfNearZurichPage() {
         </div>
 
         <div className="mt-6 flex flex-wrap gap-2">
-          {zurichAreaRegions.map((region) => (
+          {zurichAreaRegions.map((region, index) => (
             <Link
               key={region}
               href={`/switzerland/${region.toLowerCase()}`}
-              className="rounded-full border border-slate-300 bg-white px-3 py-1.5 text-sm font-medium text-slate-700 no-underline"
+              className={
+                index === 0
+                  ? "rounded-full bg-emerald-700 px-4 py-2 text-sm font-semibold text-white no-underline"
+                  : "rounded-full border border-slate-300 bg-white px-4 py-2 text-sm font-semibold text-slate-700 no-underline"
+              }
             >
               {regionNames[region]}
             </Link>
@@ -115,8 +158,13 @@ export default async function GolfNearZurichPage() {
         )}
 
         <div className="mt-6 grid gap-4">
-          {courses?.map((course) => (
-            <CourseCard key={course.id} {...course} />
+          {coursesWithDistance.map((course) => (
+            <CourseCard
+              key={course.id}
+              {...course}
+              userLat={zurichLat}
+              userLng={zurichLng}
+            />
           ))}
         </div>
 
