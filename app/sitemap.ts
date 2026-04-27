@@ -6,12 +6,10 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
   const supabase = await createClient()
 
-  // Get all courses
   const { data: courses } = await supabase
     .from('courses')
     .select('id, updated_at')
 
-  // Static pages
   const staticPages = [
     {
       url: baseUrl,
@@ -21,9 +19,12 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       url: `${baseUrl}/switzerland`,
       lastModified: new Date(),
     },
+    {
+      url: `${baseUrl}/golf-near-zurich`,
+      lastModified: new Date(),
+    },
   ]
 
-  // Region pages
   const regions = [
     'ag','ai','ar','be','bl','bs','fr','ge','gl','gr','ju',
     'lu','ne','nw','ow','sg','sh','so','sz','tg','ti','ur',
@@ -35,7 +36,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     lastModified: new Date(),
   }))
 
-  // Course pages
   const coursePages =
     courses?.map((course) => ({
       url: `${baseUrl}/courses/${course.id}`,
