@@ -1,5 +1,6 @@
 import type { Metadata } from "next"
 import Link from "next/link"
+import { redirect } from "next/navigation"
 import { createClient } from "../../../lib/supabase/server"
 import CourseCard from "../../../components/CourseCard"
 
@@ -8,6 +9,8 @@ type RegionPageProps = {
     region: string
   }>
 }
+
+const siteUrl = "https://guestplaygolf.com"
 
 const regionNames: Record<string, string> = {
   AG: "Aargau",
@@ -130,7 +133,9 @@ export async function generateMetadata({
 }: RegionPageProps): Promise<Metadata> {
   const resolvedParams = await params
   const regionCode = resolvedParams.region.toUpperCase()
+  const regionSlug = regionCode.toLowerCase()
   const regionName = regionNames[regionCode] || regionCode
+  const canonicalPath = `/switzerland/${regionSlug}`
 
   const title =
     regionCode === "ZH"
@@ -143,8 +148,19 @@ export async function generateMetadata({
       : `Find golf in ${regionName} for independent guests. Compare courses by guest access, handicap requirements and playing availability.`
 
   return {
+    metadataBase: new URL(siteUrl),
     title,
     description,
+    alternates: {
+      canonical: canonicalPath,
+    },
+    openGraph: {
+      title,
+      description,
+      url: `${siteUrl}${canonicalPath}`,
+      siteName: "GuestPlayGolf",
+      type: "website",
+    },
   }
 }
 
@@ -152,7 +168,13 @@ export default async function RegionPage({ params }: RegionPageProps) {
   const supabase = await createClient()
 
   const resolvedParams = await params
-  const regionCode = resolvedParams.region.toUpperCase()
+  const rawRegion = resolvedParams.region
+  const regionCode = rawRegion.toUpperCase()
+  const regionSlug = regionCode.toLowerCase()
+
+  if (rawRegion !== regionSlug) {
+    redirect(`/switzerland/${regionSlug}`)
+  }
 
   const { data: courses, error } = await supabase
     .from("courses")
