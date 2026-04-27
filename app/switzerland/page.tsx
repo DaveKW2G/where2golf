@@ -124,12 +124,12 @@ export default function SwitzerlandPage() {
               <Link
                 key={destination.href}
                 href={destination.href}
-                className="block rounded-xl border border-slate-200 bg-slate-50 p-4 no-underline transition hover:bg-slate-100"
+                className="block rounded-2xl bg-emerald-800 px-5 py-5 text-white no-underline shadow-sm transition hover:bg-emerald-900"
               >
-                <div className="font-semibold text-slate-900">
+                <div className="text-[17px] font-semibold">
                   {destination.title}
                 </div>
-                <p className="mt-1 text-sm leading-5 text-slate-600">
+                <p className="mt-1 text-sm leading-5 text-white/85">
                   {destination.description}
                 </p>
               </Link>
