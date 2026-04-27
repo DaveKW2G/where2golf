@@ -2,6 +2,8 @@ import type { Metadata } from 'next'
 import Link from 'next/link'
 import SwitzerlandPageClient from '@/components/SwitzerlandPageClient'
 
+const siteUrl = 'https://guestplaygolf.com'
+
 const regions = [
   { code: 'AG', name: 'Aargau' },
   { code: 'AI', name: 'Appenzell Innerrhoden' },
@@ -28,9 +30,21 @@ const regions = [
 ]
 
 export const metadata: Metadata = {
+  metadataBase: new URL(siteUrl),
   title: 'Golf in Switzerland | Play as an independent guest',
   description:
     'Find golf courses in Switzerland where independent guests can play. Browse by region, check guest access, handicap requirements and where to play today.',
+  alternates: {
+    canonical: '/switzerland',
+  },
+  openGraph: {
+    title: 'Golf in Switzerland | Play as an independent guest',
+    description:
+      'Find golf courses in Switzerland where independent guests can play. Browse by region, check guest access, handicap requirements and where to play today.',
+    url: `${siteUrl}/switzerland`,
+    siteName: 'GuestPlayGolf',
+    type: 'website',
+  },
 }
 
 export default function SwitzerlandPage() {
