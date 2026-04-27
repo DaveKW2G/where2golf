@@ -1,8 +1,29 @@
+import type { Metadata } from 'next'
 'use client'
 
 import Link from 'next/link'
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
+
+const siteUrl = 'https://guestplaygolf.com'
+
+export const metadata: Metadata = {
+  metadataBase: new URL(siteUrl),
+  title: 'GuestPlayGolf | Find golf courses you can play',
+  description:
+    'Find golf courses where independent guests can play. Discover guest access, handicap requirements, pricing and where you can play today.',
+  alternates: {
+    canonical: '/',
+  },
+  openGraph: {
+    title: 'GuestPlayGolf | Find golf courses you can play',
+    description:
+      'Find golf courses where independent guests can play. Discover guest access, handicap requirements, pricing and where you can play today.',
+    url: siteUrl,
+    siteName: 'GuestPlayGolf',
+    type: 'website',
+  },
+}
 
 export default function HomePage() {
   const [search, setSearch] = useState('')
@@ -125,7 +146,6 @@ export default function HomePage() {
             </p>
           </div>
 
-          {/* CTA now directly above search */}
           <div className="mb-3 text-[18px] font-semibold text-white">
             Where are you playing next?
           </div>
@@ -145,10 +165,7 @@ export default function HomePage() {
 
       <section className="mx-auto max-w-[480px] px-5 py-6 text-left">
         <div className="grid gap-3">
-          <Link
-            href="/filters"
-            className="block rounded-2xl border border-slate-200 bg-white px-5 py-5 shadow-sm"
-          >
+          <Link href="/filters" className="block rounded-2xl border border-slate-200 bg-white px-5 py-5 shadow-sm">
             <div className="text-[17px] font-semibold text-slate-900">
               Advanced Filters
             </div>
@@ -166,15 +183,10 @@ export default function HomePage() {
               <div className="text-[17px] font-semibold">
                 {isLocatingToday ? 'Getting your location...' : 'Play Golf Today'}
               </div>
-              <p className="mt-1 text-sm text-white/80">
-                Find courses near you that may be playable today
-              </p>
             </button>
 
             {playTodayError && (
-              <p className="mt-2 text-sm text-red-600">
-                {playTodayError}
-              </p>
+              <p className="mt-2 text-sm text-red-600">{playTodayError}</p>
             )}
           </div>
 
@@ -187,49 +199,18 @@ export default function HomePage() {
               <div className="text-[17px] font-semibold text-slate-900">
                 {isLocatingNearMe ? 'Getting your location...' : 'Near Me'}
               </div>
-              <p className="mt-1 text-sm text-slate-600">
-                Explore golf courses closest to your location
-              </p>
             </button>
 
             {nearMeError && (
-              <p className="mt-2 text-sm text-red-600">
-                {nearMeError}
-              </p>
+              <p className="mt-2 text-sm text-red-600">{nearMeError}</p>
             )}
           </div>
 
-          <Link
-            href="/switzerland"
-            className="block rounded-2xl border border-slate-200 bg-white px-5 py-5 shadow-sm"
-          >
+          <Link href="/switzerland" className="block rounded-2xl border border-slate-200 bg-white px-5 py-5 shadow-sm">
             <div className="text-[17px] font-semibold text-slate-900">
               Browse by Location
             </div>
-            <p className="mt-1 text-sm text-slate-600">
-              Explore by region and destination
-            </p>
           </Link>
-        </div>
-
-        <div className="mt-6 text-center text-sm text-slate-500">
-          Location not working? Use Advanced Filters instead.
-        </div>
-
-        <div className="mt-6 space-y-1 text-center text-sm text-slate-500">
-          <div>
-            Contact: guestplaygolf@gmail.com
-          </div>
-          <div>
-            <a
-              href="https://www.instagram.com/guestplaygolf"
-              target="_blank"
-              rel="noreferrer"
-              className="font-medium text-emerald-700 no-underline"
-            >
-              Instagram: @guestplaygolf
-            </a>
-          </div>
         </div>
       </section>
     </main>
