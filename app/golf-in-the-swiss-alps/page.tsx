@@ -53,7 +53,7 @@ export default async function GolfInSwissAlpsPage() {
 
   return (
     <main className="min-h-screen bg-stone-100 text-slate-800">
-      <section className="bg-gradient-to-b from-emerald-950 via-emerald-900 to-emerald-800 px-5 pb-8 pt-6 text-white">
+      <section className="bg-gradient-to-b from-emerald-950 via-emerald-900 to-emerald-800 px-5 pb-7 pt-6 text-white">
         <div className="mx-auto max-w-[480px]">
           <Link href="/switzerland" className="text-sm text-white/90 no-underline">
             ← Switzerland
@@ -68,16 +68,17 @@ export default async function GolfInSwissAlpsPage() {
           </h1>
 
           <p className="mt-4 text-[15px] leading-6 text-emerald-50/95">
-            Explore golf courses in alpine and mountain regions of Switzerland.
-            Find scenic courses where independent guests can play, with clear
-            access, season and handicap information before contacting the club.
+            Explore golf courses in Switzerland’s alpine and mountain regions,
+            where independent guests can play surrounded by dramatic scenery,
+            cooler summer air and some of the country’s most memorable golfing
+            landscapes.
           </p>
 
-          <div className="mt-5 rounded-3xl border border-white/15 bg-white/10 p-4 backdrop-blur-sm">
-            <div className="text-[22px] font-semibold">{courseCount}</div>
-            <div className="text-sm text-emerald-100">
-              listed mountain and alpine golf courses
-            </div>
+          <div className="mt-4 inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/10 px-4 py-2 backdrop-blur-sm">
+            <span className="text-[18px] font-semibold">{courseCount}</span>
+            <span className="text-sm text-emerald-100">
+              alpine golf courses
+            </span>
           </div>
         </div>
       </section>
@@ -89,15 +90,29 @@ export default async function GolfInSwissAlpsPage() {
           </h2>
 
           <p className="mt-3 text-sm leading-6 text-slate-600">
-            Alpine golf in Switzerland is different from city golf. Courses can
-            offer dramatic scenery, cooler summer conditions and more seasonal
-            playing windows, especially in higher-altitude regions.
+            Golf in the Swiss Alps is a very different experience from playing
+            near Zurich, Geneva or Basel. Courses in regions such as Valais and
+            Graubünden are shaped by altitude, mountain views and shorter
+            playing seasons, making them ideal for golfers who want scenery and
+            a sense of place rather than simply the closest tee time.
           </p>
 
           <p className="mt-3 text-sm leading-6 text-slate-600">
-            GuestPlayGolf helps independent guests compare where they can play,
-            when access is typically available and what handicap requirements
-            may apply.
+            Alpine golf can mean dramatic backdrops, cooler summer temperatures
+            and more varied terrain, from resort-style mountain courses to
+            quieter regional clubs. The trade-off is that seasonality matters
+            more: opening dates, snow conditions and weather can affect when
+            courses are playable.
+          </p>
+
+          <p className="mt-3 text-sm leading-6 text-slate-600">
+            These regions are usually less immediate than the major city hubs,
+            often requiring an onward train or car journey from Zurich, Geneva or
+            Basel. That extra travel is part of the appeal: Swiss alpine golf is
+            best suited to day trips, weekend breaks and golfers looking for a
+            more scenic round. GuestPlayGolf helps you understand where
+            independent guests can play, when access is available and what each
+            course requires.
           </p>
         </div>
 
