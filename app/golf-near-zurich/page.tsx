@@ -85,7 +85,7 @@ export default async function GolfNearZurichPage() {
 
   return (
     <main className="min-h-screen bg-stone-100 text-slate-800">
-      <section className="bg-gradient-to-b from-emerald-950 via-emerald-900 to-emerald-800 px-5 pb-8 pt-6 text-white">
+      <section className="bg-gradient-to-b from-emerald-950 via-emerald-900 to-emerald-800 px-5 pb-7 pt-6 text-white">
         <div className="mx-auto max-w-[480px]">
           <Link href="/switzerland" className="text-sm text-white/90 no-underline">
             ← Switzerland
@@ -106,11 +106,11 @@ export default async function GolfNearZurichPage() {
             contacting the club.
           </p>
 
-          <div className="mt-5 rounded-3xl border border-white/15 bg-white/10 p-4 backdrop-blur-sm">
-            <div className="text-[22px] font-semibold">{courseCount}</div>
-            <div className="text-sm text-emerald-100">
-              listed golf courses around Zurich
-            </div>
+          <div className="mt-4 inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/10 px-4 py-2 backdrop-blur-sm">
+            <span className="text-[18px] font-semibold">{courseCount}</span>
+            <span className="text-sm text-emerald-100">
+              courses around Zurich
+            </span>
           </div>
         </div>
       </section>
@@ -122,16 +122,30 @@ export default async function GolfNearZurichPage() {
           </h2>
 
           <p className="mt-3 text-sm leading-6 text-slate-600">
-            Zurich is one of the most practical starting points for independent
-            guest golf in Switzerland. The surrounding area includes courses in
-            Zurich, Zug, Aargau and Schwyz, giving golfers a wider choice of
-            guest-friendly options within day-trip distance.
+            Zurich is the most practical base for golf in Switzerland, with a
+            strong concentration of courses within easy reach of the city. The
+            surrounding regions — including Zug, Aargau and Schwyz — offer a
+            wide mix of layouts, typically more playable and less extreme than
+            alpine courses, making the area ideal for consistent rounds and
+            short-notice golf.
           </p>
 
           <p className="mt-3 text-sm leading-6 text-slate-600">
-            GuestPlayGolf helps you quickly see which courses welcome
-            independent guests, when access is available and whether handicap
-            requirements apply.
+            Golf around Zurich is defined by accessibility and reliability
+            rather than altitude or remoteness. Many courses are set in
+            parkland-style terrain or gently rolling landscapes, offering
+            enjoyable, well-maintained conditions without the travel complexity
+            of mountain regions. This makes Zurich particularly well suited for
+            weekend golf trips or combining golf with business travel.
+          </p>
+
+          <p className="mt-3 text-sm leading-6 text-slate-600">
+            Zurich is also the best-connected golf hub in the country, with
+            direct international access via Zurich Airport and fast train links
+            across Switzerland. Most courses can be reached within 30–60
+            minutes. GuestPlayGolf helps you quickly identify where independent
+            guests can play, when access is available and what each course
+            requires.
           </p>
         </div>
 
