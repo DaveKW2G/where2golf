@@ -35,6 +35,14 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       url: `${baseUrl}/golf-near-lausanne`,
       lastModified: new Date(),
     },
+    {
+      url: `${baseUrl}/golf-near-lucerne`,
+      lastModified: new Date(),
+    },
+    {
+      url: `${baseUrl}/golf-in-the-swiss-alps`,
+      lastModified: new Date(),
+    },
   ]
 
   const regions = [
