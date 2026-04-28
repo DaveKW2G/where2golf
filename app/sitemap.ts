@@ -23,6 +23,18 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       url: `${baseUrl}/golf-near-zurich`,
       lastModified: new Date(),
     },
+    {
+      url: `${baseUrl}/golf-near-geneva`,
+      lastModified: new Date(),
+    },
+    {
+      url: `${baseUrl}/golf-near-basel`,
+      lastModified: new Date(),
+    },
+    {
+      url: `${baseUrl}/golf-near-lausanne`,
+      lastModified: new Date(),
+    },
   ]
 
   const regions = [
