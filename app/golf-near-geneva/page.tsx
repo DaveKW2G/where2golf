@@ -5,7 +5,6 @@ import CourseCard from "@/components/CourseCard"
 
 const siteUrl = "https://guestplaygolf.com"
 
-// Geneva coordinates
 const genevaLat = 46.2044
 const genevaLng = 6.1432
 
@@ -85,8 +84,7 @@ export default async function GolfNearGenevaPage() {
 
   return (
     <main className="min-h-screen bg-stone-100 text-slate-800">
-      {/* HERO */}
-      <section className="bg-gradient-to-b from-emerald-950 via-emerald-900 to-emerald-800 px-5 pb-8 pt-6 text-white">
+      <section className="bg-gradient-to-b from-emerald-950 via-emerald-900 to-emerald-800 px-5 pb-7 pt-6 text-white">
         <div className="mx-auto max-w-[480px]">
           <Link href="/switzerland" className="text-sm text-white/90 no-underline">
             ← Switzerland
@@ -107,16 +105,15 @@ export default async function GolfNearGenevaPage() {
             contacting the club.
           </p>
 
-          <div className="mt-5 rounded-3xl border border-white/15 bg-white/10 p-4 backdrop-blur-sm">
-            <div className="text-[22px] font-semibold">{courseCount}</div>
-            <div className="text-sm text-emerald-100">
-              listed golf courses around Geneva
-            </div>
+          <div className="mt-4 inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/10 px-4 py-2 backdrop-blur-sm">
+            <span className="text-[18px] font-semibold">{courseCount}</span>
+            <span className="text-sm text-emerald-100">
+              courses around Geneva
+            </span>
           </div>
         </div>
       </section>
 
-      {/* CONTENT */}
       <section className="mx-auto max-w-[480px] px-5 py-6">
         <div className="rounded-3xl bg-white p-5 shadow-sm ring-1 ring-slate-200/70">
           <h2 className="text-lg font-semibold text-slate-900">
@@ -124,18 +121,29 @@ export default async function GolfNearGenevaPage() {
           </h2>
 
           <p className="mt-3 text-sm leading-6 text-slate-600">
-            Geneva offers a more limited but high-quality golf landscape for
-            independent guests. Courses are often more private, so understanding
-            access rules and booking requirements is especially important.
+            Geneva offers one of the most distinctive golf settings in Switzerland,
+            with a more selective club landscape and high-quality courses around
+            the city and Lake Geneva. Compared with Zurich, the market is more
+            private and access can be more restricted, so understanding guest
+            rules before travelling matters more here.
           </p>
 
           <p className="mt-3 text-sm leading-6 text-slate-600">
-            Nearby regions such as Vaud and Fribourg provide additional options,
-            expanding the range of playable courses within a short drive.
+            Golf near Geneva combines lakeside scenery, traditional club
+            environments and easy access into neighbouring Vaud and Fribourg.
+            The region can suit golfers looking for a premium day out, but it
+            rewards better planning than more open golf areas.
+          </p>
+
+          <p className="mt-3 text-sm leading-6 text-slate-600">
+            Geneva is well connected internationally through Geneva Airport, with
+            strong train links along Lake Geneva and into western Switzerland.
+            Many nearby golf options can be reached within 30–60 minutes by car,
+            making it a practical base for visitors, business travellers and
+            golfers planning a longer Swiss trip.
           </p>
         </div>
 
-        {/* REGION LINKS */}
         <div className="mt-6 flex flex-wrap gap-2">
           {genevaRegions.map((region, index) => (
             <Link
@@ -158,7 +166,6 @@ export default async function GolfNearGenevaPage() {
           </div>
         )}
 
-        {/* COURSES */}
         <div className="mt-6 grid gap-4">
           {coursesWithDistance.map((course) => (
             <CourseCard
@@ -170,7 +177,6 @@ export default async function GolfNearGenevaPage() {
           ))}
         </div>
 
-        {/* INFO */}
         <div className="mt-6 rounded-3xl bg-white p-5 shadow-sm ring-1 ring-slate-200/70">
           <h2 className="text-base font-semibold text-slate-900">
             Playing as an independent guest near Geneva
@@ -183,7 +189,6 @@ export default async function GolfNearGenevaPage() {
           </p>
         </div>
 
-        {/* NAV */}
         <div className="mt-6 rounded-3xl bg-white p-5 shadow-sm ring-1 ring-slate-200/70">
           <h2 className="text-base font-semibold text-slate-900">
             Explore more Swiss golf
