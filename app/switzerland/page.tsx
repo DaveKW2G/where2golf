@@ -35,6 +35,11 @@ const popularDestinations = [
     href: '/golf-near-zurich',
     description: 'Explore guest-friendly golf courses around Zurich, Zug, Aargau and Schwyz.',
   },
+  {
+    title: 'Golf near Geneva',
+    href: '/golf-near-geneva',
+    description: 'Find golf courses around Geneva, Vaud and Fribourg with independent guest access.',
+  },
 ]
 
 export const metadata: Metadata = {
