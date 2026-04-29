@@ -71,7 +71,12 @@ export default async function GolfNearLucernePage() {
       ?.map((course) => {
         const distance =
           course.latitude != null && course.longitude != null
-            ? getDistanceKm(lucerneLat, lucerneLng, course.latitude, course.longitude)
+            ? getDistanceKm(
+                lucerneLat,
+                lucerneLng,
+                course.latitude,
+                course.longitude
+              )
             : undefined
 
         return {
@@ -106,11 +111,10 @@ export default async function GolfNearLucernePage() {
             contacting the club.
           </p>
 
-          <div className="mt-5 rounded-3xl border border-white/15 bg-white/10 p-4 backdrop-blur-sm">
-            <div className="text-[22px] font-semibold">{courseCount}</div>
-            <div className="text-sm text-emerald-100">
-              listed golf courses around Lucerne
-            </div>
+          <div className="mt-5">
+            <span className="inline-block rounded-full bg-white/15 px-4 py-2 text-sm font-semibold text-white backdrop-blur">
+              {courseCount} courses around Lucerne
+            </span>
           </div>
         </div>
       </section>
@@ -122,13 +126,23 @@ export default async function GolfNearLucernePage() {
           </h2>
 
           <p className="mt-3 text-sm leading-6 text-slate-600">
-            Lucerne is a strong base for central Swiss golf, with access to
-            courses around Lucerne, Zug, Schwyz and nearby Aargau.
+            Lucerne is one of the strongest bases for golf in central Switzerland,
+            combining excellent transport links with access to courses around
+            Lucerne, Zug, Schwyz and Aargau.
           </p>
 
           <p className="mt-3 text-sm leading-6 text-slate-600">
-            GuestPlayGolf helps independent guests compare access rules,
-            handicap requirements and course details before contacting the club.
+            Golf near Lucerne often has a scenic, central Swiss feel, with lake
+            settings, rolling countryside and mountain views all within practical
+            reach. It works well for independent guests looking for either a
+            quick local round or a more memorable day trip.
+          </p>
+
+          <p className="mt-3 text-sm leading-6 text-slate-600">
+            Because Lucerne sits between Zurich, Zug and the alpine cantons, many
+            courses can be reached by car or public transport in under an hour,
+            making it a useful hub for comparing guest access across central
+            Switzerland.
           </p>
         </div>
 
