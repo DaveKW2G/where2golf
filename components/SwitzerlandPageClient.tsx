@@ -53,39 +53,47 @@ export default function SwitzerlandPageClient() {
   }
 
   return (
-    <div className="rounded-2xl bg-white p-5 shadow-sm">
+    <div className="rounded-2xl bg-white p-5 shadow-sm ring-1 ring-slate-200/70">
       <h2 className="text-[18px] font-semibold text-slate-900">
-        Quick access
+        Find golf in Switzerland
       </h2>
+
+      <p className="mt-2 text-sm leading-6 text-slate-600">
+        Use GuestPlayGolf to quickly find courses near you, see where you can
+        play today, or browse the full Swiss golf directory.
+      </p>
 
       <div className="mt-4 grid gap-3">
         <button
-          onClick={handlePlayToday}
-          className="rounded-xl bg-emerald-700 px-5 py-4 text-left text-white"
+          onClick={handleNearMe}
+          className="rounded-2xl bg-emerald-800 px-5 py-4 text-left text-white shadow-sm"
         >
-          <div className="font-semibold">Play Today</div>
-          <p className="text-sm opacity-80">
-            Find nearby courses that may be playable today
+          <div className="font-semibold">📍 Find golf near me</div>
+          <p className="mt-1 text-sm leading-5 text-white/85">
+            Use your location to find nearby golf courses that welcome
+            independent guests.
           </p>
         </button>
 
         <button
-          onClick={handleNearMe}
-          className="rounded-xl border px-5 py-4 text-left"
+          onClick={handlePlayToday}
+          className="rounded-2xl bg-white px-5 py-4 text-left text-slate-900 shadow-sm ring-1 ring-slate-200"
         >
-          <div className="font-semibold">Near Me</div>
-          <p className="text-sm text-slate-600">
-            Explore golf courses closest to your location
+          <div className="font-semibold">🟢 Play today</div>
+          <p className="mt-1 text-sm leading-5 text-slate-600">
+            Check nearby courses where guest play may be available today based on
+            access rules and seasonality.
           </p>
         </button>
 
         <Link
           href="/results"
-          className="block rounded-xl border px-5 py-4 no-underline"
+          className="block rounded-2xl bg-white px-5 py-4 text-slate-900 no-underline shadow-sm ring-1 ring-slate-200"
         >
-          <div className="font-semibold">Browse all golf in Switzerland</div>
-          <p className="text-sm text-slate-600">
-            View all courses in the directory
+          <div className="font-semibold">⚙️ Browse all Swiss golf courses</div>
+          <p className="mt-1 text-sm leading-5 text-slate-600">
+            Open the full course search and filter by region, holes, handicap and
+            guest access.
           </p>
         </Link>
       </div>
