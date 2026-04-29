@@ -10,38 +10,56 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     .from('courses')
     .select('id, updated_at')
 
+  const now = new Date()
+
   const staticPages = [
     {
       url: baseUrl,
-      lastModified: new Date(),
+      lastModified: now,
+      changeFrequency: 'weekly' as const,
+      priority: 1,
     },
     {
       url: `${baseUrl}/switzerland`,
-      lastModified: new Date(),
+      lastModified: now,
+      changeFrequency: 'weekly' as const,
+      priority: 0.9,
     },
     {
       url: `${baseUrl}/golf-near-zurich`,
-      lastModified: new Date(),
+      lastModified: now,
+      changeFrequency: 'weekly' as const,
+      priority: 0.8,
     },
     {
       url: `${baseUrl}/golf-near-geneva`,
-      lastModified: new Date(),
+      lastModified: now,
+      changeFrequency: 'weekly' as const,
+      priority: 0.8,
     },
     {
       url: `${baseUrl}/golf-near-basel`,
-      lastModified: new Date(),
+      lastModified: now,
+      changeFrequency: 'weekly' as const,
+      priority: 0.8,
     },
     {
       url: `${baseUrl}/golf-near-lausanne`,
-      lastModified: new Date(),
+      lastModified: now,
+      changeFrequency: 'weekly' as const,
+      priority: 0.8,
     },
     {
       url: `${baseUrl}/golf-near-lucerne`,
-      lastModified: new Date(),
+      lastModified: now,
+      changeFrequency: 'weekly' as const,
+      priority: 0.8,
     },
     {
       url: `${baseUrl}/golf-in-the-swiss-alps`,
-      lastModified: new Date(),
+      lastModified: now,
+      changeFrequency: 'weekly' as const,
+      priority: 0.8,
     },
   ]
 
@@ -53,7 +71,9 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
   const regionPages = regions.map((region) => ({
     url: `${baseUrl}/switzerland/${region}`,
-    lastModified: new Date(),
+    lastModified: now,
+    changeFrequency: 'weekly' as const,
+    priority: 0.7,
   }))
 
   const coursePages =
@@ -61,7 +81,9 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       url: `${baseUrl}/courses/${course.id}`,
       lastModified: course.updated_at
         ? new Date(course.updated_at)
-        : new Date(),
+        : now,
+      changeFrequency: 'monthly' as const,
+      priority: 0.6,
     })) || []
 
   return [
