@@ -134,114 +134,84 @@ export default function SwitzerlandPage() {
               GuestPlayGolf helps you see where you can play, when you can play,
               and what each course requires.
             </p>
+
+            <div className="mt-5 flex flex-wrap gap-2">
+              <a
+                href="#find-golf"
+                className="rounded-full bg-white/15 px-3 py-2 text-xs font-semibold text-white no-underline backdrop-blur"
+              >
+                Find courses
+              </a>
+              <a
+                href="#planning"
+                className="rounded-full bg-white/15 px-3 py-2 text-xs font-semibold text-white no-underline backdrop-blur"
+              >
+                Plan your golf
+              </a>
+              <a
+                href="#city-guides"
+                className="rounded-full bg-white/15 px-3 py-2 text-xs font-semibold text-white no-underline backdrop-blur"
+              >
+                City guides
+              </a>
+              <a
+                href="#regions"
+                className="rounded-full bg-white/15 px-3 py-2 text-xs font-semibold text-white no-underline backdrop-blur"
+              >
+                Regions
+              </a>
+            </div>
           </div>
         </div>
       </section>
 
       <section className="mx-auto max-w-[480px] px-5 py-6">
-        <SwitzerlandPageClient />
+        <div id="find-golf" className="scroll-mt-6">
+          <SwitzerlandPageClient />
+        </div>
 
-        <div className="mt-6 rounded-2xl bg-white p-5 shadow-sm ring-1 ring-slate-200/70">
+        <div
+          id="planning"
+          className="mt-6 scroll-mt-6 rounded-2xl bg-white p-5 shadow-sm ring-1 ring-slate-200/70"
+        >
           <h2 className="text-[18px] font-semibold text-slate-900">
             Planning golf in Switzerland
           </h2>
 
-          <div className="mt-4 space-y-4">
-            <div>
-              <h3 className="text-sm font-semibold text-slate-900">
-                Best connected golf hubs
-              </h3>
-              <p className="mt-2 text-sm leading-6 text-slate-600">
-                Zurich, Geneva, Basel, Lausanne and Lucerne are the most useful
-                starting points for planning golf in Switzerland. Zurich offers
-                the strongest concentration of nearby courses, Geneva is more
-                premium and selective, Basel is compact and practical, Lausanne
-                combines Lake Geneva access with scenic golf, and Lucerne works
-                well for central Switzerland.
-              </p>
-            </div>
-
-            <div>
-              <h3 className="text-sm font-semibold text-slate-900">
-                Mountain and alpine golf
-              </h3>
-              <p className="mt-2 text-sm leading-6 text-slate-600">
-                Switzerland also has memorable mountain golf, especially in
-                Valais, Graubünden and alpine resort regions. These courses can
-                offer spectacular scenery, but the season is often shorter than
-                lower-altitude courses, so access and opening months matter.
-              </p>
-            </div>
-
-            <div>
-              <h3 className="text-sm font-semibold text-slate-900">
-                Guest access and requirements
-              </h3>
-              <p className="mt-2 text-sm leading-6 text-slate-600">
-                Independent guest play in Switzerland is possible at many clubs,
-                but rules vary. Some courses require a recognised handicap,
-                official golf membership, advance booking, or restrict guest play
-                on weekends and public holidays.
-              </p>
-            </div>
-          </div>
-        </div>
-
-        <div className="mt-6 rounded-2xl bg-white p-5 shadow-sm ring-1 ring-slate-200/70">
-          <h2 className="text-[18px] font-semibold text-slate-900">
-            Find golf in Switzerland
-          </h2>
-
-          <p className="mt-2 text-sm leading-6 text-slate-600">
-            Use GuestPlayGolf to quickly find courses near you, see where you can
-            play today, or refine your search by region, guest access, handicap
-            and course details.
+          <p className="mt-3 text-sm leading-6 text-slate-700">
+            Golf in Switzerland is unusually varied for such a compact country.
+            A round can mean a practical city course near Zurich, a premium lake
+            setting around Geneva or Lausanne, a central Swiss day trip near
+            Lucerne, or a memorable alpine course surrounded by mountain views.
           </p>
 
-          <div className="mt-4 grid gap-3">
-            <Link
-              href="/results?source=near-me"
-              className="block rounded-2xl bg-emerald-800 px-5 py-4 text-white no-underline shadow-sm"
-            >
-              <div className="font-semibold">📍 Find golf near me</div>
-              <p className="mt-1 text-sm leading-5 text-white/85">
-                Use your location to find nearby golf courses that welcome
-                independent guests.
-              </p>
-            </Link>
+          <p className="mt-3 text-sm leading-6 text-slate-700">
+            The best base depends on the type of golf you want. Zurich is the
+            strongest all-round hub for course choice and transport links. Geneva
+            and Lausanne are ideal for Lake Geneva golf, Basel is compact and
+            convenient, while Lucerne gives easy access to central Switzerland and
+            more scenic day-trip options.
+          </p>
 
-            <Link
-              href="/results?today=true"
-              className="block rounded-2xl bg-white px-5 py-4 text-slate-900 no-underline shadow-sm ring-1 ring-slate-200"
-            >
-              <div className="font-semibold">🟢 Play today</div>
-              <p className="mt-1 text-sm leading-5 text-slate-600">
-                Check courses where guest play may be available today based on
-                access rules and seasonality.
-              </p>
-            </Link>
-
-            <Link
-              href="/results"
-              className="block rounded-2xl bg-white px-5 py-4 text-slate-900 no-underline shadow-sm ring-1 ring-slate-200"
-            >
-              <div className="font-semibold">⚙️ Browse all Swiss golf courses</div>
-              <p className="mt-1 text-sm leading-5 text-slate-600">
-                Open the full course search and filter by region, holes, handicap
-                and guest access.
-              </p>
-            </Link>
-          </div>
+          <p className="mt-3 text-sm leading-6 text-slate-700">
+            Alpine golf is one of Switzerland’s real strengths, especially in
+            Valais and Graubünden. These courses can feel special and memorable,
+            but they are also more seasonal, so opening months, weather and guest
+            access are worth checking carefully before you travel.
+          </p>
         </div>
 
-        <div className="mt-6 rounded-2xl bg-white p-5 shadow-sm ring-1 ring-slate-200/70">
+        <div
+          id="city-guides"
+          className="mt-6 scroll-mt-6 rounded-2xl bg-white p-5 shadow-sm ring-1 ring-slate-200/70"
+        >
           <h2 className="text-[18px] font-semibold text-slate-900">
             Golf near major Swiss cities
           </h2>
 
           <p className="mt-2 text-sm leading-6 text-slate-600">
-            Start with high-demand golf locations where visitors and independent
-            guests commonly search for nearby courses, practical access and clear
+            Start with high-demand golf locations where independent guests
+            commonly search for nearby courses, practical access and clear
             playing requirements.
           </p>
 
@@ -263,7 +233,10 @@ export default function SwitzerlandPage() {
           </div>
         </div>
 
-        <div className="mt-6 rounded-2xl bg-white p-5 shadow-sm ring-1 ring-slate-200/70">
+        <div
+          id="regions"
+          className="mt-6 scroll-mt-6 rounded-2xl bg-white p-5 shadow-sm ring-1 ring-slate-200/70"
+        >
           <h2 className="text-[18px] font-semibold text-slate-900">
             Browse golf in Switzerland by region
           </h2>
@@ -317,11 +290,28 @@ export default function SwitzerlandPage() {
           </h2>
 
           <ul className="mt-3 space-y-2 text-sm leading-6 text-slate-700">
-            <li>• Many courses require a recognised handicap</li>
-            <li>• A valid golf membership or Swiss Golf Card may be expected</li>
-            <li>• Weekend guest access can be more limited than weekdays</li>
-            <li>• Booking in advance is usually required</li>
-            <li>• Playing seasons vary, especially for higher-altitude courses</li>
+            <li>• Most Swiss courses require a recognised handicap</li>
+            <li>
+              • A valid golf club membership or Swiss Golf Card is usually
+              expected
+            </li>
+            <li>
+              • Foreign golf memberships are often accepted, but requirements
+              vary by club
+            </li>
+            <li>
+              • Weekend and public holiday guest access is often more restricted
+              than weekday access
+            </li>
+            <li>• Advance booking is normally required</li>
+            <li>
+              • Much of Switzerland has a reduced playing season compared with
+              year-round golf destinations
+            </li>
+            <li>
+              • Alpine courses usually have significantly shorter seasons and
+              are more weather dependent
+            </li>
           </ul>
         </div>
       </section>
