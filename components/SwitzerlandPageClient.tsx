@@ -87,7 +87,7 @@ export default function SwitzerlandPageClient() {
         </button>
 
         <Link
-          href="/results"
+          href="/results?source=switzerland"
           className="block rounded-2xl bg-white px-5 py-4 text-slate-900 no-underline shadow-sm ring-1 ring-slate-200"
         >
           <div className="font-semibold">⚙️ Browse all Swiss golf courses</div>
