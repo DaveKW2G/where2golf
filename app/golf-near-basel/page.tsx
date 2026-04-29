@@ -5,7 +5,6 @@ import CourseCard from "@/components/CourseCard"
 
 const siteUrl = "https://guestplaygolf.com"
 
-// Basel coordinates
 const baselLat = 47.5596
 const baselLng = 7.5886
 
@@ -85,7 +84,7 @@ export default async function GolfNearBaselPage() {
 
   return (
     <main className="min-h-screen bg-stone-100 text-slate-800">
-      <section className="bg-gradient-to-b from-emerald-950 via-emerald-900 to-emerald-800 px-5 pb-8 pt-6 text-white">
+      <section className="bg-gradient-to-b from-emerald-950 via-emerald-900 to-emerald-800 px-5 pb-7 pt-6 text-white">
         <div className="mx-auto max-w-[480px]">
           <Link href="/switzerland" className="text-sm text-white/90 no-underline">
             ← Switzerland
@@ -106,11 +105,11 @@ export default async function GolfNearBaselPage() {
             contacting the club.
           </p>
 
-          <div className="mt-5 rounded-3xl border border-white/15 bg-white/10 p-4 backdrop-blur-sm">
-            <div className="text-[22px] font-semibold">{courseCount}</div>
-            <div className="text-sm text-emerald-100">
-              listed golf courses around Basel
-            </div>
+          <div className="mt-4 inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/10 px-4 py-2 backdrop-blur-sm">
+            <span className="text-[18px] font-semibold">{courseCount}</span>
+            <span className="text-sm text-emerald-100">
+              courses around Basel
+            </span>
           </div>
         </div>
       </section>
@@ -122,14 +121,27 @@ export default async function GolfNearBaselPage() {
           </h2>
 
           <p className="mt-3 text-sm leading-6 text-slate-600">
-            Basel offers access to a compact but relevant golf market, with
-            additional options extending into nearby regions such as
-            Basel-Landschaft and Aargau.
+            Basel is a practical golf base for north-west Switzerland, with a
+            compact selection of courses around the city and nearby
+            Basel-Landschaft. It is not as broad a golf market as Zurich, but it
+            works well for golfers who want shorter journeys, quieter regional
+            clubs and straightforward access from the city.
           </p>
 
           <p className="mt-3 text-sm leading-6 text-slate-600">
-            GuestPlayGolf helps you identify which courses welcome independent
-            guests, when access is available and what requirements apply.
+            Golf near Basel often feels more regional and understated, with
+            established parkland-style courses and additional options extending
+            into Aargau. The appeal is convenience rather than volume: fewer
+            courses, but several realistic choices for independent guests within
+            a manageable travel radius.
+          </p>
+
+          <p className="mt-3 text-sm leading-6 text-slate-600">
+            Basel is also one of Switzerland’s best-connected border cities,
+            with access via EuroAirport Basel-Mulhouse and strong rail links
+            into Switzerland, France and Germany. GuestPlayGolf helps you compare
+            which nearby courses welcome independent guests, when access is
+            available and what each course requires.
           </p>
         </div>
 
