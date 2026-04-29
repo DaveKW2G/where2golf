@@ -160,6 +160,12 @@ export default function SwitzerlandPage() {
               >
                 Regions
               </a>
+              <a
+                href="#key-things"
+                className="rounded-full bg-white/15 px-3 py-2 text-xs font-semibold text-white no-underline backdrop-blur"
+              >
+                Key things
+              </a>
             </div>
           </div>
         </div>
@@ -284,7 +290,10 @@ export default function SwitzerlandPage() {
           </p>
         </div>
 
-        <div className="mt-6 rounded-2xl bg-white p-5 shadow-sm ring-1 ring-slate-200/70">
+        <div
+          id="key-things"
+          className="mt-6 scroll-mt-6 rounded-2xl bg-white p-5 shadow-sm ring-1 ring-slate-200/70"
+        >
           <h2 className="text-[18px] font-semibold text-slate-900">
             Golf in Switzerland — key things to know
           </h2>
