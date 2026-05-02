@@ -17,47 +17,11 @@ interface CourseCardProps {
   searchParams?: Record<string, string | string[] | undefined>
 }
 
-function buildCourseHref(
-  id: number,
-  searchParams?: Record<string, string | string[] | undefined>,
-  userLat?: number | null,
-  userLng?: number | null
-) {
-  const params = new URLSearchParams()
-
-  if (searchParams) {
-    for (const [key, value] of Object.entries(searchParams)) {
-      if (typeof value === "string" && value.trim() !== "") {
-        params.set(key, value)
-      } else if (Array.isArray(value)) {
-        value.forEach((item) => {
-          if (item.trim() !== "") {
-            params.append(key, item)
-          }
-        })
-      }
-    }
-  }
-
-  if (userLat != null && !params.get("lat")) {
-    params.set("lat", String(userLat))
-  }
-
-  if (userLng != null && !params.get("lng")) {
-    params.set("lng", String(userLng))
-  }
-
-  const queryString = params.toString()
-  return queryString ? `/courses/${id}?${queryString}` : `/courses/${id}`
-}
-
-// ✅ NEW FUNCTION
 function isLikelyOpenToday(guestPlay?: string): boolean {
   const today = new Date()
   const month = today.getMonth() + 1
-  const day = today.getDay() // 0 = Sunday
+  const day = today.getDay()
 
-  // Winter (very unlikely open)
   if (month <= 2 || month === 12) return false
 
   const isWeekend = day === 0 || day === 6
@@ -76,16 +40,12 @@ export default function CourseCard({
   region,
   holes,
   independent_guest_days,
-  season,
-  price_range,
   course_image,
   distance,
   max_handicap,
-  userLat,
-  userLng,
   searchParams,
 }: CourseCardProps) {
-  const href = buildCourseHref(id, searchParams, userLat, userLng)
+  const href = `/courses/${id}`
 
   let guestLabel = independent_guest_days
 
@@ -96,20 +56,20 @@ export default function CourseCard({
   return (
     <Link
       href={href}
-      className="block overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm hover:shadow-md transition"
+      className="block overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm transition hover:shadow-md"
     >
       {course_image && (
         <div className="relative h-44 w-full overflow-hidden">
           <img
             src={course_image}
-            alt={course_name}
+            alt={`${course_name} golf course`}
             className="h-full w-full object-cover"
           />
           <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent" />
         </div>
       )}
 
-      <div className="p-4 space-y-1.5">
+      <div className="space-y-1.5 p-4">
         <h3 className="text-[17px] font-semibold text-slate-900">
           {course_name}
         </h3>
@@ -124,7 +84,6 @@ export default function CourseCard({
           </p>
         )}
 
-        {/* ✅ NEW BADGE */}
         {searchParams?.today === "true" &&
           isLikelyOpenToday(independent_guest_days) && (
             <div className="mt-2">
