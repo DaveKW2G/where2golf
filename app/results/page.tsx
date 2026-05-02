@@ -154,7 +154,14 @@ export default async function ResultsPage({ searchParams }: ResultsPageProps) {
 
   const hasLocation = userLat != null && userLng != null
 
-  const backHref = params.source === "home" ? "/" : "/filters"
+  // ✅ FIXED BACK LOGIC
+  const backHref =
+    params.source === "home"
+      ? "/"
+      : params.source === "switzerland"
+      ? "/switzerland"
+      : "/filters"
+
   const selectedHandicap =
     params.handicap && params.handicap !== "N/A"
       ? Number(params.handicap)
@@ -302,73 +309,6 @@ export default async function ResultsPage({ searchParams }: ResultsPageProps) {
           </div>
         </div>
       </section>
-
-      {params.today === "true" && (
-        <div className="mx-auto mt-3 max-w-[480px] px-5">
-          <p className="text-[13px] text-slate-500">
-            Availability is based on typical season and access rules. Always confirm with the club.
-          </p>
-        </div>
-      )}
-
-      <div className="mx-auto max-w-[480px] px-5 py-3">
-        <div className="mb-3 flex flex-wrap gap-2">
-          {params.price && <FilterChip label={`Price: ${params.price}`} />}
-          {params.region && (
-            <FilterChip label={regionNames[params.region] || params.region} />
-          )}
-          {params.where && <FilterChip label={`Near ${params.where}`} />}
-          {params.guestPlay && <FilterChip label={params.guestPlay} />}
-          {params.holes && <FilterChip label={`${params.holes} Holes`} />}
-          {params.handicap && (
-            <FilterChip label={`Your handicap: ${params.handicap}`} />
-          )}
-          {params.radius && <FilterChip label={`Within ${params.radius}km`} />}
-        </div>
-
-        {params.handicap && params.handicap !== "N/A" && (
-          <p className="mt-2 text-[13px] text-slate-500">
-            Courses with unspecified handicap requirements are excluded from handicap-filtered results.
-          </p>
-        )}
-
-        {hasLocation && (
-          <div className="mt-3 flex gap-2">
-            <Link
-              href={buildResultsHref(params, { radius: "25" })}
-              className={`rounded-xl border px-3 py-1 text-sm ${
-                params.radius === "25"
-                  ? "border-emerald-700 bg-emerald-700 text-white"
-                  : "border-slate-300 bg-white text-slate-700"
-              }`}
-            >
-              25km
-            </Link>
-
-            <Link
-              href={buildResultsHref(params, { radius: "50" })}
-              className={`rounded-xl border px-3 py-1 text-sm ${
-                params.radius === "50"
-                  ? "border-emerald-700 bg-emerald-700 text-white"
-                  : "border-slate-300 bg-white text-slate-700"
-              }`}
-            >
-              50km
-            </Link>
-
-            <Link
-              href={buildResultsHref(params, { radius: "100" })}
-              className={`rounded-xl border px-3 py-1 text-sm ${
-                params.radius === "100"
-                  ? "border-emerald-700 bg-emerald-700 text-white"
-                  : "border-slate-300 bg-white text-slate-700"
-              }`}
-            >
-              100km
-            </Link>
-          </div>
-        )}
-      </div>
 
       <div className="mx-auto max-w-[480px] px-5 pb-24">
         {error && <p className="text-red-600">Error loading courses</p>}
