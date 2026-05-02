@@ -16,7 +16,7 @@ export default function SwitzerlandPageClient() {
       (position) => {
         const lat = position.coords.latitude
         const lng = position.coords.longitude
-        router.push(`/results?lat=${lat}&lng=${lng}`)
+        router.push(`/results?lat=${lat}&lng=${lng}&source=switzerland`)
       },
       () => {
         alert('Location access was denied. Please allow location access in your browser settings.')
@@ -39,7 +39,7 @@ export default function SwitzerlandPageClient() {
       (position) => {
         const lat = position.coords.latitude
         const lng = position.coords.longitude
-        router.push(`/results?lat=${lat}&lng=${lng}&today=true&radius=50`)
+        router.push(`/results?lat=${lat}&lng=${lng}&today=true&radius=50&source=switzerland`)
       },
       () => {
         alert('Location access was denied. Please allow location access in your browser settings.')
