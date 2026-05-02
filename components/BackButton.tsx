@@ -17,11 +17,19 @@ export default function BackButton({
   const router = useRouter()
 
   function handleClick() {
-    if (window.history.length > 1) {
+    // Check if there is a referrer from the same site
+    const referrer = document.referrer
+    const currentOrigin = window.location.origin
+
+    const isInternalReferrer =
+      referrer && referrer.startsWith(currentOrigin)
+
+    if (isInternalReferrer) {
       router.back()
       return
     }
 
+    // Otherwise go to fallback (clean UX for Google / direct traffic)
     router.push(fallbackHref)
   }
 
