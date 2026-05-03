@@ -126,19 +126,25 @@ export default async function GolfNearWinterthurPage() {
           </h2>
 
           <p className="mt-3 text-sm leading-6 text-slate-600">
-            Winterthur is a useful golf base in northern Zurich, with access to
-            courses across Zurich, Thurgau, Schaffhausen and eastern Switzerland.
+            Winterthur is a strong secondary golf base within the wider Zurich
+            region, especially for players looking north and east of the city.
+            Its location gives independent guests practical access to courses
+            across Zurich, Thurgau, Schaffhausen and parts of eastern
+            Switzerland.
           </p>
 
           <p className="mt-3 text-sm leading-6 text-slate-600">
-            Golf near Winterthur is practical for players who want alternatives
-            to central Zurich, with countryside courses, quieter regional options
-            and good connections towards Lake Constance and eastern Switzerland.
+            Golf near Winterthur is ideal if you want alternatives to the denser
+            Zurich city area. The surrounding region includes countryside
+            courses, quieter local clubs and routes towards Lake Constance,
+            making it useful for both regular play and relaxed day trips.
           </p>
 
           <p className="mt-3 text-sm leading-6 text-slate-600">
-            GuestPlayGolf helps independent guests compare access rules,
-            handicap requirements and course details before contacting the club.
+            Winterthur is well connected by train and road, with fast links to
+            Zurich and useful onward access towards Thurgau and St. Gallen.
+            GuestPlayGolf helps you compare distance, guest access, handicap
+            requirements and course details before deciding where to play.
           </p>
         </div>
 
@@ -171,6 +177,7 @@ export default async function GolfNearWinterthurPage() {
               {...course}
               userLat={winterthurLat}
               userLng={winterthurLng}
+              searchParams={{ source: "winterthur" }}
             />
           ))}
         </div>
