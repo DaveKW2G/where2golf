@@ -106,11 +106,10 @@ export default async function GolfNearBernPage() {
             contacting the club.
           </p>
 
-          <div className="mt-5 rounded-3xl border border-white/15 bg-white/10 p-4 backdrop-blur-sm">
-            <div className="text-[22px] font-semibold">{courseCount}</div>
-            <div className="text-sm text-emerald-100">
-              golf courses around Bern
-            </div>
+          <div className="mt-5">
+            <span className="inline-block rounded-full bg-white/15 px-4 py-2 text-sm font-semibold text-white backdrop-blur">
+              {courseCount} courses around Bern
+            </span>
           </div>
         </div>
       </section>
@@ -122,20 +121,25 @@ export default async function GolfNearBernPage() {
           </h2>
 
           <p className="mt-3 text-sm leading-6 text-slate-600">
-            Bern is a strong central base for golf in Switzerland, with access
-            to courses across the Bern region and nearby cantons such as
-            Fribourg and Solothurn.
+            Bern is one of the most practical bases for golf in central
+            Switzerland. Its location gives independent guests access to courses
+            across the Bern region, with additional options towards Fribourg,
+            Solothurn and the foothills leading towards the Alps.
           </p>
 
           <p className="mt-3 text-sm leading-6 text-slate-600">
-            The area offers a balanced mix of parkland courses and scenic
-            layouts, with many courses within easy driving distance, making it
-            well suited for both regular play and weekend rounds.
+            Golf near Bern is well suited to players who want a balanced mix of
+            parkland-style courses, countryside settings and scenic day-trip
+            options. Compared with Zurich or Geneva, the area feels less like a
+            dense city golf hub and more like a central starting point for
+            exploring different Swiss golf regions.
           </p>
 
           <p className="mt-3 text-sm leading-6 text-slate-600">
-            GuestPlayGolf helps independent guests compare access rules,
-            handicap requirements and course details before contacting the
+            Bern’s rail and road connections make it useful for golfers planning
+            from several directions. Many courses can be reached by car within a
+            practical day-trip window, while nearby regions give you flexibility
+            if weekend access, handicap rules or seasonal opening times vary by
             club.
           </p>
         </div>
