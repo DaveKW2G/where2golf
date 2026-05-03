@@ -126,20 +126,25 @@ export default async function GolfNearLuganoPage() {
           </h2>
 
           <p className="mt-3 text-sm leading-6 text-slate-600">
-            Lugano is the main golf base for southern Switzerland, with access
-            to courses in Ticino and selected alpine options further north.
+            Lugano is the main base for golf in southern Switzerland, giving
+            independent guests access to courses in Ticino and selected mountain
+            regions further north. It offers a very different Swiss golf
+            experience from Zurich, Geneva or Basel.
           </p>
 
           <p className="mt-3 text-sm leading-6 text-slate-600">
-            Golf near Lugano has a different feel from much of Switzerland:
-            warmer weather, Italian-speaking culture, lakeside scenery and
-            mountain surroundings all shape the experience.
+            Golf near Lugano is shaped by lakeside scenery, warmer weather,
+            Italian-speaking culture and mountain surroundings. The area is best
+            suited to golfers looking for a more scenic, southern Swiss golf day,
+            rather than a dense city cluster with many courses close together.
           </p>
 
           <p className="mt-3 text-sm leading-6 text-slate-600">
-            GuestPlayGolf helps independent guests compare access rules,
-            handicap requirements and course details before contacting the club,
-            especially where seasons and travel distances can vary.
+            Lugano is well connected by road and rail, but travel times can vary
+            more than in the larger Swiss hubs because valleys, tunnels and
+            mountain routes shape access. GuestPlayGolf helps you compare course
+            distance, guest rules, handicap requirements and seasonal access
+            before contacting the club.
           </p>
         </div>
 
@@ -172,6 +177,7 @@ export default async function GolfNearLuganoPage() {
               {...course}
               userLat={luganoLat}
               userLng={luganoLng}
+              searchParams={{ source: "lugano" }}
             />
           ))}
         </div>
