@@ -1,5 +1,6 @@
 import type { Metadata } from "next"
 import Link from "next/link"
+import IrelandPageClient from "@/components/IrelandPageClient"
 
 const siteUrl = "https://guestplaygolf.com"
 
@@ -51,7 +52,6 @@ const popularDestinations = [
 export default function IrelandPage() {
   return (
     <main className="min-h-screen bg-stone-100 text-slate-800">
-      {/* HERO */}
       <section className="relative overflow-hidden px-5 pb-8 pt-5 text-white">
         <div
           className="absolute inset-0 bg-cover bg-center"
@@ -101,8 +101,9 @@ export default function IrelandPage() {
       </section>
 
       <section className="mx-auto max-w-[480px] px-5 py-6">
-        {/* PLANNING */}
-        <div className="rounded-2xl bg-white p-5 shadow-sm ring-1 ring-slate-200/70">
+        <IrelandPageClient />
+
+        <div className="mt-6 rounded-2xl bg-white p-5 shadow-sm ring-1 ring-slate-200/70">
           <h2 className="text-[18px] font-semibold text-slate-900">
             Planning golf in Ireland
           </h2>
@@ -128,7 +129,6 @@ export default function IrelandPage() {
           </p>
         </div>
 
-        {/* DESTINATIONS */}
         <div className="mt-6 rounded-2xl bg-white p-5 shadow-sm ring-1 ring-slate-200/70">
           <h2 className="text-[18px] font-semibold text-slate-900">
             Golf near major Irish cities
@@ -157,7 +157,6 @@ export default function IrelandPage() {
           </div>
         </div>
 
-        {/* COURSE TYPES */}
         <div className="mt-6 rounded-2xl bg-white p-5 shadow-sm ring-1 ring-slate-200/70">
           <h2 className="text-[18px] font-semibold text-slate-900">
             Types of golf in Ireland
@@ -183,7 +182,6 @@ export default function IrelandPage() {
           </ul>
         </div>
 
-        {/* WHY */}
         <div className="mt-6 rounded-2xl bg-white p-5 shadow-sm ring-1 ring-slate-200/70">
           <h2 className="text-[18px] font-semibold text-slate-900">
             Why use GuestPlayGolf in Ireland

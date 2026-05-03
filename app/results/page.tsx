@@ -154,12 +154,13 @@ export default async function ResultsPage({ searchParams }: ResultsPageProps) {
 
   const hasLocation = userLat != null && userLng != null
 
-  // ✅ FIXED BACK LOGIC
   const backHref =
     params.source === "home"
       ? "/"
       : params.source === "switzerland"
       ? "/switzerland"
+      : params.source === "ireland"
+      ? "/ireland"
       : "/filters"
 
   const selectedHandicap =
