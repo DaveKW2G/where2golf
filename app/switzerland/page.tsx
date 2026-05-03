@@ -61,6 +61,30 @@ const popularDestinations = [
       'Central Swiss golf with lake settings, mountain views and practical access to Lucerne, Zug, Schwyz and Aargau.',
   },
   {
+    title: 'Golf near Bern',
+    href: '/golf-near-bern',
+    description:
+      'A central Swiss base with access to golf across Bern, Fribourg, Solothurn and nearby mountain regions.',
+  },
+  {
+    title: 'Golf near St. Gallen',
+    href: '/golf-near-st-gallen',
+    description:
+      'Eastern Swiss golf across St. Gallen, Thurgau and the Appenzell region, with quieter regional courses.',
+  },
+  {
+    title: 'Golf near Lugano',
+    href: '/golf-near-lugano',
+    description:
+      'Southern Swiss golf in Ticino, with warmer weather, lakeside scenery and mountain surroundings.',
+  },
+  {
+    title: 'Golf near Winterthur',
+    href: '/golf-near-winterthur',
+    description:
+      'A useful northern Zurich base with access towards Thurgau, Schaffhausen and eastern Switzerland.',
+  },
+  {
     title: 'Golf in the Swiss Alps',
     href: '/golf-in-the-swiss-alps',
     description:
@@ -136,34 +160,19 @@ export default function SwitzerlandPage() {
             </p>
 
             <div className="mt-5 flex flex-wrap gap-2">
-              <a
-                href="#find-golf"
-                className="rounded-full bg-white/15 px-3 py-2 text-xs font-semibold text-white no-underline backdrop-blur"
-              >
+              <a href="#find-golf" className="rounded-full bg-white/15 px-3 py-2 text-xs font-semibold text-white no-underline backdrop-blur">
                 Find courses
               </a>
-              <a
-                href="#planning"
-                className="rounded-full bg-white/15 px-3 py-2 text-xs font-semibold text-white no-underline backdrop-blur"
-              >
+              <a href="#planning" className="rounded-full bg-white/15 px-3 py-2 text-xs font-semibold text-white no-underline backdrop-blur">
                 Plan your golf
               </a>
-              <a
-                href="#city-guides"
-                className="rounded-full bg-white/15 px-3 py-2 text-xs font-semibold text-white no-underline backdrop-blur"
-              >
+              <a href="#city-guides" className="rounded-full bg-white/15 px-3 py-2 text-xs font-semibold text-white no-underline backdrop-blur">
                 City guides
               </a>
-              <a
-                href="#regions"
-                className="rounded-full bg-white/15 px-3 py-2 text-xs font-semibold text-white no-underline backdrop-blur"
-              >
+              <a href="#regions" className="rounded-full bg-white/15 px-3 py-2 text-xs font-semibold text-white no-underline backdrop-blur">
                 Regions
               </a>
-              <a
-                href="#key-things"
-                className="rounded-full bg-white/15 px-3 py-2 text-xs font-semibold text-white no-underline backdrop-blur"
-              >
+              <a href="#key-things" className="rounded-full bg-white/15 px-3 py-2 text-xs font-semibold text-white no-underline backdrop-blur">
                 Key things
               </a>
             </div>
@@ -176,10 +185,7 @@ export default function SwitzerlandPage() {
           <SwitzerlandPageClient />
         </div>
 
-        <div
-          id="planning"
-          className="mt-6 scroll-mt-6 rounded-2xl bg-white p-5 shadow-sm ring-1 ring-slate-200/70"
-        >
+        <div id="planning" className="mt-6 scroll-mt-6 rounded-2xl bg-white p-5 shadow-sm ring-1 ring-slate-200/70">
           <h2 className="text-[18px] font-semibold text-slate-900">
             Planning golf in Switzerland
           </h2>
@@ -207,10 +213,7 @@ export default function SwitzerlandPage() {
           </p>
         </div>
 
-        <div
-          id="city-guides"
-          className="mt-6 scroll-mt-6 rounded-2xl bg-white p-5 shadow-sm ring-1 ring-slate-200/70"
-        >
+        <div id="city-guides" className="mt-6 scroll-mt-6 rounded-2xl bg-white p-5 shadow-sm ring-1 ring-slate-200/70">
           <h2 className="text-[18px] font-semibold text-slate-900">
             Golf near major Swiss cities
           </h2>
@@ -239,10 +242,7 @@ export default function SwitzerlandPage() {
           </div>
         </div>
 
-        <div
-          id="regions"
-          className="mt-6 scroll-mt-6 rounded-2xl bg-white p-5 shadow-sm ring-1 ring-slate-200/70"
-        >
+        <div id="regions" className="mt-6 scroll-mt-6 rounded-2xl bg-white p-5 shadow-sm ring-1 ring-slate-200/70">
           <h2 className="text-[18px] font-semibold text-slate-900">
             Browse golf in Switzerland by region
           </h2>
@@ -290,37 +290,19 @@ export default function SwitzerlandPage() {
           </p>
         </div>
 
-        <div
-          id="key-things"
-          className="mt-6 scroll-mt-6 rounded-2xl bg-white p-5 shadow-sm ring-1 ring-slate-200/70"
-        >
+        <div id="key-things" className="mt-6 scroll-mt-6 rounded-2xl bg-white p-5 shadow-sm ring-1 ring-slate-200/70">
           <h2 className="text-[18px] font-semibold text-slate-900">
             Golf in Switzerland — key things to know
           </h2>
 
           <ul className="mt-3 space-y-2 text-sm leading-6 text-slate-700">
             <li>• Most Swiss courses require a recognised handicap</li>
-            <li>
-              • A valid golf club membership or Swiss Golf Card is usually
-              expected
-            </li>
-            <li>
-              • Foreign golf memberships are often accepted, but requirements
-              vary by club
-            </li>
-            <li>
-              • Weekend and public holiday guest access is often more restricted
-              than weekday access
-            </li>
+            <li>• A valid golf club membership or Swiss Golf Card is usually expected</li>
+            <li>• Foreign golf memberships are often accepted, but requirements vary by club</li>
+            <li>• Weekend and public holiday guest access is often more restricted than weekday access</li>
             <li>• Advance booking is normally required</li>
-            <li>
-              • Much of Switzerland has a reduced playing season compared with
-              year-round golf destinations
-            </li>
-            <li>
-              • Alpine courses usually have significantly shorter seasons and
-              are more weather dependent
-            </li>
+            <li>• Much of Switzerland has a reduced playing season compared with year-round golf destinations</li>
+            <li>• Alpine courses usually have significantly shorter seasons and are more weather dependent</li>
           </ul>
         </div>
       </section>
