@@ -126,20 +126,25 @@ export default async function GolfNearStGallenPage() {
           </h2>
 
           <p className="mt-3 text-sm leading-6 text-slate-600">
-            St. Gallen is the key golf base for eastern Switzerland, with access
-            to courses across St. Gallen, Thurgau and the Appenzell region.
+            St. Gallen is the main golf base for eastern Switzerland, giving
+            independent guests access to courses across St. Gallen, Thurgau and
+            the Appenzell region. It fills an important gap between Zurich,
+            Lake Constance and the quieter eastern Swiss countryside.
           </p>
 
           <p className="mt-3 text-sm leading-6 text-slate-600">
-            Golf around St. Gallen often feels quieter and more regional than
-            the larger Swiss city hubs, with countryside settings, rolling
-            terrain and practical options for golfers based in eastern
-            Switzerland.
+            Golf near St. Gallen often feels more regional and relaxed than the
+            larger Swiss city hubs. Expect countryside settings, rolling terrain,
+            practical club courses and a more local feel, with useful options for
+            golfers based in eastern Switzerland or travelling towards Lake
+            Constance.
           </p>
 
           <p className="mt-3 text-sm leading-6 text-slate-600">
-            GuestPlayGolf helps independent guests compare access rules,
-            handicap requirements and course details before contacting the club.
+            St. Gallen is well connected by rail and road, while nearby Thurgau
+            and Appenzell broaden the choice of courses within a realistic day
+            trip. GuestPlayGolf helps you compare guest access, handicap
+            requirements and playing rules before contacting the club.
           </p>
         </div>
 
@@ -172,6 +177,7 @@ export default async function GolfNearStGallenPage() {
               {...course}
               userLat={stGallenLat}
               userLng={stGallenLng}
+              searchParams={{ source: "st-gallen" }}
             />
           ))}
         </div>
