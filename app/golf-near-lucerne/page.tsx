@@ -10,16 +10,16 @@ const lucerneLng = 8.3093
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
-  title: "Golf near Lucerne | Play as an independent guest",
+  title: "Golf near Lucerne | Independent guest golf in central Switzerland",
   description:
-    "Find golf courses near Lucerne where independent guests can play. Compare guest access, handicap requirements, distance from Lucerne and course details.",
+    "Find golf courses near Lucerne where independent guests can play. Compare distance, guest access, handicap requirements, seasonality and course details.",
   alternates: {
     canonical: "/golf-near-lucerne",
   },
   openGraph: {
     title: "Golf near Lucerne | GuestPlayGolf",
     description:
-      "Find golf courses near Lucerne where independent guests can play, with clear access and handicap information.",
+      "Find golf courses near Lucerne where independent guests can play, with clear access, handicap and distance information.",
     url: `${siteUrl}/golf-near-lucerne`,
     siteName: "GuestPlayGolf",
     type: "website",
@@ -105,10 +105,9 @@ export default async function GolfNearLucernePage() {
           </h1>
 
           <p className="mt-4 text-[15px] leading-6 text-emerald-50/95">
-            Find golf courses near Lucerne where you can play without being a
-            member of that specific club. Compare guest access, handicap
-            requirements, distance from Lucerne and course details before
-            contacting the club.
+            Find golf courses around Lucerne where independent guests can play.
+            Compare distance from the city, guest access, handicap requirements,
+            seasonality and course details before contacting the club.
           </p>
 
           <div className="mt-5">
@@ -126,23 +125,26 @@ export default async function GolfNearLucernePage() {
           </h2>
 
           <p className="mt-3 text-sm leading-6 text-slate-600">
-            Lucerne is one of the strongest bases for golf in central Switzerland,
-            combining excellent transport links with access to courses around
-            Lucerne, Zug, Schwyz and Aargau.
+            Lucerne is one of the most useful starting points for golf in central
+            Switzerland. From the city, independent guests can compare courses
+            around Lucerne itself, nearby Zug, Schwyz and parts of Aargau without
+            needing to search each club separately.
           </p>
 
           <p className="mt-3 text-sm leading-6 text-slate-600">
-            Golf near Lucerne often has a scenic, central Swiss feel, with lake
-            settings, rolling countryside and mountain views all within practical
-            reach. It works well for independent guests looking for either a
-            quick local round or a more memorable day trip.
+            Golf near Lucerne has a different feel from golf near Basel or
+            Zurich. The area is more scenic and spread out, with lake settings,
+            rolling countryside and mountain views often shaping the experience.
+            For many golfers, the appeal is not just convenience but the setting
+            of the round.
           </p>
 
           <p className="mt-3 text-sm leading-6 text-slate-600">
-            Because Lucerne sits between Zurich, Zug and the alpine cantons, many
-            courses can be reached by car or public transport in under an hour,
-            making it a useful hub for comparing guest access across central
-            Switzerland.
+            Because Lucerne sits between the Swiss Plateau and the alpine
+            cantons, travel time and seasonality can vary more than in flatter
+            parts of Switzerland. GuestPlayGolf helps you check which nearby
+            courses are realistic for independent guest play before you contact
+            the club.
           </p>
         </div>
 
@@ -168,7 +170,19 @@ export default async function GolfNearLucernePage() {
           </div>
         )}
 
-        <div className="mt-6 grid gap-4">
+        <div className="mt-6">
+          <h2 className="text-lg font-semibold text-slate-900">
+            Golf courses near Lucerne
+          </h2>
+
+          <p className="mt-2 text-sm leading-6 text-slate-600">
+            These courses are sorted by distance from Lucerne city centre and
+            are included because they are relevant for independent guest golf in
+            central Switzerland.
+          </p>
+        </div>
+
+        <div className="mt-4 grid gap-4">
           {coursesWithDistance.map((course) => (
             <CourseCard
               key={course.id}
@@ -177,6 +191,39 @@ export default async function GolfNearLucernePage() {
               userLng={lucerneLng}
             />
           ))}
+        </div>
+
+        <div className="mt-8 rounded-3xl bg-white p-5 shadow-sm ring-1 ring-slate-200/70">
+          <h2 className="text-lg font-semibold text-slate-900">
+            Explore more golf destinations in Switzerland
+          </h2>
+
+          <div className="mt-4 grid gap-3">
+            <Link
+              href="/golf-near-zurich"
+              className="rounded-2xl border border-slate-200 px-4 py-3 text-sm font-semibold text-slate-800 no-underline"
+            >
+              Golf near Zurich
+            </Link>
+            <Link
+              href="/golf-near-basel"
+              className="rounded-2xl border border-slate-200 px-4 py-3 text-sm font-semibold text-slate-800 no-underline"
+            >
+              Golf near Basel
+            </Link>
+            <Link
+              href="/golf-near-lausanne"
+              className="rounded-2xl border border-slate-200 px-4 py-3 text-sm font-semibold text-slate-800 no-underline"
+            >
+              Golf near Lausanne
+            </Link>
+            <Link
+              href="/golf-near-geneva"
+              className="rounded-2xl border border-slate-200 px-4 py-3 text-sm font-semibold text-slate-800 no-underline"
+            >
+              Golf near Geneva
+            </Link>
+          </div>
         </div>
       </section>
     </main>
