@@ -141,37 +141,6 @@ export default async function GolfNearBaselPage() {
           </p>
         </div>
 
-        <div className="mt-5 rounded-3xl bg-white p-5 shadow-sm ring-1 ring-slate-200/70">
-          <h2 className="text-lg font-semibold text-slate-900">
-            What to know before playing near Basel
-          </h2>
-
-          <ul className="mt-3 space-y-3 text-sm leading-6 text-slate-600">
-            <li>
-              <span className="font-semibold text-slate-800">
-                Best nearby regions:
-              </span>{" "}
-              Basel-Stadt, Basel-Landschaft and Aargau are the most relevant
-              Swiss areas for golfers starting from Basel.
-            </li>
-            <li>
-              <span className="font-semibold text-slate-800">
-                Guest access:
-              </span>{" "}
-              Many Swiss clubs welcome independent guests, but access can depend
-              on the day, season and booking rules of each club.
-            </li>
-            <li>
-              <span className="font-semibold text-slate-800">
-                Handicap rules:
-              </span>{" "}
-              Some courses require a recognised handicap or official golf
-              membership, so checking the course details before travelling is
-              important.
-            </li>
-          </ul>
-        </div>
-
         <div className="mt-6 flex flex-wrap gap-2">
           {baselRegions.map((region, index) => (
             <Link
