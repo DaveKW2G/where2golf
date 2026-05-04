@@ -10,16 +10,16 @@ const baselLng = 7.5886
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
-  title: "Golf near Basel | Play as an independent guest",
+  title: "Golf near Basel | Independent guest golf in north-west Switzerland",
   description:
-    "Find golf courses near Basel where independent guests can play. Compare guest access, handicap requirements, distance from Basel and course details.",
+    "Find golf courses near Basel where independent guests can play. Compare distance, guest access, handicap requirements, seasonality and course details.",
   alternates: {
     canonical: "/golf-near-basel",
   },
   openGraph: {
     title: "Golf near Basel | GuestPlayGolf",
     description:
-      "Find golf courses near Basel where independent guests can play, with clear access and handicap information.",
+      "Find golf courses near Basel where independent guests can play, with clear access, handicap and distance information.",
     url: `${siteUrl}/golf-near-basel`,
     siteName: "GuestPlayGolf",
     type: "website",
@@ -99,10 +99,9 @@ export default async function GolfNearBaselPage() {
           </h1>
 
           <p className="mt-4 text-[15px] leading-6 text-emerald-50/95">
-            Find golf courses near Basel where you can play without being a
-            member of that specific club. Compare guest access, handicap
-            requirements, distance from Basel and course details before
-            contacting the club.
+            Find golf courses around Basel where independent guests can play.
+            Compare distance from the city, guest access, handicap requirements,
+            seasonality and course details before contacting the club.
           </p>
 
           <div className="mt-4 inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/10 px-4 py-2 backdrop-blur-sm">
@@ -121,28 +120,56 @@ export default async function GolfNearBaselPage() {
           </h2>
 
           <p className="mt-3 text-sm leading-6 text-slate-600">
-            Basel is a practical golf base for north-west Switzerland, with a
-            compact selection of courses around the city and nearby
-            Basel-Landschaft. It is not as broad a golf market as Zurich, but it
-            works well for golfers who want shorter journeys, quieter regional
-            clubs and straightforward access from the city.
+            Basel is one of Switzerland’s most practical golf bases for players
+            in the north-west of the country. The city sits close to
+            Basel-Landschaft and Aargau, giving independent guests a compact
+            choice of Swiss courses within a realistic driving distance.
           </p>
 
           <p className="mt-3 text-sm leading-6 text-slate-600">
-            Golf near Basel often feels more regional and understated, with
-            established parkland-style courses and additional options extending
-            into Aargau. The appeal is convenience rather than volume: fewer
-            courses, but several realistic choices for independent guests within
-            a manageable travel radius.
+            Golf near Basel is different from golf near Zurich or Geneva. The
+            choice is smaller, but the area can work well for golfers who value
+            shorter journeys, quieter regional clubs and straightforward access
+            from the city rather than a large volume of courses.
           </p>
 
           <p className="mt-3 text-sm leading-6 text-slate-600">
-            Basel is also one of Switzerland’s best-connected border cities,
-            with access via EuroAirport Basel-Mulhouse and strong rail links
-            into Switzerland, France and Germany. GuestPlayGolf helps you compare
-            which nearby courses welcome independent guests, when access is
-            available and what each course requires.
+            Because Basel is close to France and Germany, golfers may also think
+            about cross-border options. GuestPlayGolf focuses here on Swiss golf
+            courses where independent guests can check access, handicap
+            expectations, likely seasonality and course details in one place.
           </p>
+        </div>
+
+        <div className="mt-5 rounded-3xl bg-white p-5 shadow-sm ring-1 ring-slate-200/70">
+          <h2 className="text-lg font-semibold text-slate-900">
+            What to know before playing near Basel
+          </h2>
+
+          <ul className="mt-3 space-y-3 text-sm leading-6 text-slate-600">
+            <li>
+              <span className="font-semibold text-slate-800">
+                Best nearby regions:
+              </span>{" "}
+              Basel-Stadt, Basel-Landschaft and Aargau are the most relevant
+              Swiss areas for golfers starting from Basel.
+            </li>
+            <li>
+              <span className="font-semibold text-slate-800">
+                Guest access:
+              </span>{" "}
+              Many Swiss clubs welcome independent guests, but access can depend
+              on the day, season and booking rules of each club.
+            </li>
+            <li>
+              <span className="font-semibold text-slate-800">
+                Handicap rules:
+              </span>{" "}
+              Some courses require a recognised handicap or official golf
+              membership, so checking the course details before travelling is
+              important.
+            </li>
+          </ul>
         </div>
 
         <div className="mt-6 flex flex-wrap gap-2">
@@ -167,7 +194,19 @@ export default async function GolfNearBaselPage() {
           </div>
         )}
 
-        <div className="mt-6 grid gap-4">
+        <div className="mt-6">
+          <h2 className="text-lg font-semibold text-slate-900">
+            Golf courses near Basel
+          </h2>
+
+          <p className="mt-2 text-sm leading-6 text-slate-600">
+            These courses are sorted by distance from Basel city centre and are
+            included because they are relevant for independent guest golf in the
+            Basel area.
+          </p>
+        </div>
+
+        <div className="mt-4 grid gap-4">
           {coursesWithDistance.map((course) => (
             <CourseCard
               key={course.id}
@@ -176,6 +215,39 @@ export default async function GolfNearBaselPage() {
               userLng={baselLng}
             />
           ))}
+        </div>
+
+        <div className="mt-8 rounded-3xl bg-white p-5 shadow-sm ring-1 ring-slate-200/70">
+          <h2 className="text-lg font-semibold text-slate-900">
+            Explore more golf destinations in Switzerland
+          </h2>
+
+          <div className="mt-4 grid gap-3">
+            <Link
+              href="/golf-near-zurich"
+              className="rounded-2xl border border-slate-200 px-4 py-3 text-sm font-semibold text-slate-800 no-underline"
+            >
+              Golf near Zurich
+            </Link>
+            <Link
+              href="/golf-near-lucerne"
+              className="rounded-2xl border border-slate-200 px-4 py-3 text-sm font-semibold text-slate-800 no-underline"
+            >
+              Golf near Lucerne
+            </Link>
+            <Link
+              href="/golf-near-lausanne"
+              className="rounded-2xl border border-slate-200 px-4 py-3 text-sm font-semibold text-slate-800 no-underline"
+            >
+              Golf near Lausanne
+            </Link>
+            <Link
+              href="/golf-near-geneva"
+              className="rounded-2xl border border-slate-200 px-4 py-3 text-sm font-semibold text-slate-800 no-underline"
+            >
+              Golf near Geneva
+            </Link>
+          </div>
         </div>
       </section>
     </main>
