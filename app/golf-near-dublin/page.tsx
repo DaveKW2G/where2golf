@@ -26,15 +26,7 @@ export const metadata: Metadata = {
   },
 }
 
-const dublinRegions = ["LEINSTER", "DUBLIN", "KILDARE", "MEATH", "WICKLOW"]
-
-const regionNames: Record<string, string> = {
-  LEINSTER: "Leinster",
-  DUBLIN: "Dublin",
-  KILDARE: "Kildare",
-  MEATH: "Meath",
-  WICKLOW: "Wicklow",
-}
+const dublinRegions = ["Dublin", "Kildare", "Meath", "Wicklow"]
 
 function toRad(value: number) {
   return (value * Math.PI) / 180
@@ -65,7 +57,8 @@ export default async function GolfNearDublinPage() {
     .select(
       "id, course_name, town, region, holes, independent_guest_days, season, price_range, course_image, max_handicap, latitude, longitude"
     )
-    .in("region", ["LEINSTER"]) // TEMP until Ireland data is added
+    .eq("country", "Ireland")
+    .in("region", dublinRegions)
 
   const coursesWithDistance =
     courses
@@ -86,7 +79,6 @@ export default async function GolfNearDublinPage() {
 
   return (
     <main className="min-h-screen bg-stone-100 text-slate-800">
-      {/* HERO */}
       <section className="bg-gradient-to-b from-emerald-950 via-emerald-900 to-emerald-800 px-5 pb-8 pt-6 text-white">
         <div className="mx-auto max-w-[480px]">
           <Link href="/ireland" className="text-sm text-white/90 no-underline">
@@ -115,7 +107,6 @@ export default async function GolfNearDublinPage() {
         </div>
       </section>
 
-      {/* CONTENT */}
       <section className="mx-auto max-w-[480px] px-5 py-6">
         <div className="rounded-3xl bg-white p-5 shadow-sm ring-1 ring-slate-200/70">
           <h2 className="text-lg font-semibold text-slate-900">
@@ -139,7 +130,7 @@ export default async function GolfNearDublinPage() {
 
           <p className="mt-3 text-sm leading-6 text-slate-600">
             Dublin is also the main international gateway into Ireland, with
-            excellent flight connections and easy access to surrounding regions
+            excellent flight connections and easy access to surrounding counties
             by road and rail. Many of Ireland’s best courses can be reached
             within a short drive, making it a natural starting point for any golf
             itinerary.
