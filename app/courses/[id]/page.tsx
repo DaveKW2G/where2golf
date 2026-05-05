@@ -90,15 +90,14 @@ export async function generateMetadata({
   }
 
   const regionName = regionNames[data.region] || data.region
-  const canonicalPath = `/courses/${data.id}`
-  const canonicalUrl = `${siteUrl}${canonicalPath}`
+  const canonicalUrl = `${siteUrl}/courses/${data.id}`
 
   return {
     metadataBase: new URL(siteUrl),
     title: `${data.course_name} | Golf in ${data.town}, ${regionName}`,
-    description: `Play ${data.course_name} in ${data.town}, ${regionName}. Check independent guest access, handicap requirements, season and course details on GuestPlayGolf.`,
+    description: `Play ${data.course_name} in ${data.town}, ${regionName}. Check independent guest access, handicap requirements, season, price guidance and course details on GuestPlayGolf.`,
     alternates: {
-      canonical: canonicalPath,
+      canonical: canonicalUrl,
     },
     openGraph: {
       title: `${data.course_name} | GuestPlayGolf`,
@@ -126,7 +125,7 @@ function DetailRow({
   value?: string
 }) {
   return (
-    <div className="flex items-center justify-between px-5 py-4 border-b border-slate-200 last:border-b-0">
+    <div className="flex items-center justify-between border-b border-slate-200 px-5 py-4 last:border-b-0">
       <span className="text-sm text-slate-500">{label}</span>
 
       <span className="text-sm font-semibold text-slate-900">
@@ -159,7 +158,7 @@ function buildFallbackHref(searchParams: {
   }
 
   const queryString = params.toString()
-  return queryString ? `/results?${queryString}` : "/results"
+  return queryString ? `/results?${queryString}` : "/switzerland"
 }
 
 function toRad(value: number) {
@@ -359,7 +358,7 @@ export default async function CoursePage({
           <div className="absolute bottom-0 h-24 w-full bg-gradient-to-t from-black/40 to-transparent" />
         </div>
 
-        <div className="px-5 pt-5 pb-4 space-y-2">
+        <div className="space-y-2 px-5 pb-4 pt-5">
           <h1 className="text-[22px] font-bold text-slate-900">
             {course.course_name}
           </h1>
@@ -369,8 +368,9 @@ export default async function CoursePage({
           </p>
 
           <p className="text-[14px] leading-6 text-slate-600">
-            Golf course in {course.town}, {regionName} with independent guest
-            access listed on GuestPlayGolf.
+            {course.course_name} is a golf course in {course.town}, {regionName}.
+            Use this page to check guest access, handicap requirements, season,
+            price guidance and contact options before planning your round.
           </p>
 
           {distanceBadge && (
@@ -399,16 +399,30 @@ export default async function CoursePage({
 
         {course.notes && (
           <div className="border-t border-slate-200 px-5 py-5">
-            <p className="text-[15px] leading-7 text-slate-600 whitespace-pre-line">
+            <h2 className="text-[17px] font-semibold text-slate-900">
+              Playing {course.course_name} as a guest
+            </h2>
+
+            <p className="mt-3 whitespace-pre-line text-[15px] leading-7 text-slate-600">
               {course.notes}
             </p>
           </div>
         )}
 
         <div className="border-t border-slate-200 px-5 py-5">
+          <h2 className="text-[17px] font-semibold text-slate-900">
+            Golf near {course.town}
+          </h2>
+
+          <p className="mt-3 text-[15px] leading-7 text-slate-600">
+            Looking for more places to play nearby? Explore other golf courses
+            in {regionName} and compare guest access, handicap requirements and
+            course details before contacting the club.
+          </p>
+
           <Link
             href={regionHref}
-            className="text-sm font-medium text-emerald-700 no-underline"
+            className="mt-4 inline-block text-sm font-medium text-emerald-700 no-underline"
           >
             Explore more golf in {regionName} →
           </Link>
