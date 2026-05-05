@@ -95,7 +95,7 @@ export async function generateMetadata({
   return {
     metadataBase: new URL(siteUrl),
     title: `${data.course_name} | Golf in ${data.town}, ${regionName}`,
-    description: `Play ${data.course_name} in ${data.town}, ${regionName}. Check independent guest access, handicap requirements, season, price guidance and course details on GuestPlayGolf.`,
+    description: `Play ${data.course_name} in ${data.town}, ${regionName}. Check independent guest access, handicap requirements, season and course details on GuestPlayGolf.`,
     alternates: {
       canonical: canonicalUrl,
     },
@@ -367,12 +367,6 @@ export default async function CoursePage({
             {course.town}, {regionName}
           </p>
 
-          <p className="text-[14px] leading-6 text-slate-600">
-            {course.course_name} is a golf course in {course.town}, {regionName}.
-            Use this page to check guest access, handicap requirements, season,
-            price guidance and contact options before planning your round.
-          </p>
-
           {distanceBadge && (
             <p className="text-sm text-slate-600">{distanceBadge}</p>
           )}
@@ -399,30 +393,16 @@ export default async function CoursePage({
 
         {course.notes && (
           <div className="border-t border-slate-200 px-5 py-5">
-            <h2 className="text-[17px] font-semibold text-slate-900">
-              Playing {course.course_name} as a guest
-            </h2>
-
-            <p className="mt-3 whitespace-pre-line text-[15px] leading-7 text-slate-600">
+            <p className="whitespace-pre-line text-[15px] leading-7 text-slate-600">
               {course.notes}
             </p>
           </div>
         )}
 
         <div className="border-t border-slate-200 px-5 py-5">
-          <h2 className="text-[17px] font-semibold text-slate-900">
-            Golf near {course.town}
-          </h2>
-
-          <p className="mt-3 text-[15px] leading-7 text-slate-600">
-            Looking for more places to play nearby? Explore other golf courses
-            in {regionName} and compare guest access, handicap requirements and
-            course details before contacting the club.
-          </p>
-
           <Link
             href={regionHref}
-            className="mt-4 inline-block text-sm font-medium text-emerald-700 no-underline"
+            className="text-sm font-medium text-emerald-700 no-underline"
           >
             Explore more golf in {regionName} →
           </Link>
