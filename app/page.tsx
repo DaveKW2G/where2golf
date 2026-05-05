@@ -9,7 +9,7 @@ export const metadata: Metadata = {
   description:
     'Find golf courses where independent guests can play. Discover guest access, handicap requirements, pricing and where you can play today.',
   alternates: {
-    canonical: '/',
+    canonical: siteUrl,
   },
   openGraph: {
     title: 'GuestPlayGolf | Find golf courses you can play',
