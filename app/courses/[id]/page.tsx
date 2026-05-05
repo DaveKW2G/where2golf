@@ -17,6 +17,7 @@ type CoursePageProps = {
 type Course = {
   id: number
   course_name: string
+  country?: string | null
   town: string
   region: string
   full_address?: string | null
@@ -73,7 +74,7 @@ export async function generateMetadata({
 
   const { data } = await supabase
     .from("courses")
-    .select("id, course_name, town, region, course_image")
+    .select("id, course_name, country, town, region, course_image")
     .eq("id", Number(resolvedParams.id))
     .single()
 
@@ -89,19 +90,20 @@ export async function generateMetadata({
     }
   }
 
+  const country = data.country || "Switzerland"
   const regionName = regionNames[data.region] || data.region
   const canonicalUrl = `${siteUrl}/courses/${data.id}`
 
   return {
     metadataBase: new URL(siteUrl),
     title: `${data.course_name} | Golf in ${data.town}, ${regionName}`,
-    description: `Play ${data.course_name} in ${data.town}, ${regionName}. Check independent guest access, handicap requirements, season and course details on GuestPlayGolf.`,
+    description: `Play ${data.course_name} in ${data.town}, ${regionName}, ${country}. Check guest access, handicap information, season and course details on GuestPlayGolf.`,
     alternates: {
       canonical: canonicalUrl,
     },
     openGraph: {
       title: `${data.course_name} | GuestPlayGolf`,
-      description: `Golf course information for independent guests in ${data.town}, ${regionName}.`,
+      description: `Golf course information for guests in ${data.town}, ${regionName}, ${country}.`,
       url: canonicalUrl,
       siteName: "GuestPlayGolf",
       images: data.course_image
@@ -140,9 +142,12 @@ function getSingleParam(value: string | string[] | undefined): string | undefine
   return value
 }
 
-function buildFallbackHref(searchParams: {
-  [key: string]: string | string[] | undefined
-}) {
+function buildFallbackHref(
+  searchParams: {
+    [key: string]: string | string[] | undefined
+  },
+  defaultHref: string
+) {
   const params = new URLSearchParams()
 
   for (const [key, value] of Object.entries(searchParams)) {
@@ -158,7 +163,7 @@ function buildFallbackHref(searchParams: {
   }
 
   const queryString = params.toString()
-  return queryString ? `/results?${queryString}` : "/switzerland"
+  return queryString ? `/results?${queryString}` : defaultHref
 }
 
 function toRad(value: number) {
@@ -201,6 +206,28 @@ function getWebsiteUrl(website?: string | null) {
   return `https://${trimmed}`
 }
 
+function getAccessLabel(access: string, country: string) {
+  const cleanAccess = access.trim()
+
+  if (cleanAccess === "Limited Access") {
+    return country === "Ireland" ? "Limited Visitor Access" : "Limited Guest Access"
+  }
+
+  if (country === "Ireland") {
+    if (cleanAccess.startsWith("Guests ")) {
+      return cleanAccess.replace("Guests", "Visitors")
+    }
+
+    return `Visitors ${cleanAccess}`
+  }
+
+  if (cleanAccess.startsWith("Guests ")) {
+    return cleanAccess
+  }
+
+  return `Guests ${cleanAccess}`
+}
+
 export default async function CoursePage({
   params,
   searchParams,
@@ -213,14 +240,14 @@ export default async function CoursePage({
   const { data, error } = await supabase
     .from("courses")
     .select(
-      "id, course_name, town, region, full_address, holes, independent_guest_days, season, price_range, handicap_required, max_handicap, website, phone_number, notes, course_image, latitude, longitude"
+      "id, course_name, country, town, region, full_address, holes, independent_guest_days, season, price_range, handicap_required, max_handicap, website, phone_number, notes, course_image, latitude, longitude"
     )
     .eq("id", Number(resolvedParams.id))
     .single()
 
-  const fallbackHref = buildFallbackHref(resolvedSearchParams)
-
   if (error || !data) {
+    const fallbackHref = buildFallbackHref(resolvedSearchParams, "/switzerland")
+
     return (
       <main className="min-h-screen bg-stone-100 px-4 py-6">
         <div className="mx-auto max-w-[480px] rounded-[28px] bg-white p-6 shadow-sm">
@@ -240,8 +267,20 @@ export default async function CoursePage({
   }
 
   const course = data as Course
+  const country = course.country || "Switzerland"
+  const isIreland = country === "Ireland"
   const regionName = regionNames[course.region] || course.region
-  const regionHref = `/switzerland/${course.region.toLowerCase()}`
+
+  const countryHref = isIreland ? "/ireland" : "/switzerland"
+  const fallbackHref = buildFallbackHref(resolvedSearchParams, countryHref)
+
+  const regionHref = isIreland
+    ? "/ireland"
+    : `/switzerland/${course.region.toLowerCase()}`
+
+  const regionLinkText = isIreland
+    ? "Explore more golf in Ireland"
+    : `Explore more golf in ${regionName}`
 
   const latParam = getSingleParam(resolvedSearchParams.lat)
   const lngParam = getSingleParam(resolvedSearchParams.lng)
@@ -272,7 +311,7 @@ export default async function CoursePage({
   const websiteUrl = getWebsiteUrl(course.website)
 
   const directionsQuery = encodeURIComponent(
-    `${course.course_name}, ${course.town}, ${course.region}`
+    `${course.course_name}, ${course.town}, ${course.region}, ${country}`
   )
 
   const directionsUrl = `https://www.google.com/maps/search/?api=1&query=${directionsQuery}`
@@ -282,7 +321,9 @@ export default async function CoursePage({
       ? `Max Handicap ${course.max_handicap}`
       : course.handicap_required
       ? "Handicap Required"
-      : "Max Handicap —"
+      : "Handicap Not Specified"
+
+  const accessLabel = getAccessLabel(course.independent_guest_days, country)
 
   const structuredData = {
     "@context": "https://schema.org",
@@ -296,7 +337,7 @@ export default async function CoursePage({
       streetAddress: course.full_address || undefined,
       addressLocality: course.town,
       addressRegion: regionName,
-      addressCountry: "CH",
+      addressCountry: isIreland ? "IE" : "CH",
     },
     geo:
       course.latitude != null && course.longitude != null
@@ -320,13 +361,15 @@ export default async function CoursePage({
             window.gtag('event', 'view_course_detail', {
               course_name: ${JSON.stringify(course.course_name)},
               course_id: ${JSON.stringify(String(course.id))},
-              region: ${JSON.stringify(course.region)}
+              region: ${JSON.stringify(course.region)},
+              country: ${JSON.stringify(country)}
             });
 
             window.gtag('event', 'course_view', {
               course_name: ${JSON.stringify(course.course_name)},
               course_id: ${JSON.stringify(String(course.id))},
-              region: ${JSON.stringify(course.region)}
+              region: ${JSON.stringify(course.region)},
+              country: ${JSON.stringify(country)}
             });
           }
         `}
@@ -373,7 +416,7 @@ export default async function CoursePage({
 
           <div className="flex flex-wrap gap-2 pt-2">
             <span className="rounded-full bg-emerald-100 px-3 py-1 text-[12px] font-medium text-emerald-800">
-              Guests {course.independent_guest_days}
+              {accessLabel}
             </span>
 
             <span className="rounded-full bg-amber-100 px-3 py-1 text-[12px] font-medium text-amber-800">
@@ -404,7 +447,7 @@ export default async function CoursePage({
             href={regionHref}
             className="text-sm font-medium text-emerald-700 no-underline"
           >
-            Explore more golf in {regionName} →
+            {regionLinkText} →
           </Link>
         </div>
       </div>
