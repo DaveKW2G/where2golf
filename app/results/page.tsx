@@ -15,6 +15,7 @@ export const metadata: Metadata = {
 
 type ResultsPageProps = {
   searchParams: Promise<{
+    country?: string
     region?: string
     guestPlay?: string
     holes?: string
@@ -32,6 +33,7 @@ type ResultsPageProps = {
 }
 
 type ResultsSearchParams = {
+  country?: string
   region?: string
   guestPlay?: string
   holes?: string
@@ -44,29 +46,6 @@ type ResultsSearchParams = {
   today?: string
   radius?: string
   price?: string
-}
-
-const regionNames: Record<string, string> = {
-  ZH: "Zurich",
-  VD: "Vaud",
-  BE: "Bern",
-  TI: "Ticino",
-  GE: "Geneva",
-  VS: "Valais",
-  GR: "Graubünden",
-  SG: "St. Gallen",
-  LU: "Lucerne",
-  ZG: "Zug",
-  AG: "Aargau",
-  FR: "Fribourg",
-}
-
-function FilterChip({ label }: { label: string }) {
-  return (
-    <span className="rounded-full bg-emerald-100 px-3 py-1.5 text-[13px] font-medium text-emerald-800">
-      {label}
-    </span>
-  )
 }
 
 function toRad(value: number) {
@@ -88,11 +67,18 @@ function getDistanceKm(lat1: number, lng1: number, lat2: number, lng2: number) {
   return R * c
 }
 
-async function geocodePlace(place: string) {
+async function geocodePlace(place: string, country?: string) {
   try {
+    const countryName =
+      country === "ireland"
+        ? "Ireland"
+        : country === "switzerland"
+        ? "Switzerland"
+        : "Switzerland"
+
     const response = await fetch(
       `https://nominatim.openstreetmap.org/search?format=json&limit=1&q=${encodeURIComponent(
-        `${place}, Switzerland`
+        `${place}, ${countryName}`
       )}`,
       {
         headers: {
@@ -117,35 +103,28 @@ async function geocodePlace(place: string) {
   }
 }
 
-function buildResultsHref(
-  params: ResultsSearchParams,
-  updates: Partial<Record<keyof ResultsSearchParams, string>>
-) {
-  const nextParams: ResultsSearchParams = {
-    ...params,
-    ...updates,
-  }
+function normaliseCountry(country?: string) {
+  if (!country) return null
 
-  const urlParams = new URLSearchParams()
+  const value = country.toLowerCase()
 
-  Object.entries(nextParams).forEach(([key, value]) => {
-    if (value !== undefined && value !== null && value !== "") {
-      urlParams.set(key, String(value))
-    }
-  })
+  if (value === "ireland") return "ireland"
+  if (value === "switzerland") return "switzerland"
 
-  return `/results?${urlParams.toString()}`
+  return null
 }
 
 export default async function ResultsPage({ searchParams }: ResultsPageProps) {
   const params = await searchParams
   const supabase = await createClient()
 
+  const selectedCountry = normaliseCountry(params.country || params.source)
+
   let userLat = params.lat ? Number(params.lat) : null
   let userLng = params.lng ? Number(params.lng) : null
 
   if ((userLat == null || userLng == null) && params.where) {
-    const geocoded = await geocodePlace(params.where)
+    const geocoded = await geocodePlace(params.where, selectedCountry || undefined)
     if (geocoded) {
       userLat = geocoded.lat
       userLng = geocoded.lng
@@ -157,9 +136,9 @@ export default async function ResultsPage({ searchParams }: ResultsPageProps) {
   const backHref =
     params.source === "home"
       ? "/"
-      : params.source === "switzerland"
+      : selectedCountry === "switzerland"
       ? "/switzerland"
-      : params.source === "ireland"
+      : selectedCountry === "ireland"
       ? "/ireland"
       : "/filters"
 
@@ -178,8 +157,12 @@ export default async function ResultsPage({ searchParams }: ResultsPageProps) {
   let query = supabase
     .from("courses")
     .select(
-      "id, course_name, town, region, holes, independent_guest_days, season, price_range, course_image, latitude, longitude, handicap_required, max_handicap, search_text"
+      "id, country, course_name, town, region, holes, independent_guest_days, season, price_range, course_image, latitude, longitude, handicap_required, max_handicap, search_text"
     )
+
+  if (selectedCountry) {
+    query = query.eq("country", selectedCountry)
+  }
 
   if (params.search) {
     query = query.ilike("search_text", `%${params.search.toLowerCase()}%`)
@@ -211,7 +194,7 @@ export default async function ResultsPage({ searchParams }: ResultsPageProps) {
 
   if (params.price) query = query.eq("price_range", params.price)
 
-  const { data: courses, error } = await query.limit(200)
+  const { data: courses, error } = await query.limit(300)
 
   let sortedCourses = courses ? [...courses] : []
 
@@ -266,12 +249,27 @@ export default async function ResultsPage({ searchParams }: ResultsPageProps) {
   }
 
   const mapHref = (() => {
-    const url = new URLSearchParams(
-      Object.entries(params).filter(([_, v]) => v) as [string, string][]
-    ).toString()
+    const urlParams = new URLSearchParams()
+
+    Object.entries(params).forEach(([key, value]) => {
+      if (value) urlParams.set(key, String(value))
+    })
+
+    if (selectedCountry && !urlParams.get("country")) {
+      urlParams.set("country", selectedCountry)
+    }
+
+    const url = urlParams.toString()
 
     return url ? `/map?${url}` : "/map"
   })()
+
+  const titleCountry =
+    selectedCountry === "ireland"
+      ? "Ireland"
+      : selectedCountry === "switzerland"
+      ? "Switzerland"
+      : ""
 
   return (
     <main className="min-h-screen bg-stone-100">
@@ -293,7 +291,11 @@ export default async function ResultsPage({ searchParams }: ResultsPageProps) {
 
           <div className="mt-5">
             <h1 className="text-[24px] font-bold text-white">
-              {params.where ? `Golf near ${params.where}` : "Golf Courses"}
+              {params.where
+                ? `Golf near ${params.where}`
+                : titleCountry
+                ? `Golf Courses in ${titleCountry}`
+                : "Golf Courses"}
             </h1>
 
             <p className="mt-2 text-[14px] text-white/80">
@@ -331,7 +333,10 @@ export default async function ResultsPage({ searchParams }: ResultsPageProps) {
                 {...course}
                 userLat={userLat}
                 userLng={userLng}
-                searchParams={params}
+                searchParams={{
+                  ...params,
+                  country: selectedCountry || params.country,
+                }}
               />
             ))}
           </div>
