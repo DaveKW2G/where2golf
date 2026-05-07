@@ -32,22 +32,6 @@ type ResultsPageProps = {
   }>
 }
 
-type ResultsSearchParams = {
-  country?: string
-  region?: string
-  guestPlay?: string
-  holes?: string
-  season?: string
-  handicap?: string
-  lat?: string
-  lng?: string
-  where?: string
-  search?: string
-  today?: string
-  radius?: string
-  price?: string
-}
-
 function toRad(value: number) {
   return (value * Math.PI) / 180
 }
@@ -105,13 +89,7 @@ async function geocodePlace(place: string, country?: string) {
 
 function normaliseCountry(country?: string) {
   if (!country) return null
-
-  const value = country.toLowerCase()
-
-  if (value === "ireland") return "ireland"
-  if (value === "switzerland") return "switzerland"
-
-  return null
+  return country.toLowerCase()
 }
 
 export default async function ResultsPage({ searchParams }: ResultsPageProps) {
@@ -160,8 +138,9 @@ export default async function ResultsPage({ searchParams }: ResultsPageProps) {
       "id, country, course_name, town, region, holes, independent_guest_days, season, price_range, course_image, latitude, longitude, handicap_required, max_handicap, search_text"
     )
 
+  // ✅ FIX: case-insensitive country filtering
   if (selectedCountry) {
-    query = query.eq("country", selectedCountry)
+    query = query.ilike("country", selectedCountry)
   }
 
   if (params.search) {
@@ -206,9 +185,7 @@ export default async function ResultsPage({ searchParams }: ResultsPageProps) {
 
   if (selectedHandicap != null && !Number.isNaN(selectedHandicap)) {
     sortedCourses = sortedCourses.filter((course: any) => {
-      if (course.handicap_required === false) {
-        return true
-      }
+      if (course.handicap_required === false) return true
 
       const maxHandicap =
         typeof course.max_handicap === "number"
@@ -228,11 +205,9 @@ export default async function ResultsPage({ searchParams }: ResultsPageProps) {
   if (hasLocation) {
     sortedCourses = sortedCourses.map((c: any) => {
       let distance
-
       if (c.latitude && c.longitude) {
         distance = getDistanceKm(userLat!, userLng!, c.latitude, c.longitude)
       }
-
       return { ...c, distance }
     })
 
@@ -259,9 +234,7 @@ export default async function ResultsPage({ searchParams }: ResultsPageProps) {
       urlParams.set("country", selectedCountry)
     }
 
-    const url = urlParams.toString()
-
-    return url ? `/map?${url}` : "/map"
+    return `/map?${urlParams.toString()}`
   })()
 
   const titleCountry =
@@ -273,80 +246,39 @@ export default async function ResultsPage({ searchParams }: ResultsPageProps) {
 
   return (
     <main className="min-h-screen bg-stone-100">
-      <section className="relative overflow-hidden bg-gradient-to-b from-emerald-950 via-emerald-900 to-emerald-800 px-5 pt-5 pb-6 text-white">
-        <div className="relative z-10 mx-auto max-w-[480px]">
-          <div className="flex items-center justify-between">
-            <Link href={backHref} className="text-white no-underline">
-              ← Back
-            </Link>
+      <section className="bg-emerald-900 px-5 py-6 text-white">
+        <div className="mx-auto max-w-[480px] flex justify-between">
+          <Link href={backHref}>← Back</Link>
+          <div>{sortedCourses.length} found</div>
+        </div>
 
-            <div className="text-[14px] font-semibold uppercase tracking-wide text-white/85">
-              GuestPlayGolf
-            </div>
-
-            <div className="text-[13px] text-white/75">
-              {sortedCourses.length} found
-            </div>
-          </div>
-
-          <div className="mt-5">
-            <h1 className="text-[24px] font-bold text-white">
-              {params.where
-                ? `Golf near ${params.where}`
-                : titleCountry
-                ? `Golf Courses in ${titleCountry}`
-                : "Golf Courses"}
-            </h1>
-
-            <p className="mt-2 text-[14px] text-white/80">
-              Courses available for independent guests with clear access rules.
-            </p>
-
-            <p className="mt-2 text-[13px] text-white/70">
-              {hasLocation
-                ? params.radius
-                  ? `Within ${params.radius} km • Sorted by distance`
-                  : "Sorted by distance"
-                : "Sorted A–Z"}
-            </p>
-          </div>
+        <div className="mx-auto max-w-[480px] mt-4">
+          <h1 className="text-xl font-bold">
+            {titleCountry
+              ? `Golf Courses in ${titleCountry}`
+              : "Golf Courses"}
+          </h1>
         </div>
       </section>
 
-      <div className="mx-auto max-w-[480px] px-5 pb-24">
-        {error && <p className="text-red-600">Error loading courses</p>}
+      <div className="mx-auto max-w-[480px] px-5 py-6">
+        {error && <p>Error loading courses</p>}
 
-        {sortedCourses.length === 0 ? (
-          <div className="mt-8 rounded-2xl bg-white p-6 text-center shadow-sm">
-            <div className="text-[16px] font-semibold text-slate-900">
-              No courses match your filters
-            </div>
-            <p className="mt-2 text-sm text-slate-600">
-              Try increasing your radius or adjusting your filters.
-            </p>
-          </div>
-        ) : (
-          <div className="space-y-4">
-            {sortedCourses.map((course: any) => (
-              <CourseCard
-                key={course.id}
-                {...course}
-                userLat={userLat}
-                userLng={userLng}
-                searchParams={{
-                  ...params,
-                  country: selectedCountry || params.country,
-                }}
-              />
-            ))}
-          </div>
-        )}
+        {sortedCourses.map((course: any) => (
+          <CourseCard
+            key={course.id}
+            {...course}
+            userLat={userLat}
+            userLng={userLng}
+            searchParams={{ ...params, country: selectedCountry || undefined }}
+          />
+        ))}
       </div>
 
       <div className="fixed bottom-6 left-0 right-0 flex justify-center">
         <Link
           href={mapHref}
-          className="rounded-full bg-emerald-700 px-7 py-3 text-[15px] font-semibold text-white shadow-lg no-underline"
+          className="bg-emerald-700 text-white px-6 py-3 rounded-full"
         >
           View Map
         </Link>
