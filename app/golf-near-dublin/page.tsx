@@ -7,6 +7,7 @@ const siteUrl = "https://guestplaygolf.com"
 
 const dublinLat = 53.3498
 const dublinLng = -6.2603
+const dublinRadiusKm = 60
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
@@ -25,8 +26,6 @@ export const metadata: Metadata = {
     type: "website",
   },
 }
-
-const dublinRegions = ["Dublin", "Kildare", "Meath", "Wicklow"]
 
 function toRad(value: number) {
   return (value * Math.PI) / 180
@@ -55,24 +54,29 @@ export default async function GolfNearDublinPage() {
   const { data: courses, error } = await supabase
     .from("courses")
     .select(
-      "id, course_name, town, region, holes, independent_guest_days, season, price_range, course_image, max_handicap, latitude, longitude"
+      "id, country, course_name, town, region, holes, independent_guest_days, season, price_range, course_image, handicap_required, max_handicap, latitude, longitude, course_type"
     )
-    .eq("country", "Ireland")
-    .in("region", dublinRegions)
+    .ilike("country", "Ireland")
+    .not("latitude", "is", null)
+    .not("longitude", "is", null)
+    .limit(300)
 
   const coursesWithDistance =
     courses
       ?.map((course) => {
-        const distance =
-          course.latitude != null && course.longitude != null
-            ? getDistanceKm(dublinLat, dublinLng, course.latitude, course.longitude)
-            : undefined
+        const distance = getDistanceKm(
+          dublinLat,
+          dublinLng,
+          course.latitude,
+          course.longitude
+        )
 
         return {
           ...course,
           distance,
         }
       })
+      .filter((course) => course.distance <= dublinRadiusKm)
       .sort((a, b) => (a.distance ?? 9999) - (b.distance ?? 9999)) || []
 
   const courseCount = coursesWithDistance.length
@@ -101,7 +105,7 @@ export default async function GolfNearDublinPage() {
 
           <div className="mt-5">
             <span className="inline-block rounded-full bg-white/15 px-4 py-2 text-sm font-semibold text-white backdrop-blur">
-              {courseCount} courses near Dublin
+              {courseCount} courses within {dublinRadiusKm} km of Dublin
             </span>
           </div>
         </div>
@@ -115,25 +119,23 @@ export default async function GolfNearDublinPage() {
 
           <p className="mt-3 text-sm leading-6 text-slate-600">
             Dublin is the most accessible golf base in Ireland and one of the
-            best places in the world to start a golf trip. Within a short
-            distance of the city, you can play some of the most famous links
-            courses globally, alongside a large number of high-quality parkland
-            courses.
+            best places in the world to start a golf trip. Within a short drive
+            of the city, you can play famous links courses, resort parkland
+            layouts and strong inland options across Dublin, Kildare, Meath and
+            Wicklow.
           </p>
 
           <p className="mt-3 text-sm leading-6 text-slate-600">
-            The Dublin region offers a unique combination of world-class links
-            golf along the coast and more accessible inland courses. This makes
-            it ideal for visiting golfers who want variety, flexibility and
-            strong course choice without long travel times.
+            The Dublin region offers a unique combination of world-class coastal
+            golf and accessible inland courses. This makes it ideal for visiting
+            golfers who want variety, flexibility and strong course choice
+            without long travel times.
           </p>
 
           <p className="mt-3 text-sm leading-6 text-slate-600">
             Dublin is also the main international gateway into Ireland, with
             excellent flight connections and easy access to surrounding counties
-            by road and rail. Many of Ireland’s best courses can be reached
-            within a short drive, making it a natural starting point for any golf
-            itinerary.
+            by road and rail.
           </p>
         </div>
 
@@ -143,17 +145,26 @@ export default async function GolfNearDublinPage() {
           </div>
         )}
 
-        <div className="mt-6 grid gap-4">
-          {coursesWithDistance.map((course) => (
-            <CourseCard
-              key={course.id}
-              {...course}
-              userLat={dublinLat}
-              userLng={dublinLng}
-              searchParams={{ source: "dublin" }}
-            />
-          ))}
-        </div>
+        {coursesWithDistance.length === 0 ? (
+          <div className="mt-6 rounded-2xl bg-white p-5 text-sm text-slate-600 shadow-sm">
+            No golf courses found within {dublinRadiusKm} km of Dublin.
+          </div>
+        ) : (
+          <div className="mt-6 grid gap-4">
+            {coursesWithDistance.map((course) => (
+              <CourseCard
+                key={course.id}
+                {...course}
+                userLat={dublinLat}
+                userLng={dublinLng}
+                searchParams={{
+                  country: "ireland",
+                  source: "dublin",
+                }}
+              />
+            ))}
+          </div>
+        )}
       </section>
     </main>
   )
