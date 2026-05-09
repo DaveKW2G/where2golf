@@ -30,6 +30,12 @@ const popularDestinations = [
       "The busiest golf region in Ireland, with a mix of top links and parkland courses within easy reach.",
   },
   {
+    title: "Golf near Adare",
+    href: "/golf-near-adare",
+    description:
+      "Plan golf around Adare Manor and the Ryder Cup venue, with access to Limerick, Clare and world-class west coast links.",
+  },
+  {
     title: "Golf near Cork",
     href: "/golf-near-cork",
     description:
@@ -149,6 +155,7 @@ export default function IrelandPage() {
                 <div className="text-[17px] font-semibold">
                   {destination.title}
                 </div>
+
                 <p className="mt-1 text-sm leading-5 text-white/85">
                   {destination.description}
                 </p>
@@ -167,14 +174,17 @@ export default function IrelandPage() {
               • Links courses — coastal, natural terrain, firm fairways and
               wind-exposed conditions
             </li>
+
             <li>
               • Parkland courses — inland layouts with trees, softer ground and
               more consistent conditions
             </li>
+
             <li>
               • Championship courses — high-profile venues often hosting major
               events
             </li>
+
             <li>
               • Local clubs — accessible courses with strong value and easier
               availability
