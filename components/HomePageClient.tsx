@@ -121,7 +121,7 @@ export default function HomePageClient() {
             </p>
 
             <p className="mt-4 text-[15px] text-white/85">
-              Discover clear information on guest access, handicap requirements, pricing, and when you can play — all in one place.
+              Discover clear information on guest access, handicap requirements, pricing, course type and when you can play — all in one place.
             </p>
           </div>
 
@@ -144,7 +144,10 @@ export default function HomePageClient() {
 
       <section className="mx-auto max-w-[480px] px-5 py-6 text-left">
         <div className="grid gap-3">
-          <Link href="/filters" className="block rounded-2xl border border-slate-200 bg-white px-5 py-5 shadow-sm">
+          <Link
+            href="/filters"
+            className="block rounded-2xl border border-slate-200 bg-white px-5 py-5 shadow-sm"
+          >
             <div className="text-[17px] font-semibold text-slate-900">
               Advanced Filters
             </div>
@@ -162,6 +165,9 @@ export default function HomePageClient() {
               <div className="text-[17px] font-semibold">
                 {isLocatingToday ? 'Getting your location...' : 'Play Golf Today'}
               </div>
+              <p className="mt-1 text-sm text-white/85">
+                Find courses near you that may be available today
+              </p>
             </button>
 
             {playTodayError && (
@@ -178,17 +184,67 @@ export default function HomePageClient() {
               <div className="text-[17px] font-semibold text-slate-900">
                 {isLocatingNearMe ? 'Getting your location...' : 'Near Me'}
               </div>
+              <p className="mt-1 text-sm text-slate-600">
+                Browse courses closest to your current location
+              </p>
             </button>
 
             {nearMeError && (
               <p className="mt-2 text-sm text-red-600">{nearMeError}</p>
             )}
           </div>
+        </div>
 
-          <Link href="/switzerland" className="block rounded-2xl border border-slate-200 bg-white px-5 py-5 shadow-sm">
-            <div className="text-[17px] font-semibold text-slate-900">
-              Browse by Location
-            </div>
+        <div className="mt-6 rounded-3xl bg-white p-5 shadow-sm ring-1 ring-slate-200/70">
+          <h2 className="text-[18px] font-semibold text-slate-900">
+            Browse by country
+          </h2>
+
+          <p className="mt-2 text-sm leading-6 text-slate-600">
+            Explore golf courses, regions and destination guides by country.
+          </p>
+
+          <div className="mt-4 grid gap-3">
+            <Link
+              href="/switzerland"
+              className="block rounded-2xl bg-emerald-800 px-5 py-5 text-white no-underline shadow-sm hover:bg-emerald-900"
+            >
+              <div className="text-[17px] font-semibold">
+                Golf in Switzerland
+              </div>
+              <p className="mt-1 text-sm leading-5 text-white/85">
+                Find Swiss courses where independent guests can play, with clear access and seasonal information.
+              </p>
+            </Link>
+
+            <Link
+              href="/ireland"
+              className="block rounded-2xl bg-emerald-800 px-5 py-5 text-white no-underline shadow-sm hover:bg-emerald-900"
+            >
+              <div className="text-[17px] font-semibold">
+                Golf in Ireland
+              </div>
+              <p className="mt-1 text-sm leading-5 text-white/85">
+                Explore Irish links, parkland and championship courses for visiting golfers.
+              </p>
+            </Link>
+          </div>
+        </div>
+
+        <div className="mt-6 rounded-3xl bg-white p-5 shadow-sm ring-1 ring-slate-200/70">
+          <h2 className="text-[18px] font-semibold text-slate-900">
+            About GuestPlayGolf
+          </h2>
+
+          <p className="mt-2 text-sm leading-6 text-slate-600">
+            Golf isn&apos;t easy. Finding where to play should be.
+          </p>
+
+          <Link
+            href="/about"
+            className="mt-4 inline-block rounded-full bg-slate-900 px-5 py-3 text-sm font-semibold text-white no-underline"
+          >
+            Learn more
           </Link>
         </div>
       </section>
