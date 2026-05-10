@@ -8,7 +8,7 @@ export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
   title: "Golf in Ireland | Best courses for visiting and non-members",
   description:
-    "Discover where to play golf in Ireland. Explore links and parkland courses, regional golf guides and the best places for visiting golfers.",
+    "Discover where to play golf in Ireland. Explore links, parkland and heathland courses, regional golf guides and the best places for visiting golfers.",
   alternates: {
     canonical: "/ireland",
   },
@@ -80,7 +80,9 @@ export default function IrelandPage() {
               GuestPlayGolf
             </div>
 
-            <div className="w-10" />
+            <Link href="/about" className="text-[13px] text-white/85 no-underline">
+              About
+            </Link>
           </div>
 
           <div className="mt-5">
@@ -94,13 +96,13 @@ export default function IrelandPage() {
 
             <p className="mt-4 text-[15px] leading-6 text-white/85">
               Discover where to play golf in Ireland, from world-famous links
-              courses to accessible parkland layouts. Explore regions, compare
-              course styles and plan where to play next.
+              courses to accessible parkland and heathland layouts. Compare
+              regions, course style, price, access and distance to plan where to
+              play next.
             </p>
 
             <p className="mt-4 text-[15px] font-medium text-white">
-              Ireland is one of the best golf destinations in the world — the
-              challenge is choosing where to play.
+              Golf isn’t easy. Finding where to play should be.
             </p>
           </div>
         </div>
@@ -115,34 +117,33 @@ export default function IrelandPage() {
           </h2>
 
           <p className="mt-3 text-sm leading-6 text-slate-700">
-            Ireland offers one of the richest golf experiences in the world.
-            From rugged Atlantic links to tree-lined inland courses, the variety
-            is exceptional and accessible for visiting golfers.
+            Ireland is one of the richest golf destinations in the world. The
+            challenge is not whether there are enough courses — it is choosing
+            the right ones for your trip, budget, location and playing style.
           </p>
 
           <p className="mt-3 text-sm leading-6 text-slate-700">
-            Links golf is the defining experience, especially along the west and
-            south coasts, with natural terrain, coastal winds and firm playing
-            conditions. Parkland golf is more common inland, offering a more
-            sheltered and consistent playing style.
+            GuestPlayGolf helps visiting golfers compare courses more clearly,
+            including course type, guest access, handicap information, price
+            level, seasonality and distance from key golf destinations.
           </p>
 
           <p className="mt-3 text-sm leading-6 text-slate-700">
-            Most courses in Ireland welcome visitors, making it much easier to
-            plan golf compared to more restricted markets. The key decision is
-            less about access, and more about choosing the right region, course
-            style and travel route.
+            Ireland is generally more visitor-friendly than many restricted golf
+            markets, but access still varies by course. Some clubs welcome
+            visitors most days, some prioritise weekdays, and some resort courses
+            may be easier to access as part of a stay-and-play experience.
           </p>
         </div>
 
         <div className="mt-6 rounded-2xl bg-white p-5 shadow-sm ring-1 ring-slate-200/70">
           <h2 className="text-[18px] font-semibold text-slate-900">
-            Golf near major Irish cities
+            Golf near major Irish destinations
           </h2>
 
           <p className="mt-2 text-sm leading-6 text-slate-600">
-            Start with key locations that give access to the best golf regions
-            and travel connections across Ireland.
+            Start with key locations that give access to Ireland’s strongest golf
+            regions, major airports and well-known golf travel routes.
           </p>
 
           <div className="mt-4 grid gap-3">
@@ -166,30 +167,46 @@ export default function IrelandPage() {
 
         <div className="mt-6 rounded-2xl bg-white p-5 shadow-sm ring-1 ring-slate-200/70">
           <h2 className="text-[18px] font-semibold text-slate-900">
-            Types of golf in Ireland
+            Types of golf courses in Ireland
           </h2>
 
-          <ul className="mt-3 space-y-2 text-sm leading-6 text-slate-700">
-            <li>
-              • Links courses — coastal, natural terrain, firm fairways and
-              wind-exposed conditions
-            </li>
+          <p className="mt-2 text-sm leading-6 text-slate-600">
+            Ireland is best understood through three main course styles. Knowing
+            the difference makes it easier to choose the right course for your
+            trip.
+          </p>
 
-            <li>
-              • Parkland courses — inland layouts with trees, softer ground and
-              more consistent conditions
-            </li>
+          <div className="mt-4 space-y-4 text-sm leading-6 text-slate-700">
+            <div>
+              <h3 className="font-semibold text-slate-900">Links courses</h3>
+              <p className="mt-1">
+                Coastal courses built on sandy, natural terrain, often with firm
+                fairways, dunes, uneven lies and exposed wind conditions. Links
+                golf is Ireland’s most famous style and is especially strong
+                along the Atlantic coast and around major coastal regions.
+              </p>
+            </div>
 
-            <li>
-              • Championship courses — high-profile venues often hosting major
-              events
-            </li>
+            <div>
+              <h3 className="font-semibold text-slate-900">Parkland courses</h3>
+              <p className="mt-1">
+                Inland courses usually shaped through trees, softer ground,
+                lakes, rivers and more sheltered surroundings. Parkland courses
+                are often more familiar to visiting golfers and can be a strong
+                choice when looking for playable, scenic and accessible golf.
+              </p>
+            </div>
 
-            <li>
-              • Local clubs — accessible courses with strong value and easier
-              availability
-            </li>
-          </ul>
+            <div>
+              <h3 className="font-semibold text-slate-900">Heathland courses</h3>
+              <p className="mt-1">
+                Open inland courses with a more natural and exposed feel than
+                traditional parkland. Heathland layouts often include firmer
+                turf, strategic bunkering, wind influence and links-style
+                features without being true coastal links courses.
+              </p>
+            </div>
+          </div>
         </div>
 
         <div className="mt-6 rounded-2xl bg-white p-5 shadow-sm ring-1 ring-slate-200/70">
@@ -200,14 +217,26 @@ export default function IrelandPage() {
           <p className="mt-3 text-sm leading-6 text-slate-700">
             Ireland has an incredible number of golf courses, but choosing where
             to play can be overwhelming. Options vary by region, course type,
-            price and availability.
+            price, visitor access and availability.
           </p>
 
           <p className="mt-3 text-sm leading-6 text-slate-700">
-            GuestPlayGolf helps you cut through that choice by focusing on where
-            you can actually play, how courses compare and what to expect before
-            booking.
+            GuestPlayGolf is built to make that decision easier. Instead of only
+            listing courses, we focus on practical golf planning information:
+            where visitors can play, what type of course it is, how accessible it
+            is, and what to expect before booking.
           </p>
+
+          <p className="mt-3 text-sm leading-6 text-slate-700">
+            Our goal is simple: help golfers identify where they can play next.
+          </p>
+
+          <Link
+            href="/about"
+            className="mt-4 inline-block rounded-full bg-slate-900 px-5 py-3 text-sm font-semibold text-white no-underline"
+          >
+            About GuestPlayGolf
+          </Link>
         </div>
       </section>
     </main>
