@@ -66,6 +66,18 @@ const regionNames: Record<string, string> = {
   ZH: "Zurich",
 }
 
+const sourceBackHrefs: Record<string, string> = {
+  home: "/",
+  switzerland: "/switzerland",
+  ireland: "/ireland",
+  dublin: "/golf-near-dublin",
+  adare: "/golf-near-adare",
+  cork: "/golf-near-cork",
+  galway: "/golf-near-galway",
+  belfast: "/golf-near-belfast",
+  limerick: "/golf-near-limerick",
+}
+
 export async function generateMetadata({
   params,
 }: CoursePageProps): Promise<Metadata> {
@@ -148,6 +160,12 @@ function buildFallbackHref(
   },
   defaultHref: string
 ) {
+  const source = getSingleParam(searchParams.source)
+
+  if (source && sourceBackHrefs[source]) {
+    return sourceBackHrefs[source]
+  }
+
   const params = new URLSearchParams()
 
   for (const [key, value] of Object.entries(searchParams)) {
@@ -209,8 +227,12 @@ function getWebsiteUrl(website?: string | null) {
 function getAccessLabel(access: string, country: string) {
   const cleanAccess = access.trim()
 
-  if (cleanAccess === "Limited Access") {
+  if (cleanAccess === "Limited Access" || cleanAccess === "Limited") {
     return country === "Ireland" ? "Limited Visitor Access" : "Limited Guest Access"
+  }
+
+  if (cleanAccess === "Resort") {
+    return "Resort Access"
   }
 
   if (country === "Ireland") {
