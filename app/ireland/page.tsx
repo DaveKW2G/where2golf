@@ -55,6 +55,29 @@ const popularDestinations = [
   },
 ]
 
+const priceCategories = [
+  {
+    label: "€",
+    range: "Under €60",
+    description: "Lower-cost visitor green fees and strong-value local options.",
+  },
+  {
+    label: "€€",
+    range: "€60–€120",
+    description: "Mid-range visitor green fees across accessible clubs and resorts.",
+  },
+  {
+    label: "€€€",
+    range: "€120–€200",
+    description: "Premium courses, stronger resort options and higher-demand venues.",
+  },
+  {
+    label: "€€€€",
+    range: "€200+",
+    description: "Luxury, bucket-list or internationally renowned golf experiences.",
+  },
+]
+
 export default function IrelandPage() {
   return (
     <main className="min-h-screen bg-stone-100 text-slate-800">
@@ -206,6 +229,41 @@ export default function IrelandPage() {
                 features without being true coastal links courses.
               </p>
             </div>
+          </div>
+        </div>
+
+        <div className="mt-6 rounded-2xl bg-white p-5 shadow-sm ring-1 ring-slate-200/70">
+          <h2 className="text-[18px] font-semibold text-slate-900">
+            Understanding price categories
+          </h2>
+
+          <p className="mt-2 text-sm leading-6 text-slate-600">
+            GuestPlayGolf uses simple price indicators to help visiting golfers
+            compare courses quickly. These are based on a standard adult green
+            fee and are intended as a practical guide, not a fixed live price.
+          </p>
+
+          <div className="mt-4 grid gap-3">
+            {priceCategories.map((category) => (
+              <div
+                key={category.label}
+                className="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-4"
+              >
+                <div className="flex items-center justify-between gap-4">
+                  <div className="text-[20px] font-bold text-emerald-800">
+                    {category.label}
+                  </div>
+
+                  <div className="text-sm font-semibold text-slate-900">
+                    {category.range}
+                  </div>
+                </div>
+
+                <p className="mt-2 text-sm leading-5 text-slate-600">
+                  {category.description}
+                </p>
+              </div>
+            ))}
           </div>
         </div>
 
