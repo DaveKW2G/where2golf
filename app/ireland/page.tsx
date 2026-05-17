@@ -30,10 +30,10 @@ const popularDestinations = [
       "The busiest golf region in Ireland, with a mix of top links and parkland courses within easy reach.",
   },
   {
-    title: "Golf near Adare",
+    title: "Golf near Adare & Limerick",
     href: "/golf-near-adare",
     description:
-      "Plan golf around Adare Manor and the Ryder Cup venue, with access to Limerick, Clare and world-class west coast links.",
+      "Plan golf around Adare Manor, Limerick and the Ryder Cup region, with access to Clare, Kerry and world-class west coast links.",
   },
   {
     title: "Golf near Cork",
