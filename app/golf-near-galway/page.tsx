@@ -7,7 +7,7 @@ const siteUrl = "https://guestplaygolf.com"
 
 const galwayLat = 53.2707
 const galwayLng = -9.0568
-const galwayRadiusKm = 100
+const galwayRadiusKm = 70
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
@@ -31,8 +31,14 @@ function toRad(value: number) {
   return (value * Math.PI) / 180
 }
 
-function getDistanceKm(lat1: number, lng1: number, lat2: number, lng2: number) {
+function getDistanceKm(
+  lat1: number,
+  lng1: number,
+  lat2: number,
+  lng2: number
+) {
   const earthRadiusKm = 6371
+
   const dLat = toRad(lat2 - lat1)
   const dLng = toRad(lng2 - lng1)
 
@@ -56,7 +62,7 @@ export default async function GolfNearGalwayPage() {
     .select(
       "id, country, course_name, town, region, holes, independent_guest_days, season, price_range, course_image, handicap_required, max_handicap, latitude, longitude, course_type"
     )
-    .ilike("country", "Ireland")
+    .eq("country", "Ireland")
     .not("latitude", "is", null)
     .not("longitude", "is", null)
     .limit(300)
@@ -120,7 +126,7 @@ export default async function GolfNearGalwayPage() {
           <p className="mt-3 text-sm leading-6 text-slate-600">
             Galway is one of the best starting points for golf on Ireland’s west
             coast, especially for visiting golfers who want scenery, Atlantic
-            links and a true destination-golf feel. A 100km radius gives access
+            links and a true destination-golf feel. A 70km radius gives access
             to strong courses across Galway, Clare and the wider west of Ireland.
           </p>
 
