@@ -25,6 +25,7 @@ type Course = {
   independent_guest_days: string
   season: string
   price_range?: string | null
+  course_type?: string | null
   handicap_required?: boolean | null
   max_handicap?: number | null
   website?: string | null
@@ -236,6 +237,10 @@ function getAccessLabel(access: string, country: string) {
   }
 
   if (country === "Ireland") {
+    if (cleanAccess === "Everyday") return "Visitors Everyday"
+    if (cleanAccess === "Weekdays") return "Visitors Weekdays"
+    if (cleanAccess === "Weekend") return "Visitors Weekend"
+
     if (cleanAccess.startsWith("Guests ")) {
       return cleanAccess.replace("Guests", "Visitors")
     }
@@ -243,11 +248,21 @@ function getAccessLabel(access: string, country: string) {
     return `Visitors ${cleanAccess}`
   }
 
+  if (cleanAccess === "Everyday") return "Guests Everyday"
+  if (cleanAccess === "Weekdays") return "Guests Weekdays"
+  if (cleanAccess === "Weekend") return "Guests Weekend"
+
   if (cleanAccess.startsWith("Guests ")) {
     return cleanAccess
   }
 
   return `Guests ${cleanAccess}`
+}
+
+function shouldShowIrelandHandicap(maxHandicap?: number | null) {
+  if (maxHandicap === undefined || maxHandicap === null) return false
+
+  return maxHandicap > 0 && maxHandicap < 54
 }
 
 export default async function CoursePage({
@@ -262,7 +277,7 @@ export default async function CoursePage({
   const { data, error } = await supabase
     .from("courses")
     .select(
-      "id, course_name, country, town, region, full_address, holes, independent_guest_days, season, price_range, handicap_required, max_handicap, website, phone_number, notes, course_image, latitude, longitude"
+      "id, course_name, country, town, region, full_address, holes, independent_guest_days, season, price_range, course_type, handicap_required, max_handicap, website, phone_number, notes, course_image, latitude, longitude"
     )
     .eq("id", Number(resolvedParams.id))
     .single()
@@ -437,23 +452,56 @@ export default async function CoursePage({
           )}
 
           <div className="flex flex-wrap gap-2 pt-2">
-            <span className="rounded-full bg-emerald-100 px-3 py-1 text-[12px] font-medium text-emerald-800">
-              {accessLabel}
-            </span>
+            {isIreland ? (
+              <>
+                {course.course_type && (
+                  <span className="rounded-full bg-slate-100 px-3 py-1 text-[12px] font-semibold text-slate-700">
+                    {course.course_type}
+                  </span>
+                )}
 
-            <span className="rounded-full bg-amber-100 px-3 py-1 text-[12px] font-medium text-amber-800">
-              {handicapText}
-            </span>
+                {course.price_range && (
+                  <span className="rounded-full bg-yellow-100 px-3 py-1 text-[12px] font-bold text-yellow-800">
+                    {course.price_range}
+                  </span>
+                )}
 
-            <span className="rounded-full bg-slate-100 px-3 py-1 text-[12px] font-medium text-slate-700">
-              {course.holes} Holes
-            </span>
+                <span className="rounded-full bg-emerald-100 px-3 py-1 text-[12px] font-medium text-emerald-800">
+                  {accessLabel}
+                </span>
+
+                {shouldShowIrelandHandicap(course.max_handicap) && (
+                  <span className="rounded-full bg-blue-100 px-3 py-1 text-[12px] font-medium text-blue-800">
+                    Max Handicap {course.max_handicap}
+                  </span>
+                )}
+              </>
+            ) : (
+              <>
+                <span className="rounded-full bg-emerald-100 px-3 py-1 text-[12px] font-medium text-emerald-800">
+                  {accessLabel}
+                </span>
+
+                <span className="rounded-full bg-amber-100 px-3 py-1 text-[12px] font-medium text-amber-800">
+                  {handicapText}
+                </span>
+
+                <span className="rounded-full bg-slate-100 px-3 py-1 text-[12px] font-medium text-slate-700">
+                  {course.holes} Holes
+                </span>
+              </>
+            )}
           </div>
         </div>
 
         <div className="border-t border-slate-200">
           <DetailRow label="Season" value={course.season} />
-          <DetailRow label="Price" value={course.price_range || "Not listed"} />
+
+          {isIreland ? (
+            <DetailRow label="Holes" value={`${course.holes} holes`} />
+          ) : (
+            <DetailRow label="Price" value={course.price_range || "Not listed"} />
+          )}
         </div>
 
         {course.notes && (
