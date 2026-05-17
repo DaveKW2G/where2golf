@@ -88,6 +88,14 @@ function getAccessLabel(access?: string, isIreland?: boolean) {
   return `Guests ${cleanAccess}`
 }
 
+function shouldShowIrelandHandicap(maxHandicap?: number) {
+  if (maxHandicap === undefined || maxHandicap === null) return false
+
+  // In Ireland, only show handicap when it is a meaningful disclosed limit.
+  // This hides generic/default values like 54 while still showing real limits like 24 or 36.
+  return maxHandicap > 0 && maxHandicap < 54
+}
+
 export default function CourseCard({
   id,
   country,
@@ -169,13 +177,13 @@ export default function CourseCard({
           {isIreland ? (
             <>
               {course_type && (
-                <span className="rounded-full bg-slate-100 px-3 py-1 text-[12px] font-medium text-slate-700">
+                <span className="rounded-full bg-slate-100 px-3 py-1 text-[12px] font-semibold text-slate-700">
                   {course_type}
                 </span>
               )}
 
               {price_range && (
-                <span className="rounded-full bg-amber-100 px-3 py-1 text-[12px] font-medium text-amber-800">
+                <span className="rounded-full bg-yellow-100 px-3 py-1 text-[12px] font-bold text-yellow-800">
                   {price_range}
                 </span>
               )}
@@ -186,8 +194,8 @@ export default function CourseCard({
                 </span>
               )}
 
-              {max_handicap !== undefined && max_handicap !== null && (
-                <span className="rounded-full bg-amber-50 px-3 py-1 text-[12px] font-medium text-amber-800">
+              {shouldShowIrelandHandicap(max_handicap) && (
+                <span className="rounded-full bg-blue-100 px-3 py-1 text-[12px] font-medium text-blue-800">
                   Max Handicap {max_handicap}
                 </span>
               )}
