@@ -2,6 +2,7 @@ import Link from "next/link"
 
 interface CourseCardProps {
   id: number
+  country?: string
   course_name: string
   town: string
   region: string
@@ -9,6 +10,7 @@ interface CourseCardProps {
   independent_guest_days?: string
   season?: string
   price_range?: string
+  course_type?: string
   course_image?: string
   distance?: number
   max_handicap?: number
@@ -33,25 +35,95 @@ function isLikelyOpenToday(guestPlay?: string): boolean {
   return false
 }
 
+function getSingleParam(value: string | string[] | undefined) {
+  if (Array.isArray(value)) return value[0]
+  return value
+}
+
+function getCountryFromParams(
+  country?: string,
+  searchParams?: Record<string, string | string[] | undefined>
+) {
+  const paramCountry = getSingleParam(searchParams?.country)
+
+  if (country) return country.toLowerCase()
+  if (paramCountry) return paramCountry.toLowerCase()
+
+  return ""
+}
+
+function getAccessLabel(access?: string, isIreland?: boolean) {
+  if (!access) return null
+
+  const cleanAccess = access.trim()
+
+  if (cleanAccess === "Limited Access" || cleanAccess === "Limited") {
+    return isIreland ? "Limited Visitor Access" : "Limited Guest Access"
+  }
+
+  if (cleanAccess === "Resort") {
+    return "Resort Access"
+  }
+
+  if (isIreland) {
+    if (cleanAccess === "Everyday") return "Visitors Everyday"
+    if (cleanAccess === "Weekdays") return "Visitors Weekdays"
+    if (cleanAccess === "Weekend") return "Visitors Weekend"
+
+    if (cleanAccess.startsWith("Guests ")) {
+      return cleanAccess.replace("Guests", "Visitors")
+    }
+
+    return `Visitors ${cleanAccess}`
+  }
+
+  if (cleanAccess === "Everyday") return "Guests Everyday"
+  if (cleanAccess === "Weekdays") return "Guests Weekdays"
+  if (cleanAccess === "Weekend") return "Guests Weekend"
+
+  if (cleanAccess.startsWith("Guests ")) {
+    return cleanAccess
+  }
+
+  return `Guests ${cleanAccess}`
+}
+
 export default function CourseCard({
   id,
+  country,
   course_name,
   town,
   region,
   holes,
   independent_guest_days,
+  price_range,
+  course_type,
   course_image,
   distance,
   max_handicap,
   searchParams,
 }: CourseCardProps) {
-  const href = `/courses/${id}`
+  const params = new URLSearchParams()
 
-  let guestLabel = independent_guest_days
+  if (searchParams) {
+    Object.entries(searchParams).forEach(([key, value]) => {
+      if (typeof value === "string" && value.trim() !== "") {
+        params.set(key, value)
+      } else if (Array.isArray(value)) {
+        value.forEach((item) => {
+          if (item.trim() !== "") params.append(key, item)
+        })
+      }
+    })
+  }
 
-  if (independent_guest_days === "Everyday") guestLabel = "Guests Everyday"
-  if (independent_guest_days === "Weekdays") guestLabel = "Guests Weekdays"
-  if (independent_guest_days === "Weekend") guestLabel = "Guests Weekend"
+  const queryString = params.toString()
+  const href = queryString ? `/courses/${id}?${queryString}` : `/courses/${id}`
+
+  const countryValue = getCountryFromParams(country, searchParams)
+  const isIreland = countryValue === "ireland"
+
+  const accessLabel = getAccessLabel(independent_guest_days, isIreland)
 
   return (
     <Link
@@ -94,22 +166,52 @@ export default function CourseCard({
           )}
 
         <div className="mt-3 flex flex-wrap gap-2">
-          {guestLabel && (
-            <span className="rounded-full bg-emerald-100 px-3 py-1 text-[12px] font-medium text-emerald-800">
-              {guestLabel}
-            </span>
-          )}
+          {isIreland ? (
+            <>
+              {course_type && (
+                <span className="rounded-full bg-slate-100 px-3 py-1 text-[12px] font-medium text-slate-700">
+                  {course_type}
+                </span>
+              )}
 
-          {max_handicap !== undefined && max_handicap !== null && (
-            <span className="rounded-full bg-amber-100 px-3 py-1 text-[12px] font-medium text-amber-800">
-              Max Handicap {max_handicap}
-            </span>
-          )}
+              {price_range && (
+                <span className="rounded-full bg-amber-100 px-3 py-1 text-[12px] font-medium text-amber-800">
+                  {price_range}
+                </span>
+              )}
 
-          {holes && (
-            <span className="rounded-full bg-slate-100 px-3 py-1 text-[12px] font-medium text-slate-700">
-              {holes} Holes
-            </span>
+              {accessLabel && (
+                <span className="rounded-full bg-emerald-100 px-3 py-1 text-[12px] font-medium text-emerald-800">
+                  {accessLabel}
+                </span>
+              )}
+
+              {max_handicap !== undefined && max_handicap !== null && (
+                <span className="rounded-full bg-amber-50 px-3 py-1 text-[12px] font-medium text-amber-800">
+                  Max Handicap {max_handicap}
+                </span>
+              )}
+            </>
+          ) : (
+            <>
+              {accessLabel && (
+                <span className="rounded-full bg-emerald-100 px-3 py-1 text-[12px] font-medium text-emerald-800">
+                  {accessLabel}
+                </span>
+              )}
+
+              {max_handicap !== undefined && max_handicap !== null && (
+                <span className="rounded-full bg-amber-100 px-3 py-1 text-[12px] font-medium text-amber-800">
+                  Max Handicap {max_handicap}
+                </span>
+              )}
+
+              {holes && (
+                <span className="rounded-full bg-slate-100 px-3 py-1 text-[12px] font-medium text-slate-700">
+                  {holes} Holes
+                </span>
+              )}
+            </>
           )}
         </div>
       </div>
