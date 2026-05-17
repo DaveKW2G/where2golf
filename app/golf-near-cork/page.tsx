@@ -7,6 +7,7 @@ const siteUrl = "https://guestplaygolf.com"
 
 const corkLat = 51.8985
 const corkLng = -8.4756
+const corkRadiusKm = 70
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
@@ -26,14 +27,18 @@ export const metadata: Metadata = {
   },
 }
 
-const corkRegions = ["MUNSTER", "CORK", "KERRY", "WATERFORD", "TIPPERARY"]
-
 function toRad(value: number) {
   return (value * Math.PI) / 180
 }
 
-function getDistanceKm(lat1: number, lng1: number, lat2: number, lng2: number) {
+function getDistanceKm(
+  lat1: number,
+  lng1: number,
+  lat2: number,
+  lng2: number
+) {
   const earthRadiusKm = 6371
+
   const dLat = toRad(lat2 - lat1)
   const dLng = toRad(lng2 - lng1)
 
@@ -55,23 +60,29 @@ export default async function GolfNearCorkPage() {
   const { data: courses, error } = await supabase
     .from("courses")
     .select(
-      "id, course_name, town, region, holes, independent_guest_days, season, price_range, course_image, max_handicap, latitude, longitude"
+      "id, country, course_name, town, region, holes, independent_guest_days, season, price_range, course_image, handicap_required, max_handicap, latitude, longitude, course_type"
     )
-    .in("region", corkRegions)
+    .eq("country", "Ireland")
+    .not("latitude", "is", null)
+    .not("longitude", "is", null)
+    .limit(300)
 
   const coursesWithDistance =
     courses
       ?.map((course) => {
-        const distance =
-          course.latitude != null && course.longitude != null
-            ? getDistanceKm(corkLat, corkLng, course.latitude, course.longitude)
-            : undefined
+        const distance = getDistanceKm(
+          corkLat,
+          corkLng,
+          course.latitude,
+          course.longitude
+        )
 
         return {
           ...course,
           distance,
         }
       })
+      .filter((course) => course.distance <= corkRadiusKm)
       .sort((a, b) => (a.distance ?? 9999) - (b.distance ?? 9999)) || []
 
   const courseCount = coursesWithDistance.length
@@ -93,14 +104,14 @@ export default async function GolfNearCorkPage() {
           </h1>
 
           <p className="mt-4 text-[15px] leading-6 text-emerald-50/95">
-            Discover golf courses near Cork, from famous coastal links to
-            scenic parkland layouts across southern Ireland. Compare distance,
-            course style and location before deciding where to play.
+            Discover golf courses near Cork, from famous coastal links to scenic
+            parkland layouts across southern Ireland. Compare distance, course
+            style and location before deciding where to play.
           </p>
 
           <div className="mt-5">
             <span className="inline-block rounded-full bg-white/15 px-4 py-2 text-sm font-semibold text-white backdrop-blur">
-              {courseCount} courses near Cork
+              {courseCount} courses within {corkRadiusKm} km of Cork
             </span>
           </div>
         </div>
@@ -114,9 +125,9 @@ export default async function GolfNearCorkPage() {
 
           <p className="mt-3 text-sm leading-6 text-slate-600">
             Cork is one of Ireland’s strongest golf bases, combining city access
-            with some of the best coastal golf in the country. It gives visiting
-            golfers a natural route into southern Ireland, with courses across
-            Cork, Kerry, Waterford and the wider Munster region.
+            with some of the best coastal golf in the country. A 70km radius
+            keeps the focus on realistic day-trip golf from Cork while still
+            covering strong visitor options across southern Ireland.
           </p>
 
           <p className="mt-3 text-sm leading-6 text-slate-600">
@@ -142,17 +153,26 @@ export default async function GolfNearCorkPage() {
           </div>
         )}
 
-        <div className="mt-6 grid gap-4">
-          {coursesWithDistance.map((course) => (
-            <CourseCard
-              key={course.id}
-              {...course}
-              userLat={corkLat}
-              userLng={corkLng}
-              searchParams={{ source: "cork" }}
-            />
-          ))}
-        </div>
+        {coursesWithDistance.length === 0 ? (
+          <div className="mt-6 rounded-2xl bg-white p-5 text-sm text-slate-600 shadow-sm">
+            No golf courses found within {corkRadiusKm} km of Cork.
+          </div>
+        ) : (
+          <div className="mt-6 grid gap-4">
+            {coursesWithDistance.map((course) => (
+              <CourseCard
+                key={course.id}
+                {...course}
+                userLat={corkLat}
+                userLng={corkLng}
+                searchParams={{
+                  country: "ireland",
+                  source: "cork",
+                }}
+              />
+            ))}
+          </div>
+        )}
       </section>
     </main>
   )
