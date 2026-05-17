@@ -7,7 +7,7 @@ const siteUrl = "https://guestplaygolf.com"
 
 const galwayLat = 53.2707
 const galwayLng = -9.0568
-const galwayRadiusKm = 100
+const galwayRadiusKm = 75
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
@@ -126,9 +126,10 @@ export default async function GolfNearGalwayPage() {
           <p className="mt-3 text-sm leading-6 text-slate-600">
             Galway is one of the best starting points for golf on Ireland’s west
             coast, especially for visiting golfers who want scenery, Atlantic
-            links and a true destination-golf feel. A 100km radius reflects how
-            golfers often plan west-of-Ireland golf trips, where memorable
-            courses can sit beyond normal city-driving distance.
+            links and a true destination-golf feel. A 75km radius reflects how
+            golfers often plan west-of-Ireland golf trips, balancing realistic
+            day-trip golf with access to some of the region’s standout links and
+            parkland courses.
           </p>
 
           <p className="mt-3 text-sm leading-6 text-slate-600">
