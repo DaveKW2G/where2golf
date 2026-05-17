@@ -5,23 +5,23 @@ import CourseCard from "@/components/CourseCard"
 
 const siteUrl = "https://guestplaygolf.com"
 
-// Adare Manor coordinates (Ryder Cup venue)
+// Adare Manor coordinates — Ryder Cup venue near Limerick
 const adareLat = 52.5627
 const adareLng = -8.7944
 const adareRadiusKm = 80
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
-  title: "Golf near Adare | Play around the Ryder Cup venue",
+  title: "Golf near Adare & Limerick | Ryder Cup golf region",
   description:
-    "Find golf courses near Adare Manor, host of the Ryder Cup. Discover links and parkland courses within easy reach and plan where to play nearby.",
+    "Find golf courses near Adare Manor and Limerick, including Ryder Cup region golf, west of Ireland links, parkland courses and visitor-friendly places to play.",
   alternates: {
     canonical: "/golf-near-adare",
   },
   openGraph: {
-    title: "Golf near Adare | GuestPlayGolf",
+    title: "Golf near Adare & Limerick | GuestPlayGolf",
     description:
-      "Discover golf courses near Adare Manor and the Ryder Cup venue, including world-class links and accessible inland courses.",
+      "Discover golf courses near Adare Manor, Limerick and the Ryder Cup region, including west coast links and accessible inland courses.",
     url: `${siteUrl}/golf-near-adare`,
     siteName: "GuestPlayGolf",
     type: "website",
@@ -91,17 +91,17 @@ export default async function GolfNearAdarePage() {
           </Link>
 
           <p className="mt-6 text-[12px] font-medium uppercase tracking-[0.18em] text-emerald-200">
-            Golf near Adare
+            Golf near Adare & Limerick
           </p>
 
           <h1 className="mt-2 text-[28px] font-bold leading-tight">
-            Golf near Adare for visiting golfers
+            Golf near Adare and Limerick for visiting golfers
           </h1>
 
           <p className="mt-4 text-[15px] leading-6 text-emerald-50/95">
-            Discover golf courses near Adare Manor, host of the Ryder Cup.
-            Explore world-class links and accessible inland courses within easy
-            reach and plan where to play during your visit.
+            Discover golf courses near Adare Manor, Limerick and the Ryder Cup
+            region. Explore west of Ireland links, castle estate parkland and
+            accessible inland courses within easy reach.
           </p>
 
           <div className="mt-5">
@@ -115,27 +115,29 @@ export default async function GolfNearAdarePage() {
       <section className="mx-auto max-w-[480px] px-5 py-6">
         <div className="rounded-3xl bg-white p-5 shadow-sm ring-1 ring-slate-200/70">
           <h2 className="text-lg font-semibold text-slate-900">
-            Where to play golf near Adare
+            Where to play golf near Adare, Limerick and the Ryder Cup venue
           </h2>
 
           <p className="mt-3 text-sm leading-6 text-slate-600">
-            Adare is set to host one of the biggest events in world golf, and the
-            surrounding region offers some of the best golf in Ireland. Within a
-            short drive, you can access renowned links courses along the west
-            coast as well as strong inland layouts across Limerick and Clare.
+            Adare is set to host one of the biggest events in world golf, the
+            Ryder Cup, and the surrounding region offers some of the best golf in
+            Ireland. From Adare Manor near Limerick, visiting golfers can reach
+            renowned links courses on the west coast as well as strong inland
+            parkland courses across Limerick, Clare and Kerry.
           </p>
 
           <p className="mt-3 text-sm leading-6 text-slate-600">
-            This part of Ireland is known for its variety, combining dramatic
-            coastal golf with more accessible inland courses. It is an ideal base
-            for visiting golfers looking to play multiple courses around a Ryder
-            Cup trip.
+            This part of Ireland is a natural base for golfers planning a west of
+            Ireland golf trip. It combines Ryder Cup interest, Shannon Airport
+            access, Limerick city connections, castle estate golf and dramatic
+            Atlantic links within a realistic driving distance.
           </p>
 
           <p className="mt-3 text-sm leading-6 text-slate-600">
             Many of Ireland’s most famous courses, including Ballybunion,
-            Lahinch and Doonbeg, are all within reach, making Adare one of the
-            strongest golf regions in the country.
+            Lahinch and Doonbeg, are all within reach, making the Adare and
+            Limerick area one of the strongest golf regions in the country for
+            visiting golfers.
           </p>
         </div>
 
