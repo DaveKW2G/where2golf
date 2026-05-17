@@ -7,6 +7,7 @@ const siteUrl = "https://guestplaygolf.com"
 
 const galwayLat = 53.2707
 const galwayLng = -9.0568
+const galwayRadiusKm = 100
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
@@ -25,8 +26,6 @@ export const metadata: Metadata = {
     type: "website",
   },
 }
-
-const galwayRegions = ["CONNACHT", "GALWAY", "CLARE", "MAYO", "SLIGO"]
 
 function toRad(value: number) {
   return (value * Math.PI) / 180
@@ -55,23 +54,29 @@ export default async function GolfNearGalwayPage() {
   const { data: courses, error } = await supabase
     .from("courses")
     .select(
-      "id, course_name, town, region, holes, independent_guest_days, season, price_range, course_image, max_handicap, latitude, longitude"
+      "id, country, course_name, town, region, holes, independent_guest_days, season, price_range, course_image, handicap_required, max_handicap, latitude, longitude, course_type"
     )
-    .in("region", galwayRegions)
+    .ilike("country", "Ireland")
+    .not("latitude", "is", null)
+    .not("longitude", "is", null)
+    .limit(300)
 
   const coursesWithDistance =
     courses
       ?.map((course) => {
-        const distance =
-          course.latitude != null && course.longitude != null
-            ? getDistanceKm(galwayLat, galwayLng, course.latitude, course.longitude)
-            : undefined
+        const distance = getDistanceKm(
+          galwayLat,
+          galwayLng,
+          course.latitude,
+          course.longitude
+        )
 
         return {
           ...course,
           distance,
         }
       })
+      .filter((course) => course.distance <= galwayRadiusKm)
       .sort((a, b) => (a.distance ?? 9999) - (b.distance ?? 9999)) || []
 
   const courseCount = coursesWithDistance.length
@@ -100,7 +105,7 @@ export default async function GolfNearGalwayPage() {
 
           <div className="mt-5">
             <span className="inline-block rounded-full bg-white/15 px-4 py-2 text-sm font-semibold text-white backdrop-blur">
-              {courseCount} courses near Galway
+              {courseCount} courses within {galwayRadiusKm} km of Galway
             </span>
           </div>
         </div>
@@ -115,8 +120,8 @@ export default async function GolfNearGalwayPage() {
           <p className="mt-3 text-sm leading-6 text-slate-600">
             Galway is one of the best starting points for golf on Ireland’s west
             coast, especially for visiting golfers who want scenery, Atlantic
-            links and a true destination-golf feel. It gives access to courses
-            across Galway, Mayo, Clare, Sligo and the wider Connacht region.
+            links and a true destination-golf feel. A 100km radius gives access
+            to strong courses across Galway, Clare and the wider west of Ireland.
           </p>
 
           <p className="mt-3 text-sm leading-6 text-slate-600">
@@ -128,7 +133,7 @@ export default async function GolfNearGalwayPage() {
 
           <p className="mt-3 text-sm leading-6 text-slate-600">
             Galway works especially well for golfers building a west-of-Ireland
-            itinerary, with routes towards Connemara, Lahinch, Mayo and Sligo.
+            itinerary, with routes towards Connemara, Lahinch, Clare and Mayo.
             GuestPlayGolf helps you compare distance, course style, price and
             visitor access before choosing where to play.
           </p>
@@ -140,17 +145,26 @@ export default async function GolfNearGalwayPage() {
           </div>
         )}
 
-        <div className="mt-6 grid gap-4">
-          {coursesWithDistance.map((course) => (
-            <CourseCard
-              key={course.id}
-              {...course}
-              userLat={galwayLat}
-              userLng={galwayLng}
-              searchParams={{ source: "galway" }}
-            />
-          ))}
-        </div>
+        {coursesWithDistance.length === 0 ? (
+          <div className="mt-6 rounded-2xl bg-white p-5 text-sm text-slate-600 shadow-sm">
+            No golf courses found within {galwayRadiusKm} km of Galway.
+          </div>
+        ) : (
+          <div className="mt-6 grid gap-4">
+            {coursesWithDistance.map((course) => (
+              <CourseCard
+                key={course.id}
+                {...course}
+                userLat={galwayLat}
+                userLng={galwayLng}
+                searchParams={{
+                  country: "ireland",
+                  source: "galway",
+                }}
+              />
+            ))}
+          </div>
+        )}
       </section>
     </main>
   )
