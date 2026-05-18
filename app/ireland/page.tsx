@@ -58,23 +58,27 @@ const popularDestinations = [
 const priceCategories = [
   {
     label: "€",
-    range: "Under €60",
-    description: "Lower-cost visitor green fees and strong-value local options.",
+    range: "Value",
+    description:
+      "Strong-value golf options, typically offering accessible green fees and excellent local golf experiences.",
   },
   {
     label: "€€",
-    range: "€60–€120",
-    description: "Mid-range visitor green fees across accessible clubs and resorts.",
+    range: "Mid-range",
+    description:
+      "A balance of quality, visitor experience and price across many established clubs and resorts.",
   },
   {
     label: "€€€",
-    range: "€120–€200",
-    description: "Premium courses, stronger resort options and higher-demand venues.",
+    range: "Premium",
+    description:
+      "Championship venues, stronger resort experiences and highly regarded visitor golf destinations.",
   },
   {
     label: "€€€€",
-    range: "€200+",
-    description: "Luxury, bucket-list or internationally renowned golf experiences.",
+    range: "Bucket-list",
+    description:
+      "Iconic, destination golf experiences that sit among Ireland’s most memorable and sought-after courses.",
   },
 ]
 
@@ -238,9 +242,10 @@ export default function IrelandPage() {
           </h2>
 
           <p className="mt-2 text-sm leading-6 text-slate-600">
-            GuestPlayGolf uses simple price indicators to help visiting golfers
-            compare courses quickly. These are based on a standard adult green
-            fee and are intended as a practical guide, not a fixed live price.
+            GuestPlayGolf uses simple price categories to help visiting golfers
+            compare courses more quickly. These are designed to indicate the
+            general golf experience and pricing level, rather than exact live
+            green fees, which can vary by season, day and booking type.
           </p>
 
           <div className="mt-4 grid gap-3">
