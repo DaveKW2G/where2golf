@@ -6,23 +6,23 @@ import CourseCard from "@/components/CourseCard"
 const siteUrl = "https://guestplaygolf.com"
 
 // Adare Manor coordinates — Ryder Cup venue near Limerick
-const adareLat = 52.5627
-const adareLng = -8.7944
-const adareRadiusKm = 80
+const adareManorLat = 52.5627
+const adareManorLng = -8.7944
+const adareManorRadiusKm = 80
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
-  title: "Golf near Adare & Limerick | Ryder Cup golf region",
+  title: "Golf near Adare Manor | Ryder Cup golf region",
   description:
-    "Find golf courses near Adare Manor and Limerick, including Ryder Cup region golf, west of Ireland links, parkland courses and visitor-friendly places to play.",
+    "Find golf courses near Adare Manor, including Ryder Cup region golf, west of Ireland links, parkland courses and visitor-friendly places to play.",
   alternates: {
-    canonical: "/golf-near-adare",
+    canonical: "/golf-near-adare-manor",
   },
   openGraph: {
-    title: "Golf near Adare & Limerick | GuestPlayGolf",
+    title: "Golf near Adare Manor | GuestPlayGolf",
     description:
-      "Discover golf courses near Adare Manor, Limerick and the Ryder Cup region, including west coast links and accessible inland courses.",
-    url: `${siteUrl}/golf-near-adare`,
+      "Discover golf courses near Adare Manor and the Ryder Cup region, including west coast links, castle estate golf and accessible inland courses.",
+    url: `${siteUrl}/golf-near-adare-manor`,
     siteName: "GuestPlayGolf",
     type: "website",
   },
@@ -49,7 +49,7 @@ function getDistanceKm(lat1: number, lng1: number, lat2: number, lng2: number) {
   return earthRadiusKm * c
 }
 
-export default async function GolfNearAdarePage() {
+export default async function GolfNearAdareManorPage() {
   const supabase = await createClient()
 
   const { data: courses, error } = await supabase
@@ -57,7 +57,7 @@ export default async function GolfNearAdarePage() {
     .select(
       "id, country, course_name, town, region, holes, independent_guest_days, season, price_range, course_image, handicap_required, max_handicap, latitude, longitude, course_type"
     )
-    .ilike("country", "Ireland")
+    .eq("country", "Ireland")
     .not("latitude", "is", null)
     .not("longitude", "is", null)
     .limit(300)
@@ -66,8 +66,8 @@ export default async function GolfNearAdarePage() {
     courses
       ?.map((course) => {
         const distance = getDistanceKm(
-          adareLat,
-          adareLng,
+          adareManorLat,
+          adareManorLng,
           course.latitude,
           course.longitude
         )
@@ -77,7 +77,7 @@ export default async function GolfNearAdarePage() {
           distance,
         }
       })
-      .filter((course) => course.distance <= adareRadiusKm)
+      .filter((course) => course.distance <= adareManorRadiusKm)
       .sort((a, b) => (a.distance ?? 9999) - (b.distance ?? 9999)) || []
 
   const courseCount = coursesWithDistance.length
@@ -91,22 +91,22 @@ export default async function GolfNearAdarePage() {
           </Link>
 
           <p className="mt-6 text-[12px] font-medium uppercase tracking-[0.18em] text-emerald-200">
-            Golf near Adare & Limerick
+            Golf near Adare Manor
           </p>
 
           <h1 className="mt-2 text-[28px] font-bold leading-tight">
-            Golf near Adare and Limerick for visiting golfers
+            Golf near Adare Manor for visiting golfers
           </h1>
 
           <p className="mt-4 text-[15px] leading-6 text-emerald-50/95">
-            Discover golf courses near Adare Manor, Limerick and the Ryder Cup
-            region. Explore west of Ireland links, castle estate parkland and
-            accessible inland courses within easy reach.
+            Discover golf courses near Adare Manor and the Ryder Cup region.
+            Explore west of Ireland links, castle estate parkland and accessible
+            inland courses within easy reach.
           </p>
 
           <div className="mt-5">
             <span className="inline-block rounded-full bg-white/15 px-4 py-2 text-sm font-semibold text-white backdrop-blur">
-              {courseCount} courses within {adareRadiusKm} km of Adare
+              {courseCount} courses within {adareManorRadiusKm} km of Adare Manor
             </span>
           </div>
         </div>
@@ -115,15 +115,15 @@ export default async function GolfNearAdarePage() {
       <section className="mx-auto max-w-[480px] px-5 py-6">
         <div className="rounded-3xl bg-white p-5 shadow-sm ring-1 ring-slate-200/70">
           <h2 className="text-lg font-semibold text-slate-900">
-            Where to play golf near Adare, Limerick and the Ryder Cup venue
+            Where to play golf near Adare Manor
           </h2>
 
           <p className="mt-3 text-sm leading-6 text-slate-600">
-            Adare is set to host one of the biggest events in world golf, the
-            Ryder Cup, and the surrounding region offers some of the best golf in
-            Ireland. From Adare Manor near Limerick, visiting golfers can reach
-            renowned links courses on the west coast as well as strong inland
-            parkland courses across Limerick, Clare and Kerry.
+            Adare Manor is set to host one of the biggest events in world golf,
+            the Ryder Cup, and the surrounding region offers some of the best
+            golf in Ireland. From Adare Manor near Limerick, visiting golfers can
+            reach renowned links courses on the west coast as well as strong
+            inland parkland courses across Limerick, Clare and Kerry.
           </p>
 
           <p className="mt-3 text-sm leading-6 text-slate-600">
@@ -135,21 +135,21 @@ export default async function GolfNearAdarePage() {
 
           <p className="mt-3 text-sm leading-6 text-slate-600">
             Many of Ireland’s most famous courses, including Ballybunion,
-            Lahinch and Doonbeg, are all within reach, making the Adare and
-            Limerick area one of the strongest golf regions in the country for
-            visiting golfers.
+            Lahinch and Doonbeg, are all within reach, making the Adare Manor
+            region one of the strongest golf areas in the country for visiting
+            golfers.
           </p>
         </div>
 
         {error && (
           <div className="mt-6 rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
-            Error loading golf courses near Adare.
+            Error loading golf courses near Adare Manor.
           </div>
         )}
 
         {coursesWithDistance.length === 0 ? (
           <div className="mt-6 rounded-2xl bg-white p-5 text-sm text-slate-600 shadow-sm">
-            No golf courses found within {adareRadiusKm} km of Adare.
+            No golf courses found within {adareManorRadiusKm} km of Adare Manor.
           </div>
         ) : (
           <div className="mt-6 grid gap-4">
@@ -157,8 +157,8 @@ export default async function GolfNearAdarePage() {
               <CourseCard
                 key={course.id}
                 {...course}
-                userLat={adareLat}
-                userLng={adareLng}
+                userLat={adareManorLat}
+                userLng={adareManorLng}
                 searchParams={{
                   country: "ireland",
                   source: "adare",
