@@ -7,6 +7,7 @@ const siteUrl = "https://guestplaygolf.com"
 
 const belfastLat = 54.5973
 const belfastLng = -5.9301
+const belfastRadiusKm = 75
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
@@ -26,14 +27,18 @@ export const metadata: Metadata = {
   },
 }
 
-const belfastRegions = ["ULSTER", "ANTRIM", "DOWN", "ARMAGH", "DERRY"]
-
 function toRad(value: number) {
   return (value * Math.PI) / 180
 }
 
-function getDistanceKm(lat1: number, lng1: number, lat2: number, lng2: number) {
+function getDistanceKm(
+  lat1: number,
+  lng1: number,
+  lat2: number,
+  lng2: number
+) {
   const earthRadiusKm = 6371
+
   const dLat = toRad(lat2 - lat1)
   const dLng = toRad(lng2 - lng1)
 
@@ -55,28 +60,29 @@ export default async function GolfNearBelfastPage() {
   const { data: courses, error } = await supabase
     .from("courses")
     .select(
-      "id, course_name, town, region, holes, independent_guest_days, season, price_range, course_image, max_handicap, latitude, longitude"
+      "id, country, course_name, town, region, holes, independent_guest_days, season, price_range, course_image, handicap_required, max_handicap, latitude, longitude, course_type"
     )
-    .in("region", belfastRegions)
+    .eq("country", "Ireland")
+    .not("latitude", "is", null)
+    .not("longitude", "is", null)
+    .limit(300)
 
   const coursesWithDistance =
     courses
       ?.map((course) => {
-        const distance =
-          course.latitude != null && course.longitude != null
-            ? getDistanceKm(
-                belfastLat,
-                belfastLng,
-                course.latitude,
-                course.longitude
-              )
-            : undefined
+        const distance = getDistanceKm(
+          belfastLat,
+          belfastLng,
+          course.latitude,
+          course.longitude
+        )
 
         return {
           ...course,
           distance,
         }
       })
+      .filter((course) => course.distance <= belfastRadiusKm)
       .sort((a, b) => (a.distance ?? 9999) - (b.distance ?? 9999)) || []
 
   const courseCount = coursesWithDistance.length
@@ -105,7 +111,7 @@ export default async function GolfNearBelfastPage() {
 
           <div className="mt-5">
             <span className="inline-block rounded-full bg-white/15 px-4 py-2 text-sm font-semibold text-white backdrop-blur">
-              {courseCount} courses near Belfast
+              {courseCount} courses within {belfastRadiusKm} km of Belfast
             </span>
           </div>
         </div>
@@ -120,7 +126,10 @@ export default async function GolfNearBelfastPage() {
           <p className="mt-3 text-sm leading-6 text-slate-600">
             Belfast is one of the strongest golf bases in Ireland for visiting
             golfers, with fast access to some of the most famous links courses in
-            the world as well as excellent parkland options around the city.
+            the world as well as excellent parkland options around the city. A
+            75km radius keeps the page focused on realistic golf trips from
+            Belfast while still covering standout courses across County Down and
+            County Antrim.
           </p>
 
           <p className="mt-3 text-sm leading-6 text-slate-600">
@@ -144,17 +153,26 @@ export default async function GolfNearBelfastPage() {
           </div>
         )}
 
-        <div className="mt-6 grid gap-4">
-          {coursesWithDistance.map((course) => (
-            <CourseCard
-              key={course.id}
-              {...course}
-              userLat={belfastLat}
-              userLng={belfastLng}
-              searchParams={{ source: "belfast" }}
-            />
-          ))}
-        </div>
+        {coursesWithDistance.length === 0 ? (
+          <div className="mt-6 rounded-2xl bg-white p-5 text-sm text-slate-600 shadow-sm">
+            No golf courses found within {belfastRadiusKm} km of Belfast.
+          </div>
+        ) : (
+          <div className="mt-6 grid gap-4">
+            {coursesWithDistance.map((course) => (
+              <CourseCard
+                key={course.id}
+                {...course}
+                userLat={belfastLat}
+                userLng={belfastLng}
+                searchParams={{
+                  country: "ireland",
+                  source: "belfast",
+                }}
+              />
+            ))}
+          </div>
+        )}
       </section>
     </main>
   )
