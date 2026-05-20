@@ -60,25 +60,25 @@ const priceCategories = [
     label: "€",
     range: "Value",
     description:
-      "Strong-value golf options, typically offering accessible green fees and excellent local golf experiences.",
+      "Typically up to €100, offering accessible green fees and excellent local golf experiences across many visitor-friendly courses.",
   },
   {
     label: "€€",
-    range: "Mid-range",
+    range: "Mid Range",
     description:
-      "A balance of quality, visitor experience and price across many established clubs and resorts.",
+      "Generally €101–200, including many established clubs, championship venues and strong regional golf destinations.",
   },
   {
     label: "€€€",
     range: "Premium",
     description:
-      "Championship venues, stronger resort experiences and highly regarded visitor golf destinations.",
+      "Typically €201–300, covering high-end golf resorts and premium visitor golf experiences.",
   },
   {
     label: "€€€€",
-    range: "Bucket-list",
+    range: "Bucket List",
     description:
-      "Iconic, destination golf experiences that sit among Ireland’s most memorable and sought-after courses.",
+      "€300+, representing Ireland’s most iconic, prestigious and sought-after golf experiences.",
   },
 ]
 
@@ -208,9 +208,7 @@ export default function IrelandPage() {
               <h3 className="font-semibold text-slate-900">Links courses</h3>
               <p className="mt-1">
                 Coastal courses built on sandy, natural terrain, often with firm
-                fairways, dunes, uneven lies and exposed wind conditions. Links
-                golf is Ireland’s most famous style and is especially strong
-                along the Atlantic coast and around major coastal regions.
+                fairways, dunes, uneven lies and exposed wind conditions.
               </p>
             </div>
 
@@ -218,9 +216,7 @@ export default function IrelandPage() {
               <h3 className="font-semibold text-slate-900">Parkland courses</h3>
               <p className="mt-1">
                 Inland courses usually shaped through trees, softer ground,
-                lakes, rivers and more sheltered surroundings. Parkland courses
-                are often more familiar to visiting golfers and can be a strong
-                choice when looking for playable, scenic and accessible golf.
+                lakes, rivers and more sheltered surroundings.
               </p>
             </div>
 
@@ -228,9 +224,7 @@ export default function IrelandPage() {
               <h3 className="font-semibold text-slate-900">Heathland courses</h3>
               <p className="mt-1">
                 Open inland courses with a more natural and exposed feel than
-                traditional parkland. Heathland layouts often include firmer
-                turf, strategic bunkering, wind influence and links-style
-                features without being true coastal links courses.
+                traditional parkland.
               </p>
             </div>
           </div>
@@ -244,8 +238,8 @@ export default function IrelandPage() {
           <p className="mt-2 text-sm leading-6 text-slate-600">
             GuestPlayGolf uses simple price categories to help visiting golfers
             compare courses more quickly. These are designed to indicate the
-            general golf experience and pricing level, rather than exact live
-            green fees, which can vary by season, day and booking type.
+            general pricing level and overall golf experience, rather than exact
+            live green fees, which can vary by season, day and booking type.
           </p>
 
           <div className="mt-4 grid gap-3">
@@ -279,19 +273,7 @@ export default function IrelandPage() {
 
           <p className="mt-3 text-sm leading-6 text-slate-700">
             Ireland has an incredible number of golf courses, but choosing where
-            to play can be overwhelming. Options vary by region, course type,
-            price, visitor access and availability.
-          </p>
-
-          <p className="mt-3 text-sm leading-6 text-slate-700">
-            GuestPlayGolf is built to make that decision easier. Instead of only
-            listing courses, we focus on practical golf planning information:
-            where visitors can play, what type of course it is, how accessible it
-            is, and what to expect before booking.
-          </p>
-
-          <p className="mt-3 text-sm leading-6 text-slate-700">
-            Our goal is simple: help golfers identify where they can play next.
+            to play can be overwhelming.
           </p>
 
           <Link
