@@ -58,27 +58,27 @@ const popularDestinations = [
 const priceCategories = [
   {
     label: "€",
-    range: "Value",
+    range: "Value · Up to €100",
     description:
-      "Typically up to €100, offering accessible green fees and excellent local golf experiences across many visitor-friendly courses.",
+      "Accessible green fees and excellent local golf experiences across many visitor-friendly courses.",
   },
   {
     label: "€€",
-    range: "Mid Range",
+    range: "Mid Range · €101–200",
     description:
-      "Generally €101–200, including many established clubs, championship venues and strong regional golf destinations.",
+      "Many established clubs, championship venues and strong regional golf destinations.",
   },
   {
     label: "€€€",
-    range: "Premium",
+    range: "Premium · €201–300",
     description:
-      "Typically €201–300, covering high-end golf resorts and premium visitor golf experiences.",
+      "High-end golf resorts and premium visitor golf experiences.",
   },
   {
     label: "€€€€",
-    range: "Bucket List",
+    range: "Bucket List · €300+",
     description:
-      "€300+, representing Ireland’s most iconic, prestigious and sought-after golf experiences.",
+      "Ireland’s most iconic, prestigious and sought-after golf experiences.",
   },
 ]
 
@@ -208,7 +208,9 @@ export default function IrelandPage() {
               <h3 className="font-semibold text-slate-900">Links courses</h3>
               <p className="mt-1">
                 Coastal courses built on sandy, natural terrain, often with firm
-                fairways, dunes, uneven lies and exposed wind conditions.
+                fairways, dunes, uneven lies and exposed wind conditions. Links
+                golf is Ireland’s most famous style and is especially strong
+                along the Atlantic coast and around major coastal regions.
               </p>
             </div>
 
@@ -216,7 +218,9 @@ export default function IrelandPage() {
               <h3 className="font-semibold text-slate-900">Parkland courses</h3>
               <p className="mt-1">
                 Inland courses usually shaped through trees, softer ground,
-                lakes, rivers and more sheltered surroundings.
+                lakes, rivers and more sheltered surroundings. Parkland courses
+                are often more familiar to visiting golfers and can be a strong
+                choice when looking for playable, scenic and accessible golf.
               </p>
             </div>
 
@@ -224,7 +228,9 @@ export default function IrelandPage() {
               <h3 className="font-semibold text-slate-900">Heathland courses</h3>
               <p className="mt-1">
                 Open inland courses with a more natural and exposed feel than
-                traditional parkland.
+                traditional parkland. Heathland layouts often include firmer
+                turf, strategic bunkering, wind influence and links-style
+                features without being true coastal links courses.
               </p>
             </div>
           </div>
@@ -273,7 +279,19 @@ export default function IrelandPage() {
 
           <p className="mt-3 text-sm leading-6 text-slate-700">
             Ireland has an incredible number of golf courses, but choosing where
-            to play can be overwhelming.
+            to play can be overwhelming. Options vary by region, course type,
+            price, visitor access and availability.
+          </p>
+
+          <p className="mt-3 text-sm leading-6 text-slate-700">
+            GuestPlayGolf is built to make that decision easier. Instead of only
+            listing courses, we focus on practical golf planning information:
+            where visitors can play, what type of course it is, how accessible it
+            is, and what to expect before booking.
+          </p>
+
+          <p className="mt-3 text-sm leading-6 text-slate-700">
+            Our goal is simple: help golfers identify where they can play next.
           </p>
 
           <Link
