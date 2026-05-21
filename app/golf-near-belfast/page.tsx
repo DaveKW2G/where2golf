@@ -7,7 +7,7 @@ const siteUrl = "https://guestplaygolf.com"
 
 const belfastLat = 54.5973
 const belfastLng = -5.9301
-const belfastRadiusKm = 75
+const belfastRadiusKm = 100
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
@@ -125,11 +125,11 @@ export default async function GolfNearBelfastPage() {
 
           <p className="mt-3 text-sm leading-6 text-slate-600">
             Belfast is one of the strongest golf bases in Ireland for visiting
-            golfers, with fast access to some of the most famous links courses in
-            the world as well as excellent parkland options around the city. A
-            75km radius keeps the page focused on realistic golf trips from
-            Belfast while still covering standout courses across County Down and
-            County Antrim.
+            golfers, offering access not only to local golf around the city, but
+            also to some of the most famous links courses in the world. A 100km
+            radius helps reflect how many golf travellers plan trips in Northern
+            Ireland, with realistic access to destinations such as Royal
+            Portrush, Royal County Down and the wider Causeway Coast.
           </p>
 
           <p className="mt-3 text-sm leading-6 text-slate-600">
@@ -141,7 +141,7 @@ export default async function GolfNearBelfastPage() {
 
           <p className="mt-3 text-sm leading-6 text-slate-600">
             Belfast works especially well as a base for Northern Ireland golf,
-            with good road access towards County Down, County Antrim and the
+            with strong road access towards County Down, County Antrim and the
             Causeway Coast. GuestPlayGolf helps you compare distance, course
             style, price and visitor access before choosing where to play.
           </p>
