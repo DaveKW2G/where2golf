@@ -1,6 +1,6 @@
 import type { Metadata } from "next"
 import Link from "next/link"
-import { redirect } from "next/navigation"
+import { notFound, redirect } from "next/navigation"
 import { createClient } from "../../../lib/supabase/server"
 import CourseCard from "../../../components/CourseCard"
 
@@ -97,7 +97,6 @@ function getCourseCountLabel(courseCount: number) {
 }
 
 function getAvailabilityLabel(courseCount: number) {
-  if (courseCount === 0) return "Currently no listed courses"
   if (courseCount === 1) return "1 listed option"
   if (courseCount <= 3) return "Small but relevant selection"
   if (courseCount <= 7) return "Good regional selection"
@@ -112,10 +111,6 @@ function getInsightText(
   const baseInsight =
     regionInsights[regionCode] ||
     `${regionName} offers golf opportunities for independent guests, with access varying by club, season and demand.`
-
-  if (courseCount === 0) {
-    return `${baseInsight} There are currently no listed courses in this region, so nearby cantons may offer the best alternatives.`
-  }
 
   if (courseCount === 1) {
     return `${baseInsight} At the moment, only 1 listed course appears here, so this page is best used as a focused local option rather than a broad regional comparison.`
@@ -182,6 +177,10 @@ export default async function RegionPage({ params }: RegionPageProps) {
       "id, course_name, town, region, holes, independent_guest_days, season, price_range, course_image, max_handicap"
     )
     .eq("region", regionCode)
+
+  if (!error && (!courses || courses.length === 0)) {
+    notFound()
+  }
 
   const regionName = regionNames[regionCode] || regionCode
   const courseCount = courses?.length || 0
@@ -255,42 +254,20 @@ export default async function RegionPage({ params }: RegionPageProps) {
           </div>
         )}
 
-        {courses?.length === 0 && !error ? (
-          <div className="rounded-3xl bg-white p-5 shadow-sm ring-1 ring-slate-200/70">
-            <h2 className="text-base font-semibold text-slate-900">
-              No listed courses in {regionName}
-            </h2>
-            <p className="mt-2 text-sm leading-6 text-slate-600">
-              There are currently no courses listed for independent guests in this region.
-              Try nearby cantons or return to Switzerland to browse all available options.
-            </p>
-            <div className="mt-4">
-              <Link
-                href="/switzerland"
-                className="inline-flex rounded-xl bg-emerald-700 px-4 py-2.5 text-sm font-semibold text-white no-underline transition hover:bg-emerald-800"
-              >
-                Browse Switzerland
-              </Link>
-            </div>
-          </div>
-        ) : (
-          <>
-            <div className="rounded-3xl bg-white p-5 shadow-sm ring-1 ring-slate-200/70">
-              <h2 className="text-base font-semibold text-slate-900">
-                Golf courses in {regionName}
-              </h2>
-              <p className="mt-2 text-sm leading-6 text-slate-600">
-                Browse listed golf courses in {regionName} that welcome independent guests.
-              </p>
-            </div>
+        <div className="rounded-3xl bg-white p-5 shadow-sm ring-1 ring-slate-200/70">
+          <h2 className="text-base font-semibold text-slate-900">
+            Golf courses in {regionName}
+          </h2>
+          <p className="mt-2 text-sm leading-6 text-slate-600">
+            Browse listed golf courses in {regionName} that welcome independent guests.
+          </p>
+        </div>
 
-            <div className="mt-6 grid gap-4">
-              {courses?.map((course) => (
-                <CourseCard key={course.id} {...course} />
-              ))}
-            </div>
-          </>
-        )}
+        <div className="mt-6 grid gap-4">
+          {courses?.map((course) => (
+            <CourseCard key={course.id} {...course} />
+          ))}
+        </div>
 
         {nearbyRegions[regionCode] && (
           <div className="mt-6 rounded-3xl bg-white p-5 shadow-sm ring-1 ring-slate-200/70">
