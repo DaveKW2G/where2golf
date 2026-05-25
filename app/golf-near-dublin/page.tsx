@@ -138,7 +138,34 @@ export default async function GolfNearDublinPage() {
           </p>
         </div>
 
-        <div className="mt-5 rounded-3xl bg-white p-5 shadow-sm ring-1 ring-slate-200/70">
+        {error && (
+          <div className="mt-6 rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+            Error loading golf courses near Dublin.
+          </div>
+        )}
+
+        {coursesWithDistance.length === 0 ? (
+          <div className="mt-6 rounded-2xl bg-white p-5 text-sm text-slate-600 shadow-sm">
+            No golf courses found within {dublinRadiusKm} km of Dublin.
+          </div>
+        ) : (
+          <div className="mt-6 grid gap-4">
+            {coursesWithDistance.map((course) => (
+              <CourseCard
+                key={course.id}
+                {...course}
+                userLat={dublinLat}
+                userLng={dublinLng}
+                searchParams={{
+                  country: "ireland",
+                  source: "dublin",
+                }}
+              />
+            ))}
+          </div>
+        )}
+
+        <div className="mt-6 rounded-3xl bg-white p-5 shadow-sm ring-1 ring-slate-200/70">
           <h2 className="text-lg font-semibold text-slate-900">
             Explore more visitor golf in Ireland
           </h2>
@@ -185,33 +212,6 @@ export default async function GolfNearDublinPage() {
             </Link>
           </div>
         </div>
-
-        {error && (
-          <div className="mt-6 rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
-            Error loading golf courses near Dublin.
-          </div>
-        )}
-
-        {coursesWithDistance.length === 0 ? (
-          <div className="mt-6 rounded-2xl bg-white p-5 text-sm text-slate-600 shadow-sm">
-            No golf courses found within {dublinRadiusKm} km of Dublin.
-          </div>
-        ) : (
-          <div className="mt-6 grid gap-4">
-            {coursesWithDistance.map((course) => (
-              <CourseCard
-                key={course.id}
-                {...course}
-                userLat={dublinLat}
-                userLng={dublinLng}
-                searchParams={{
-                  country: "ireland",
-                  source: "dublin",
-                }}
-              />
-            ))}
-          </div>
-        )}
       </section>
     </main>
   )
