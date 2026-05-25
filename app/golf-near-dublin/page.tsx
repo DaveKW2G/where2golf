@@ -16,7 +16,7 @@ export const metadata: Metadata = {
   description:
     "Find the best golf near Dublin for visiting golfers. Compare links and parkland courses, discover visitor-friendly golf, and plan where to play near Dublin.",
   alternates: {
-    canonical: "/golf-near-dublin",
+    canonical: `${siteUrl}/golf-near-dublin`,
   },
   openGraph: {
     title: "Golf Near Dublin: Best Courses for Visiting Golfers | GuestPlayGolf",
