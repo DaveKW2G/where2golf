@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useState } from "react"
 import CourseCard from "@/components/CourseCard"
 
 const dublinLat = 53.3498
@@ -18,7 +18,6 @@ type Course = {
   season: string
   price_range?: string | null
   course_image?: string | null
-  handicap_required?: boolean | null
   max_handicap?: number | null
   latitude: number
   longitude: number
@@ -32,12 +31,6 @@ type Props = {
 
 export default function DublinDistanceFilteredCourses({ courses }: Props) {
   const [selectedRadiusKm, setSelectedRadiusKm] = useState(100)
-
-  useEffect(() => {
-    if (window.location.search) {
-      window.history.replaceState(null, "", "/golf-near-dublin")
-    }
-  }, [])
 
   const visibleCourses = courses.filter(
     (course) => course.distance <= selectedRadiusKm
@@ -87,6 +80,10 @@ export default function DublinDistanceFilteredCourses({ courses }: Props) {
             <CourseCard
               key={course.id}
               {...course}
+              price_range={course.price_range ?? undefined}
+              course_image={course.course_image ?? undefined}
+              max_handicap={course.max_handicap ?? undefined}
+              course_type={course.course_type ?? undefined}
               userLat={dublinLat}
               userLng={dublinLng}
               searchParams={{
