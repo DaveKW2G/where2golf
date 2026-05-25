@@ -11,16 +11,16 @@ const dublinRadiusKm = 60
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
-  title: "Golf near Dublin | Best courses for visiting golfers",
+  title: "Golf Near Dublin: Best Courses for Visiting Golfers",
   description:
-    "Find golf courses near Dublin. Explore links and parkland courses, compare distance, and discover where to play as a visiting golfer.",
+    "Find the best golf near Dublin for visiting golfers. Compare links and parkland courses, discover visitor-friendly golf, and plan where to play near Dublin.",
   alternates: {
     canonical: "/golf-near-dublin",
   },
   openGraph: {
-    title: "Golf near Dublin | GuestPlayGolf",
+    title: "Golf Near Dublin: Best Courses for Visiting Golfers | GuestPlayGolf",
     description:
-      "Discover the best golf courses near Dublin, including world-famous links and accessible parkland options.",
+      "Discover visitor-friendly golf near Dublin, including world-famous links, accessible parkland courses and strong options within easy reach of the city.",
     url: `${siteUrl}/golf-near-dublin`,
     siteName: "GuestPlayGolf",
     type: "website",
@@ -94,13 +94,13 @@ export default async function GolfNearDublinPage() {
           </p>
 
           <h1 className="mt-2 text-[28px] font-bold leading-tight">
-            Golf near Dublin for visiting golfers
+            Golf Near Dublin: Best Courses for Visiting Golfers
           </h1>
 
           <p className="mt-4 text-[15px] leading-6 text-emerald-50/95">
-            Discover golf courses near Dublin, including world-famous links and
-            accessible parkland layouts. Compare distance, course style and
-            location to plan where to play.
+            Discover visitor-friendly golf near Dublin, from famous coastal
+            links to accessible parkland courses. Compare distance, course style
+            and location to plan where to actually play.
           </p>
 
           <div className="mt-5">
@@ -118,25 +118,72 @@ export default async function GolfNearDublinPage() {
           </h2>
 
           <p className="mt-3 text-sm leading-6 text-slate-600">
-            Dublin is the most accessible golf base in Ireland and one of the
-            best places in the world to start a golf trip. Within a short drive
-            of the city, you can play famous links courses, resort parkland
-            layouts and strong inland options across Dublin, Kildare, Meath and
-            Wicklow.
+            Dublin is one of the best golf bases in Ireland for visiting
+            golfers. Within a short drive of the city, you can play famous links
+            courses, resort parkland layouts and strong inland options across
+            Dublin, Kildare, Meath, Louth and Wicklow.
           </p>
 
           <p className="mt-3 text-sm leading-6 text-slate-600">
-            The Dublin region offers a unique combination of world-class coastal
-            golf and accessible inland courses. This makes it ideal for visiting
-            golfers who want variety, flexibility and strong course choice
-            without long travel times.
+            The Dublin region offers a rare mix of world-class coastal golf and
+            visitor-friendly inland courses. That makes it ideal for golfers who
+            want variety, flexibility and strong course choice without long
+            travel times.
           </p>
 
           <p className="mt-3 text-sm leading-6 text-slate-600">
-            Dublin is also the main international gateway into Ireland, with
-            excellent flight connections and easy access to surrounding counties
-            by road and rail.
+            Dublin is also Ireland’s main international gateway, with excellent
+            flight connections and easy road access to many of the country’s
+            best visitor golf options.
           </p>
+        </div>
+
+        <div className="mt-5 rounded-3xl bg-white p-5 shadow-sm ring-1 ring-slate-200/70">
+          <h2 className="text-lg font-semibold text-slate-900">
+            Explore more visitor golf in Ireland
+          </h2>
+
+          <p className="mt-3 text-sm leading-6 text-slate-600">
+            Planning a wider Ireland golf trip? Explore other regional golf hubs
+            and specialist guides for visiting golfers.
+          </p>
+
+          <div className="mt-4 grid gap-3">
+            <Link
+              href="/links-golf-near-dublin"
+              className="rounded-2xl bg-emerald-50 px-4 py-3 text-sm font-semibold text-emerald-900 no-underline ring-1 ring-emerald-100"
+            >
+              Best Links Golf Near Dublin →
+            </Link>
+
+            <Link
+              href="/golf-near-cork"
+              className="rounded-2xl bg-slate-50 px-4 py-3 text-sm font-semibold text-slate-800 no-underline ring-1 ring-slate-200"
+            >
+              Golf Near Cork →
+            </Link>
+
+            <Link
+              href="/golf-near-galway"
+              className="rounded-2xl bg-slate-50 px-4 py-3 text-sm font-semibold text-slate-800 no-underline ring-1 ring-slate-200"
+            >
+              Golf Near Galway →
+            </Link>
+
+            <Link
+              href="/golf-near-belfast"
+              className="rounded-2xl bg-slate-50 px-4 py-3 text-sm font-semibold text-slate-800 no-underline ring-1 ring-slate-200"
+            >
+              Golf Near Belfast →
+            </Link>
+
+            <Link
+              href="/golf-near-adare-manor"
+              className="rounded-2xl bg-slate-50 px-4 py-3 text-sm font-semibold text-slate-800 no-underline ring-1 ring-slate-200"
+            >
+              Golf Near Adare Manor →
+            </Link>
+          </div>
         </div>
 
         {error && (
