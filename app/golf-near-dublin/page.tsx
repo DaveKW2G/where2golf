@@ -1,5 +1,6 @@
 import type { Metadata } from "next"
 import Link from "next/link"
+import { redirect } from "next/navigation"
 import { createClient } from "@/lib/supabase/server"
 import DublinDistanceFilteredCourses from "@/components/DublinDistanceFilteredCourses"
 
@@ -27,6 +28,12 @@ export const metadata: Metadata = {
   },
 }
 
+type GolfNearDublinPageProps = {
+  searchParams?: Promise<{
+    radius?: string
+  }>
+}
+
 function toRad(value: number) {
   return (value * Math.PI) / 180
 }
@@ -48,7 +55,16 @@ function getDistanceKm(lat1: number, lng1: number, lat2: number, lng2: number) {
   return earthRadiusKm * c
 }
 
-export default async function GolfNearDublinPage() {
+export default async function GolfNearDublinPage({
+  searchParams,
+}: GolfNearDublinPageProps) {
+  const resolvedSearchParams = await searchParams
+
+  // Redirect any old radius URLs to the clean canonical page
+  if (resolvedSearchParams?.radius) {
+    redirect("/golf-near-dublin")
+  }
+
   const supabase = await createClient()
 
   const { data: courses, error } = await supabase
