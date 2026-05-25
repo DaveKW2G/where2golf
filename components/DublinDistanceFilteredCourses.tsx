@@ -3,9 +3,9 @@
 import { useState } from "react"
 import CourseCard from "@/components/CourseCard"
 
-const radiusOptions = [25, 50, 75, 100]
 const dublinLat = 53.3498
 const dublinLng = -6.2603
+const radiusOptions = [25, 50, 75, 100]
 
 type Course = {
   id: number
