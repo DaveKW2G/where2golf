@@ -7,7 +7,8 @@ const siteUrl = "https://guestplaygolf.com"
 
 const dublinLat = 53.3498
 const dublinLng = -6.2603
-const dublinRadiusKm = 60
+const dublinRadiusKm = 100
+const radiusOptions = [25, 50, 75, 100]
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
@@ -25,6 +26,12 @@ export const metadata: Metadata = {
     siteName: "GuestPlayGolf",
     type: "website",
   },
+}
+
+type GolfNearDublinPageProps = {
+  searchParams?: Promise<{
+    radius?: string
+  }>
 }
 
 function toRad(value: number) {
@@ -48,7 +55,22 @@ function getDistanceKm(lat1: number, lng1: number, lat2: number, lng2: number) {
   return earthRadiusKm * c
 }
 
-export default async function GolfNearDublinPage() {
+function getSelectedRadius(radius?: string) {
+  const parsedRadius = Number(radius)
+
+  if (radiusOptions.includes(parsedRadius)) {
+    return parsedRadius
+  }
+
+  return dublinRadiusKm
+}
+
+export default async function GolfNearDublinPage({
+  searchParams,
+}: GolfNearDublinPageProps) {
+  const resolvedSearchParams = await searchParams
+  const selectedRadiusKm = getSelectedRadius(resolvedSearchParams?.radius)
+
   const supabase = await createClient()
 
   const { data: courses, error } = await supabase
@@ -61,7 +83,7 @@ export default async function GolfNearDublinPage() {
     .not("longitude", "is", null)
     .limit(300)
 
-  const coursesWithDistance =
+  const allCoursesWithinDublinHub =
     courses
       ?.map((course) => {
         const distance = getDistanceKm(
@@ -79,7 +101,11 @@ export default async function GolfNearDublinPage() {
       .filter((course) => course.distance <= dublinRadiusKm)
       .sort((a, b) => (a.distance ?? 9999) - (b.distance ?? 9999)) || []
 
-  const courseCount = coursesWithDistance.length
+  const visibleCourses = allCoursesWithinDublinHub.filter(
+    (course) => course.distance <= selectedRadiusKm
+  )
+
+  const courseCount = visibleCourses.length
 
   return (
     <main className="min-h-screen bg-stone-100 text-slate-800">
@@ -105,7 +131,7 @@ export default async function GolfNearDublinPage() {
 
           <div className="mt-5">
             <span className="inline-block rounded-full bg-white/15 px-4 py-2 text-sm font-semibold text-white backdrop-blur">
-              {courseCount} courses within {dublinRadiusKm} km of Dublin
+              {courseCount} courses within {selectedRadiusKm} km of Dublin
             </span>
           </div>
         </div>
@@ -138,19 +164,54 @@ export default async function GolfNearDublinPage() {
           </p>
         </div>
 
+        <div className="mt-5 rounded-3xl bg-white p-5 shadow-sm ring-1 ring-slate-200/70">
+          <h2 className="text-lg font-semibold text-slate-900">
+            Filter by distance from Dublin
+          </h2>
+
+          <p className="mt-2 text-sm leading-6 text-slate-600">
+            Start broad with courses within 100 km, or narrow the results to
+            options closer to Dublin city.
+          </p>
+
+          <div className="mt-4 grid grid-cols-4 gap-2">
+            {radiusOptions.map((radius) => {
+              const isSelected = radius === selectedRadiusKm
+
+              return (
+                <Link
+                  key={radius}
+                  href={
+                    radius === dublinRadiusKm
+                      ? "/golf-near-dublin"
+                      : `/golf-near-dublin?radius=${radius}`
+                  }
+                  className={`rounded-2xl px-3 py-3 text-center text-sm font-semibold no-underline ring-1 ${
+                    isSelected
+                      ? "bg-emerald-900 text-white ring-emerald-900"
+                      : "bg-slate-50 text-slate-800 ring-slate-200"
+                  }`}
+                >
+                  {radius} km
+                </Link>
+              )
+            })}
+          </div>
+        </div>
+
         {error && (
           <div className="mt-6 rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
             Error loading golf courses near Dublin.
           </div>
         )}
 
-        {coursesWithDistance.length === 0 ? (
+        {visibleCourses.length === 0 ? (
           <div className="mt-6 rounded-2xl bg-white p-5 text-sm text-slate-600 shadow-sm">
-            No golf courses found within {dublinRadiusKm} km of Dublin.
+            No golf courses found within {selectedRadiusKm} km of Dublin.
           </div>
         ) : (
           <div className="mt-6 grid gap-4">
-            {coursesWithDistance.map((course) => (
+            {visibleCourses.map((course) => (
               <CourseCard
                 key={course.id}
                 {...course}
