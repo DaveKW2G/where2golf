@@ -13,7 +13,7 @@ export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
   title: "Best Links Golf Near Dublin | Visiting Golfer Guide",
   description:
-    "Find the best links golf near Dublin for visiting golfers. Discover classic Irish links courses within easy reach of Dublin and plan where to play.",
+    "Find the best links golf near Dublin for visiting golfers. Fewer than 250 true links golf courses are believed to exist worldwide, making Dublin a strong base for rare Irish links golf.",
   alternates: {
     canonical: "/links-golf-near-dublin",
   },
@@ -102,8 +102,10 @@ export default async function LinksGolfNearDublinPage() {
           </h1>
 
           <p className="mt-4 text-[15px] leading-6 text-emerald-50/95">
-            Find classic Irish links golf within easy reach of Dublin. Compare
-            visitor-friendly coastal courses by distance and plan where to play.
+            Find classic Irish links golf within easy reach of Dublin. Fewer
+            than 250 true links golf courses are believed to exist worldwide,
+            making links golf one of the rarest and most distinctive experiences
+            in the game.
           </p>
 
           <div className="mt-5">
@@ -125,6 +127,14 @@ export default async function LinksGolfNearDublinPage() {
             want to experience links golf. Within a realistic drive of the city,
             you can reach classic coastal courses, championship links and
             visitor-friendly seaside layouts.
+          </p>
+
+          <p className="mt-3 text-sm leading-6 text-slate-600">
+            True links golf is remarkably rare. Golf historians generally
+            believe fewer than 250 true links courses exist worldwide, with many
+            concentrated across Ireland, Scotland and the wider British Isles.
+            Staying in Dublin gives visiting golfers unusually strong access to
+            this distinctive style of golf within a practical day-trip range.
           </p>
 
           <p className="mt-3 text-sm leading-6 text-slate-600">
