@@ -132,7 +132,7 @@ export default async function LinksGolfNearDublinPage() {
           <p className="mt-3 text-sm leading-6 text-slate-600">
             True links golf is remarkably rare. Golf historians generally
             believe fewer than 250 true links courses exist worldwide, with many
-            concentrated across Ireland, Scotland and the wider British Isles.
+            concentrated across Ireland, Scotland.
             Staying in Dublin gives visiting golfers unusually strong access to
             this distinctive style of golf within a practical day-trip range.
           </p>
