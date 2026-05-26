@@ -30,6 +30,12 @@ const popularDestinations = [
       "The busiest golf region in Ireland, with a mix of top links and parkland courses within easy reach.",
   },
   {
+    title: "Best Links Golf Near Dublin",
+    href: "/links-golf-near-dublin",
+    description:
+      "Explore classic Irish links golf within easy reach of Dublin, including visitor-friendly coastal courses and bucket-list links.",
+  },
+  {
     title: "Golf near Adare Manor",
     href: "/golf-near-adare-manor",
     description:
