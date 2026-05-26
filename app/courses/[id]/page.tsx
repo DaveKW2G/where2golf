@@ -36,7 +36,56 @@ type Course = {
   longitude?: number | null
 }
 
+type NearbyGuideLink = {
+  title: string
+  href: string
+  description: string
+}
+
 const siteUrl = "https://guestplaygolf.com"
+
+const irelandGolfHubs = [
+  {
+    title: "Golf Near Dublin",
+    href: "/golf-near-dublin",
+    description: "Explore visitor-friendly golf within 100 km of Dublin.",
+    lat: 53.3498,
+    lng: -6.2603,
+    radiusKm: 100,
+  },
+  {
+    title: "Golf Near Cork",
+    href: "/golf-near-cork",
+    description: "Explore visitor-friendly golf around Cork and the south coast.",
+    lat: 51.8985,
+    lng: -8.4756,
+    radiusKm: 70,
+  },
+  {
+    title: "Golf Near Galway",
+    href: "/golf-near-galway",
+    description: "Explore visitor-friendly golf around Galway and the west of Ireland.",
+    lat: 53.2707,
+    lng: -9.0568,
+    radiusKm: 75,
+  },
+  {
+    title: "Golf Near Belfast",
+    href: "/golf-near-belfast",
+    description: "Explore visitor-friendly golf around Belfast and Northern Ireland.",
+    lat: 54.5973,
+    lng: -5.9301,
+    radiusKm: 100,
+  },
+  {
+    title: "Golf Near Adare Manor",
+    href: "/golf-near-adare-manor",
+    description: "Explore visitor-friendly golf around Adare Manor and the Ryder Cup region.",
+    lat: 52.5619,
+    lng: -8.7957,
+    radiusKm: 100,
+  },
+]
 
 const regionNames: Record<string, string> = {
   AG: "Aargau",
@@ -72,7 +121,7 @@ const sourceBackHrefs: Record<string, string> = {
   switzerland: "/switzerland",
   ireland: "/ireland",
   dublin: "/golf-near-dublin",
-  adare: "/golf-near-adare",
+  adare: "/golf-near-adare-manor",
   cork: "/golf-near-cork",
   galway: "/golf-near-galway",
   belfast: "/golf-near-belfast",
@@ -212,6 +261,51 @@ function getDistanceKm(
   return earthRadiusKm * c
 }
 
+function getNearbyIrelandGuideLinks(course: Course): NearbyGuideLink[] {
+  if (course.latitude == null || course.longitude == null) {
+    return []
+  }
+
+  const nearbyLinks: NearbyGuideLink[] = []
+
+  irelandGolfHubs.forEach((hub) => {
+    const distanceKm = getDistanceKm(
+      hub.lat,
+      hub.lng,
+      course.latitude as number,
+      course.longitude as number
+    )
+
+    if (distanceKm <= hub.radiusKm) {
+      nearbyLinks.push({
+        title: hub.title,
+        href: hub.href,
+        description: hub.description,
+      })
+    }
+  })
+
+  const isLinksCourse = course.course_type === "Links"
+
+  const distanceToDublinKm = getDistanceKm(
+    53.3498,
+    -6.2603,
+    course.latitude,
+    course.longitude
+  )
+
+  if (isLinksCourse && distanceToDublinKm <= 100) {
+    nearbyLinks.splice(1, 0, {
+      title: "Best Links Golf Near Dublin",
+      href: "/links-golf-near-dublin",
+      description:
+        "Compare classic links golf courses within easy reach of Dublin.",
+    })
+  }
+
+  return nearbyLinks
+}
+
 function getWebsiteUrl(website?: string | null) {
   if (!website) return null
 
@@ -318,6 +412,10 @@ export default async function CoursePage({
   const regionLinkText = isIreland
     ? "Explore more golf in Ireland"
     : `Explore more golf in ${regionName}`
+
+  const nearbyIrelandGuideLinks = isIreland
+    ? getNearbyIrelandGuideLinks(course)
+    : []
 
   const latParam = getSingleParam(resolvedSearchParams.lat)
   const lngParam = getSingleParam(resolvedSearchParams.lng)
@@ -513,12 +611,50 @@ export default async function CoursePage({
         )}
 
         <div className="border-t border-slate-200 px-5 py-5">
-          <Link
-            href={regionHref}
-            className="text-sm font-medium text-emerald-700 no-underline"
-          >
-            {regionLinkText} →
-          </Link>
+          {isIreland && nearbyIrelandGuideLinks.length > 0 ? (
+            <>
+              <h2 className="text-[17px] font-semibold text-slate-900">
+                Explore more golf nearby
+              </h2>
+
+              <p className="mt-2 text-sm leading-6 text-slate-600">
+                Use these nearby guides to compare more visitor-friendly golf
+                around this course.
+              </p>
+
+              <div className="mt-4 grid gap-3">
+                {nearbyIrelandGuideLinks.map((link) => (
+                  <Link
+                    key={link.href}
+                    href={link.href}
+                    className="block rounded-2xl bg-slate-50 px-4 py-4 no-underline ring-1 ring-slate-200"
+                  >
+                    <div className="text-sm font-semibold text-slate-900">
+                      {link.title} →
+                    </div>
+
+                    <p className="mt-1 text-sm leading-5 text-slate-600">
+                      {link.description}
+                    </p>
+                  </Link>
+                ))}
+              </div>
+
+              <Link
+                href="/ireland"
+                className="mt-4 inline-block text-sm font-medium text-emerald-700 no-underline"
+              >
+                Explore more golf in Ireland →
+              </Link>
+            </>
+          ) : (
+            <Link
+              href={regionHref}
+              className="text-sm font-medium text-emerald-700 no-underline"
+            >
+              {regionLinkText} →
+            </Link>
+          )}
         </div>
       </div>
 
