@@ -173,6 +173,47 @@ export default async function GolfNearBelfastPage() {
             ))}
           </div>
         )}
+
+        <div className="mt-6 rounded-3xl bg-white p-5 shadow-sm ring-1 ring-slate-200/70">
+          <h2 className="text-lg font-semibold text-slate-900">
+            Explore more golf in Ireland
+          </h2>
+
+          <p className="mt-3 text-sm leading-6 text-slate-600">
+            Planning a wider Ireland golf trip? Explore more regional golf hubs
+            and visitor-friendly golf destinations across Ireland.
+          </p>
+
+          <div className="mt-4 grid gap-3">
+            <Link
+              href="/golf-near-dublin"
+              className="rounded-2xl bg-emerald-50 px-4 py-3 text-sm font-semibold text-emerald-900 no-underline ring-1 ring-emerald-100"
+            >
+              Golf Near Dublin →
+            </Link>
+
+            <Link
+              href="/golf-near-adare-manor"
+              className="rounded-2xl bg-slate-50 px-4 py-3 text-sm font-semibold text-slate-800 no-underline ring-1 ring-slate-200"
+            >
+              Golf Near Adare Manor →
+            </Link>
+
+            <Link
+              href="/golf-near-galway"
+              className="rounded-2xl bg-slate-50 px-4 py-3 text-sm font-semibold text-slate-800 no-underline ring-1 ring-slate-200"
+            >
+              Golf Near Galway →
+            </Link>
+
+            <Link
+              href="/golf-near-cork"
+              className="rounded-2xl bg-slate-50 px-4 py-3 text-sm font-semibold text-slate-800 no-underline ring-1 ring-slate-200"
+            >
+              Golf Near Cork →
+            </Link>
+          </div>
+        </div>
       </section>
     </main>
   )
