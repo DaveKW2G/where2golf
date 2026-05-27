@@ -197,22 +197,62 @@ export default async function GolfNearZurichPage() {
 
         <div className="mt-6 rounded-3xl bg-white p-5 shadow-sm ring-1 ring-slate-200/70">
           <h2 className="text-base font-semibold text-slate-900">
-            Explore more Swiss golf
+            Explore more golf in Switzerland
           </h2>
 
-          <div className="mt-3 flex flex-wrap gap-2">
+          <p className="mt-3 text-sm leading-6 text-slate-600">
+            Planning golf beyond Zurich? Explore more Swiss golf hubs and
+            regional guides for independent guests.
+          </p>
+
+          <div className="mt-4 grid gap-3">
             <Link
               href="/switzerland/zh"
-              className="rounded-full bg-emerald-700 px-4 py-2 text-sm font-semibold text-white no-underline"
+              className="rounded-2xl bg-emerald-50 px-4 py-3 text-sm font-semibold text-emerald-900 no-underline ring-1 ring-emerald-100"
             >
-              Golf in Zurich
+              Golf in Zurich →
+            </Link>
+
+            <Link
+              href="/golf-near-lucerne"
+              className="rounded-2xl bg-slate-50 px-4 py-3 text-sm font-semibold text-slate-800 no-underline ring-1 ring-slate-200"
+            >
+              Golf Near Lucerne →
+            </Link>
+
+            <Link
+              href="/golf-near-basel"
+              className="rounded-2xl bg-slate-50 px-4 py-3 text-sm font-semibold text-slate-800 no-underline ring-1 ring-slate-200"
+            >
+              Golf Near Basel →
+            </Link>
+
+            <Link
+              href="/golf-near-geneva"
+              className="rounded-2xl bg-slate-50 px-4 py-3 text-sm font-semibold text-slate-800 no-underline ring-1 ring-slate-200"
+            >
+              Golf Near Geneva →
+            </Link>
+
+            <Link
+              href="/golf-near-lausanne"
+              className="rounded-2xl bg-slate-50 px-4 py-3 text-sm font-semibold text-slate-800 no-underline ring-1 ring-slate-200"
+            >
+              Golf Near Lausanne →
+            </Link>
+
+            <Link
+              href="/golf-in-the-swiss-alps"
+              className="rounded-2xl bg-slate-50 px-4 py-3 text-sm font-semibold text-slate-800 no-underline ring-1 ring-slate-200"
+            >
+              Golf in the Swiss Alps →
             </Link>
 
             <Link
               href="/switzerland"
-              className="rounded-full border border-slate-300 bg-white px-4 py-2 text-sm font-semibold text-slate-700 no-underline"
+              className="rounded-2xl bg-slate-900 px-4 py-3 text-sm font-semibold text-white no-underline"
             >
-              Browse Switzerland
+              Browse Switzerland →
             </Link>
           </div>
         </div>
