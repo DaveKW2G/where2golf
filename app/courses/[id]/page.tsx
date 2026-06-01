@@ -25,6 +25,7 @@ type Course = {
   independent_guest_days: string
   season: string
   price_range?: string | null
+  golf_ireland_discount?: string | null
   course_type?: string | null
   handicap_required?: boolean | null
   max_handicap?: number | null
@@ -371,7 +372,7 @@ export default async function CoursePage({
   const { data, error } = await supabase
     .from("courses")
     .select(
-      "id, course_name, country, town, region, full_address, holes, independent_guest_days, season, price_range, course_type, handicap_required, max_handicap, website, phone_number, notes, course_image, latitude, longitude"
+      "id, course_name, country, town, region, full_address, holes, independent_guest_days, season, price_range, golf_ireland_discount, course_type, handicap_required, max_handicap, website, phone_number, notes, course_image, latitude, longitude"
     )
     .eq("id", Number(resolvedParams.id))
     .single()
@@ -459,6 +460,11 @@ export default async function CoursePage({
       : "Handicap Not Specified"
 
   const accessLabel = getAccessLabel(course.independent_guest_days, country)
+
+  const golfIrelandDiscountText =
+    course.golf_ireland_discount && course.golf_ireland_discount.trim() !== ""
+      ? course.golf_ireland_discount
+      : "Not specified"
 
   const structuredData = {
     "@context": "https://schema.org",
@@ -596,7 +602,10 @@ export default async function CoursePage({
           <DetailRow label="Season" value={course.season} />
 
           {isIreland ? (
-            <DetailRow label="Holes" value={`${course.holes} holes`} />
+            <>
+              <DetailRow label="Holes" value={`${course.holes} holes`} />
+              <DetailRow label="Golf Ireland" value={golfIrelandDiscountText} />
+            </>
           ) : (
             <DetailRow label="Price" value={course.price_range || "Not listed"} />
           )}
