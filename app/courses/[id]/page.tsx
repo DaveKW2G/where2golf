@@ -604,7 +604,10 @@ export default async function CoursePage({
           {isIreland ? (
             <>
               <DetailRow label="Holes" value={`${course.holes} holes`} />
-              <DetailRow label="Golf Ireland" value={golfIrelandDiscountText} />
+              <DetailRow
+                label="Golf Ireland Discount"
+                value={golfIrelandDiscountText}
+              />
             </>
           ) : (
             <DetailRow label="Price" value={course.price_range || "Not listed"} />
