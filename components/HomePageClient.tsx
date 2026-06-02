@@ -105,7 +105,7 @@ export default function HomePageClient() {
             </div>
 
             <p className="mt-2 text-[13px] font-medium uppercase tracking-[0.18em] text-emerald-100/80">
-              Golf for independent guests
+              Golf for visiting golfers and independent guests
             </p>
 
             <h1 className="mt-4 text-[32px] font-bold leading-[1.08] text-white">
@@ -113,15 +113,15 @@ export default function HomePageClient() {
             </h1>
 
             <p className="mt-2 text-[18px] font-semibold text-emerald-50">
-              Without being a member
+              In Ireland and Switzerland
             </p>
 
             <p className="mt-4 text-[15px] italic text-white/85">
-              Golf isn&apos;t easy. Finding where you can play should be.
+              Golf isn&apos;t easy. Finding where to play should be.
             </p>
 
             <p className="mt-4 text-[15px] text-white/85">
-              Discover clear information on guest access, handicap requirements, pricing, course type and when you can play — all in one place.
+              Discover clear information on guest access, handicap requirements, pricing, course type and where to play next.
             </p>
           </div>
 
@@ -143,80 +143,16 @@ export default function HomePageClient() {
       </section>
 
       <section className="mx-auto max-w-[480px] px-5 py-6 text-left">
-        <div className="grid gap-3">
-          <Link
-            href="/filters"
-            className="block rounded-2xl border border-slate-200 bg-white px-5 py-5 shadow-sm"
-          >
-            <div className="text-[17px] font-semibold text-slate-900">
-              Advanced Filters
-            </div>
-            <p className="mt-1 text-sm text-slate-600">
-              Filter by handicap, price, holes and guest access
-            </p>
-          </Link>
-
-          <div>
-            <button
-              onClick={handlePlayToday}
-              disabled={isLocatingToday}
-              className="w-full rounded-2xl bg-emerald-800 px-5 py-5 text-left text-white shadow-sm disabled:opacity-90"
-            >
-              <div className="text-[17px] font-semibold">
-                {isLocatingToday ? 'Getting your location...' : 'Play Golf Today'}
-              </div>
-              <p className="mt-1 text-sm text-white/85">
-                Find courses near you that may be available today
-              </p>
-            </button>
-
-            {playTodayError && (
-              <p className="mt-2 text-sm text-red-600">{playTodayError}</p>
-            )}
-          </div>
-
-          <div>
-            <button
-              onClick={handleNearMe}
-              disabled={isLocatingNearMe}
-              className="w-full rounded-2xl border border-slate-200 bg-white px-5 py-5 text-left shadow-sm disabled:opacity-90"
-            >
-              <div className="text-[17px] font-semibold text-slate-900">
-                {isLocatingNearMe ? 'Getting your location...' : 'Near Me'}
-              </div>
-              <p className="mt-1 text-sm text-slate-600">
-                Browse courses closest to your current location
-              </p>
-            </button>
-
-            {nearMeError && (
-              <p className="mt-2 text-sm text-red-600">{nearMeError}</p>
-            )}
-          </div>
-        </div>
-
-        <div className="mt-6 rounded-3xl bg-white p-5 shadow-sm ring-1 ring-slate-200/70">
+        <div className="rounded-3xl bg-white p-5 shadow-sm ring-1 ring-slate-200/70">
           <h2 className="text-[18px] font-semibold text-slate-900">
-            Browse by country
+            Choose your destination
           </h2>
 
           <p className="mt-2 text-sm leading-6 text-slate-600">
-            Explore golf courses, regions and destination guides by country.
+            Start with the country you want to explore, then filter by location, course type, access and price.
           </p>
 
           <div className="mt-4 grid gap-3">
-            <Link
-              href="/switzerland"
-              className="block rounded-2xl bg-emerald-800 px-5 py-5 text-white no-underline shadow-sm hover:bg-emerald-900"
-            >
-              <div className="text-[17px] font-semibold">
-                Golf in Switzerland
-              </div>
-              <p className="mt-1 text-sm leading-5 text-white/85">
-                Find Swiss courses where independent guests can play, with clear access and seasonal information.
-              </p>
-            </Link>
-
             <Link
               href="/ireland"
               className="block rounded-2xl bg-emerald-800 px-5 py-5 text-white no-underline shadow-sm hover:bg-emerald-900"
@@ -225,9 +161,83 @@ export default function HomePageClient() {
                 Golf in Ireland
               </div>
               <p className="mt-1 text-sm leading-5 text-white/85">
-                Explore Irish links, parkland and championship courses for visiting golfers.
+                Explore Irish links, parkland and championship courses near Dublin, Adare, Cork, Galway and Belfast.
               </p>
             </Link>
+
+            <Link
+              href="/switzerland"
+              className="block rounded-2xl border border-slate-200 bg-white px-5 py-5 text-slate-900 no-underline shadow-sm hover:bg-slate-50"
+            >
+              <div className="text-[17px] font-semibold">
+                Golf in Switzerland
+              </div>
+              <p className="mt-1 text-sm leading-5 text-slate-600">
+                Find Swiss courses where independent guests can play, with clear access and seasonal information.
+              </p>
+            </Link>
+          </div>
+        </div>
+
+        <div className="mt-6 rounded-3xl bg-white p-5 shadow-sm ring-1 ring-slate-200/70">
+          <h2 className="text-[18px] font-semibold text-slate-900">
+            Quick tools
+          </h2>
+
+          <p className="mt-2 text-sm leading-6 text-slate-600">
+            Already know what you need? Search by filters, nearby courses or where you can play today.
+          </p>
+
+          <div className="mt-4 grid gap-3">
+            <Link
+              href="/filters"
+              className="block rounded-2xl border border-slate-200 bg-white px-5 py-5 shadow-sm"
+            >
+              <div className="text-[17px] font-semibold text-slate-900">
+                Advanced Filters
+              </div>
+              <p className="mt-1 text-sm text-slate-600">
+                Filter by handicap, price, holes, course type and guest access
+              </p>
+            </Link>
+
+            <div>
+              <button
+                onClick={handlePlayToday}
+                disabled={isLocatingToday}
+                className="w-full rounded-2xl bg-emerald-800 px-5 py-5 text-left text-white shadow-sm disabled:opacity-90"
+              >
+                <div className="text-[17px] font-semibold">
+                  {isLocatingToday ? 'Getting your location...' : 'Play Golf Today'}
+                </div>
+                <p className="mt-1 text-sm text-white/85">
+                  Find courses near you that may be available today
+                </p>
+              </button>
+
+              {playTodayError && (
+                <p className="mt-2 text-sm text-red-600">{playTodayError}</p>
+              )}
+            </div>
+
+            <div>
+              <button
+                onClick={handleNearMe}
+                disabled={isLocatingNearMe}
+                className="w-full rounded-2xl border border-slate-200 bg-white px-5 py-5 text-left shadow-sm disabled:opacity-90"
+              >
+                <div className="text-[17px] font-semibold text-slate-900">
+                  {isLocatingNearMe ? 'Getting your location...' : 'Near Me'}
+                </div>
+                <p className="mt-1 text-sm text-slate-600">
+                  Browse courses closest to your current location
+                </p>
+              </button>
+
+              {nearMeError && (
+                <p className="mt-2 text-sm text-red-600">{nearMeError}</p>
+              )}
+            </div>
           </div>
         </div>
 
