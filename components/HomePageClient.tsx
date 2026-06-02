@@ -5,18 +5,11 @@ import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 
 export default function HomePageClient() {
-  const [search, setSearch] = useState('')
   const [isLocatingToday, setIsLocatingToday] = useState(false)
   const [isLocatingNearMe, setIsLocatingNearMe] = useState(false)
   const [playTodayError, setPlayTodayError] = useState('')
   const [nearMeError, setNearMeError] = useState('')
   const router = useRouter()
-
-  function handleSearch(e: React.KeyboardEvent<HTMLInputElement>) {
-    if (e.key === 'Enter' && search.trim() !== '') {
-      router.push(`/results?search=${encodeURIComponent(search)}`)
-    }
-  }
 
   function getLocationErrorMessage(error: GeolocationPositionError) {
     switch (error.code) {
@@ -99,7 +92,7 @@ export default function HomePageClient() {
     <main className="min-h-screen bg-stone-100 text-slate-800">
       <section className="relative overflow-hidden bg-gradient-to-b from-emerald-950 via-emerald-900 to-emerald-800 px-5 pt-8 pb-10 text-white">
         <div className="relative z-10 mx-auto max-w-[480px] text-left">
-          <div className="mb-8">
+          <div>
             <div className="text-[15px] font-semibold uppercase tracking-[0.28em] text-white/85">
               GuestPlayGolf
             </div>
@@ -123,21 +116,6 @@ export default function HomePageClient() {
             <p className="mt-4 text-[15px] text-white/85">
               Discover clear information on guest access, handicap requirements, pricing, course type and where to play next.
             </p>
-          </div>
-
-          <div className="mb-3 text-[18px] font-semibold text-white">
-            Where are you playing next?
-          </div>
-
-          <div className="rounded-[28px] bg-white p-4 shadow-lg">
-            <input
-              type="text"
-              placeholder="Search courses, towns, or regions"
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              onKeyDown={handleSearch}
-              className="w-full text-[15px] text-slate-700 outline-none"
-            />
           </div>
         </div>
       </section>
