@@ -23,11 +23,18 @@ function getDistanceKm(lat1: number, lng1: number, lat2: number, lng2: number) {
   return earthRadiusKm * c
 }
 
-async function geocodePlace(place: string) {
+async function geocodePlace(place: string, source?: string) {
   try {
+    const country =
+      source === 'ireland'
+        ? 'Ireland'
+        : source === 'switzerland'
+        ? 'Switzerland'
+        : 'Switzerland'
+
     const response = await fetch(
       `https://nominatim.openstreetmap.org/search?format=json&limit=1&q=${encodeURIComponent(
-        `${place}, Switzerland`
+        `${place}, ${country}`
       )}`,
       {
         headers: {
@@ -65,7 +72,7 @@ export default async function MapPage({
   const radius = params.radius ? Number(params.radius) : null
 
   if ((userLat == null || userLng == null) && params.where) {
-    const geocoded = await geocodePlace(params.where)
+    const geocoded = await geocodePlace(params.where, params.source)
     if (geocoded) {
       userLat = geocoded.lat
       userLng = geocoded.lng
@@ -85,6 +92,62 @@ export default async function MapPage({
   const isWeekendToday = zurichWeekday === 'Sat' || zurichWeekday === 'Sun'
 
   let query = supabase.from('courses').select('*')
+
+  if (params.source === 'ireland') {
+    query = query.in('region', [
+      'LEINSTER',
+      'DUBLIN',
+      'KILDARE',
+      'MEATH',
+      'WICKLOW',
+      'MUNSTER',
+      'CORK',
+      'KERRY',
+      'WATERFORD',
+      'TIPPERARY',
+      'CONNACHT',
+      'GALWAY',
+      'CLARE',
+      'MAYO',
+      'SLIGO',
+      'ULSTER',
+      'ANTRIM',
+      'DOWN',
+      'ARMAGH',
+      'DERRY',
+    ])
+  }
+
+  if (params.source === 'switzerland') {
+    query = query.in('region', [
+      'AG',
+      'AI',
+      'AR',
+      'BE',
+      'BL',
+      'BS',
+      'FR',
+      'GE',
+      'GL',
+      'GR',
+      'JU',
+      'LU',
+      'NE',
+      'NW',
+      'OW',
+      'SG',
+      'SH',
+      'SO',
+      'SZ',
+      'TG',
+      'TI',
+      'UR',
+      'VD',
+      'VS',
+      'ZG',
+      'ZH',
+    ])
+  }
 
   if (params.search) {
     query = query.ilike('search_text', `%${params.search.toLowerCase()}%`)
@@ -126,9 +189,6 @@ export default async function MapPage({
     )
   }
 
-  // Numeric handicap logic:
-  // include courses that accept the selected handicap OR do not require a handicap.
-  // exclude courses where handicap rules are unspecified.
   if (selectedHandicap != null && !Number.isNaN(selectedHandicap)) {
     filteredCourses = filteredCourses.filter((course: any) => {
       if (course.handicap_required === false) {
@@ -168,7 +228,7 @@ export default async function MapPage({
   }
 
   return (
-    <div className="w-full h-screen">
+    <div className="h-screen w-full">
       <CourseMap courses={filteredCourses} />
     </div>
   )
