@@ -27,6 +27,27 @@ export const metadata: Metadata = {
   },
 }
 
+const relatedGolfGuides = [
+  {
+    title: "Golf near Dublin",
+    href: "/golf-near-dublin",
+    description:
+      "Compare links and parkland golf around Ireland’s busiest golf hub.",
+  },
+  {
+    title: "Golf near Galway",
+    href: "/golf-near-galway",
+    description:
+      "Explore west coast golf, Atlantic links and scenic destination courses.",
+  },
+  {
+    title: "Golf near Belfast",
+    href: "/golf-near-belfast",
+    description:
+      "Find world-class links and strong parkland options in Northern Ireland.",
+  },
+]
+
 function toRad(value: number) {
   return (value * Math.PI) / 180
 }
@@ -173,6 +194,41 @@ export default async function GolfNearCorkPage() {
             ))}
           </div>
         )}
+
+        <div className="mt-6 rounded-3xl bg-white p-5 shadow-sm ring-1 ring-slate-200/70">
+          <h2 className="text-lg font-semibold text-slate-900">
+            Explore more golf in Ireland
+          </h2>
+
+          <p className="mt-2 text-sm leading-6 text-slate-600">
+            Planning a wider golf trip? Compare Cork with other major Irish golf
+            regions and choose the best base for your route.
+          </p>
+
+          <div className="mt-4 grid gap-3">
+            {relatedGolfGuides.map((guide) => (
+              <Link
+                key={guide.href}
+                href={guide.href}
+                className="block rounded-2xl border border-slate-200 bg-white px-4 py-4 no-underline"
+              >
+                <div className="font-semibold text-slate-900">
+                  {guide.title}
+                </div>
+                <p className="mt-1 text-sm leading-5 text-slate-600">
+                  {guide.description}
+                </p>
+              </Link>
+            ))}
+          </div>
+
+          <Link
+            href="/ireland"
+            className="mt-4 inline-block text-sm font-semibold text-emerald-700 no-underline"
+          >
+            Back to Ireland golf overview →
+          </Link>
+        </div>
       </section>
     </main>
   )
