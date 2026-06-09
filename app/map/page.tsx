@@ -23,11 +23,11 @@ function getDistanceKm(lat1: number, lng1: number, lat2: number, lng2: number) {
   return earthRadiusKm * c
 }
 
-async function geocodePlace(place: string) {
+async function geocodePlace(place: string, country: string) {
   try {
     const response = await fetch(
       `https://nominatim.openstreetmap.org/search?format=json&limit=1&q=${encodeURIComponent(
-        `${place}, Switzerland`
+        `${place}, ${country}`
       )}`,
       {
         headers: {
@@ -64,8 +64,15 @@ export default async function MapPage({
   let userLng = params.lng ? Number(params.lng) : null
   const radius = params.radius ? Number(params.radius) : null
 
+  const country =
+    params.source === 'ireland'
+      ? 'Ireland'
+      : params.source === 'switzerland'
+      ? 'Switzerland'
+      : undefined
+
   if ((userLat == null || userLng == null) && params.where) {
-    const geocoded = await geocodePlace(params.where)
+    const geocoded = await geocodePlace(params.where, country || 'Switzerland')
     if (geocoded) {
       userLat = geocoded.lat
       userLng = geocoded.lng
@@ -85,6 +92,10 @@ export default async function MapPage({
   const isWeekendToday = zurichWeekday === 'Sat' || zurichWeekday === 'Sun'
 
   let query = supabase.from('courses').select('*')
+
+  if (country) {
+    query = query.eq('country', country)
+  }
 
   if (params.search) {
     query = query.ilike('search_text', `%${params.search.toLowerCase()}%`)
