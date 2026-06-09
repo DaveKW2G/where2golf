@@ -173,6 +173,54 @@ export default async function GolfNearGalwayPage() {
             ))}
           </div>
         )}
+
+        <div className="mt-6 rounded-3xl bg-white p-5 shadow-sm ring-1 ring-slate-200/70">
+          <h2 className="text-lg font-semibold text-slate-900">
+            Explore more visitor golf in Ireland
+          </h2>
+
+          <p className="mt-3 text-sm leading-6 text-slate-600">
+            Planning a wider Ireland golf trip? Explore other regional golf hubs
+            and specialist guides for visiting golfers.
+          </p>
+
+          <div className="mt-4 grid gap-3">
+            <Link
+              href="/golf-near-cork"
+              className="rounded-2xl bg-emerald-50 px-4 py-3 text-sm font-semibold text-emerald-900 no-underline ring-1 ring-emerald-100"
+            >
+              Golf Near Cork →
+            </Link>
+
+            <Link
+              href="/golf-near-dublin"
+              className="rounded-2xl bg-slate-50 px-4 py-3 text-sm font-semibold text-slate-800 no-underline ring-1 ring-slate-200"
+            >
+              Golf Near Dublin →
+            </Link>
+
+            <Link
+              href="/golf-near-belfast"
+              className="rounded-2xl bg-slate-50 px-4 py-3 text-sm font-semibold text-slate-800 no-underline ring-1 ring-slate-200"
+            >
+              Golf Near Belfast →
+            </Link>
+
+            <Link
+              href="/links-golf-near-dublin"
+              className="rounded-2xl bg-slate-50 px-4 py-3 text-sm font-semibold text-slate-800 no-underline ring-1 ring-slate-200"
+            >
+              Best Links Golf Near Dublin →
+            </Link>
+
+            <Link
+              href="/golf-near-adare-manor"
+              className="rounded-2xl bg-slate-50 px-4 py-3 text-sm font-semibold text-slate-800 no-underline ring-1 ring-slate-200"
+            >
+              Golf Near Adare Manor →
+            </Link>
+          </div>
+        </div>
       </section>
     </main>
   )
