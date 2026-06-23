@@ -1,10 +1,10 @@
 'use client'
 
 import Link from 'next/link'
-import { useState } from 'react'
+import { Suspense, useState } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 
-export default function FiltersPage() {
+function FiltersPageContent() {
   const router = useRouter()
   const searchParams = useSearchParams()
 
@@ -67,10 +67,10 @@ export default function FiltersPage() {
       <button
         type="button"
         onClick={() => onClick(value)}
-        className={`rounded-full px-4 py-2.5 text-sm font-medium border transition ${
+        className={`rounded-full border px-4 py-2.5 text-sm font-medium transition ${
           selected
-            ? 'bg-emerald-700 text-white border-emerald-700 shadow-sm'
-            : 'bg-white text-slate-700 border-slate-300 hover:border-slate-400'
+            ? 'border-emerald-700 bg-emerald-700 text-white shadow-sm'
+            : 'border-slate-300 bg-white text-slate-700 hover:border-slate-400'
         }`}
       >
         {label}
@@ -110,7 +110,7 @@ export default function FiltersPage() {
         </div>
       </section>
 
-      <div className="mx-auto max-w-[480px] px-5 py-6 space-y-6 pb-24">
+      <div className="mx-auto max-w-[480px] space-y-6 px-5 py-6 pb-24">
         <section className="rounded-2xl bg-white p-5 shadow-sm">
           <h2 className="mb-3 text-sm font-semibold text-slate-700">
             Play Near
@@ -129,7 +129,7 @@ export default function FiltersPage() {
               Radius
             </h3>
 
-            <div className="flex gap-2 flex-wrap">
+            <div className="flex flex-wrap gap-2">
               {(isIreland ? ['25', '50', '75', '100'] : ['25', '50', '100']).map((option) => (
                 <Chip
                   key={option}
@@ -149,7 +149,7 @@ export default function FiltersPage() {
               Course Type
             </h2>
 
-            <div className="flex gap-2 flex-wrap">
+            <div className="flex flex-wrap gap-2">
               {['Links', 'Parkland', 'Heathland'].map((option) => (
                 <Chip
                   key={option}
@@ -168,7 +168,7 @@ export default function FiltersPage() {
             Guest Access
           </h2>
 
-          <div className="flex gap-2 flex-wrap">
+          <div className="flex flex-wrap gap-2">
             {(isIreland
               ? ['Everyday', 'Weekdays', 'Weekend', 'Limited Access']
               : ['Everyday', 'Weekdays', 'Weekend']
@@ -209,10 +209,11 @@ export default function FiltersPage() {
             </h2>
 
             <p className="mb-3 text-[13px] leading-5 text-slate-500">
-              Show courses that accept your handicap or higher. Enter N/A for courses that do not require a handicap.
+              Show courses that accept your handicap or higher. Enter N/A for
+              courses that do not require a handicap.
             </p>
 
-            <div className="flex gap-2 flex-wrap">
+            <div className="flex flex-wrap gap-2">
               {['N/A', '18', '24', '28', '36', '45', '54'].map((option) => (
                 <Chip
                   key={option}
@@ -231,7 +232,7 @@ export default function FiltersPage() {
             Price
           </h2>
 
-          <div className="flex gap-2 flex-wrap">
+          <div className="flex flex-wrap gap-2">
             {['€', '€€', '€€€', '€€€€'].map((option) => (
               <Chip
                 key={option}
@@ -257,5 +258,13 @@ export default function FiltersPage() {
         </div>
       </div>
     </main>
+  )
+}
+
+export default function FiltersPage() {
+  return (
+    <Suspense fallback={null}>
+      <FiltersPageContent />
+    </Suspense>
   )
 }
