@@ -52,6 +52,11 @@ async function geocodePlace(place: string, country: string) {
   }
 }
 
+function normaliseCountry(country?: string) {
+  if (!country) return null
+  return country.toLowerCase()
+}
+
 export default async function MapPage({
   searchParams,
 }: {
@@ -60,19 +65,21 @@ export default async function MapPage({
   const params = await searchParams
   const supabase = await createClient()
 
+  const selectedCountry = normaliseCountry(params.country || params.source)
+
   let userLat = params.lat ? Number(params.lat) : null
   let userLng = params.lng ? Number(params.lng) : null
   const radius = params.radius ? Number(params.radius) : null
 
-  const country =
-    params.source === 'ireland'
+  const countryName =
+    selectedCountry === 'ireland'
       ? 'Ireland'
-      : params.source === 'switzerland'
+      : selectedCountry === 'switzerland'
       ? 'Switzerland'
-      : undefined
+      : 'Switzerland'
 
   if ((userLat == null || userLng == null) && params.where) {
-    const geocoded = await geocodePlace(params.where, country || 'Switzerland')
+    const geocoded = await geocodePlace(params.where, countryName)
     if (geocoded) {
       userLat = geocoded.lat
       userLng = geocoded.lng
@@ -93,8 +100,8 @@ export default async function MapPage({
 
   let query = supabase.from('courses').select('*')
 
-  if (country) {
-    query = query.eq('country', country)
+  if (selectedCountry) {
+    query = query.ilike('country', selectedCountry)
   }
 
   if (params.search) {
@@ -110,12 +117,18 @@ export default async function MapPage({
 
   if (params.region) query = query.eq('region', params.region)
 
+  if (params.courseType) {
+    query = query.ilike('course_type', params.courseType)
+  }
+
   if (params.guestPlay === 'Weekend') {
     query = query.in('independent_guest_days', ['Weekend', 'Everyday'])
   } else if (params.guestPlay === 'Weekdays') {
     query = query.in('independent_guest_days', ['Weekdays', 'Everyday'])
   } else if (params.guestPlay === 'Everyday') {
     query = query.eq('independent_guest_days', 'Everyday')
+  } else if (params.guestPlay === 'Limited Access') {
+    query = query.eq('independent_guest_days', 'Limited Access')
   }
 
   if (params.holes) query = query.eq('holes', Number(params.holes))
