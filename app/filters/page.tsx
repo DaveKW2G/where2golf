@@ -2,13 +2,20 @@
 
 import Link from 'next/link'
 import { useState } from 'react'
-import { useRouter } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
 
 export default function FiltersPage() {
   const router = useRouter()
+  const searchParams = useSearchParams()
+
+  const countryParam = searchParams.get('country')
+  const sourceParam = searchParams.get('source')
+
+  const isIreland = countryParam === 'Ireland'
 
   const [where, setWhere] = useState('')
   const [radius, setRadius] = useState('')
+  const [courseType, setCourseType] = useState('')
   const [guestPlay, setGuestPlay] = useState('')
   const [holes, setHoles] = useState('')
   const [handicap, setHandicap] = useState('')
@@ -21,11 +28,15 @@ export default function FiltersPage() {
   function handleSearch() {
     const params = new URLSearchParams()
 
+    if (countryParam) params.set('country', countryParam)
+    if (sourceParam) params.set('source', sourceParam)
+
     if (where) params.set('where', where)
     if (radius) params.set('radius', radius)
+    if (courseType) params.set('courseType', courseType)
     if (guestPlay) params.set('guestPlay', guestPlay)
     if (holes) params.set('holes', holes)
-    if (handicap) params.set('handicap', handicap)
+    if (!isIreland && handicap) params.set('handicap', handicap)
     if (price) params.set('price', price)
 
     router.push(`/results?${params.toString()}`)
@@ -34,6 +45,7 @@ export default function FiltersPage() {
   function handleClear() {
     setWhere('')
     setRadius('')
+    setCourseType('')
     setGuestPlay('')
     setHoles('')
     setHandicap('')
@@ -71,7 +83,7 @@ export default function FiltersPage() {
       <section className="relative overflow-hidden bg-gradient-to-b from-emerald-950 via-emerald-900 to-emerald-800 px-5 pt-5 pb-6 text-white">
         <div className="mx-auto max-w-[480px]">
           <div className="flex items-center justify-between">
-            <Link href="/" className="text-white no-underline">
+            <Link href={isIreland ? '/ireland' : '/'} className="text-white no-underline">
               ← Back
             </Link>
 
@@ -86,11 +98,13 @@ export default function FiltersPage() {
 
           <div className="mt-5">
             <h1 className="text-[24px] font-bold">
-              Advanced Filters
+              {isIreland ? 'Advanced Search Ireland' : 'Advanced Filters'}
             </h1>
 
             <p className="mt-2 text-[14px] text-white/80">
-              Refine your search to find where you can play as an independent guest.
+              {isIreland
+                ? 'Refine your search to find Irish golf courses by location, course type, access and price.'
+                : 'Refine your search to find where you can play as an independent guest.'}
             </p>
           </div>
         </div>
@@ -106,7 +120,7 @@ export default function FiltersPage() {
             type="text"
             value={where}
             onChange={(e) => setWhere(e.target.value)}
-            placeholder="Zurich, Geneva, Zug..."
+            placeholder={isIreland ? 'Dublin, Cork, Galway, Belfast...' : 'Zurich, Geneva, Zug...'}
             className="w-full rounded-xl border border-slate-300 px-4 py-3 text-sm text-slate-700 placeholder:text-slate-400 focus:border-emerald-700 focus:outline-none"
           />
 
@@ -116,7 +130,7 @@ export default function FiltersPage() {
             </h3>
 
             <div className="flex gap-2 flex-wrap">
-              {['25', '50', '100'].map((option) => (
+              {(isIreland ? ['25', '50', '75', '100'] : ['25', '50', '100']).map((option) => (
                 <Chip
                   key={option}
                   label={`${option} km`}
@@ -129,13 +143,36 @@ export default function FiltersPage() {
           </div>
         </section>
 
+        {isIreland && (
+          <section className="rounded-2xl bg-white p-5 shadow-sm">
+            <h2 className="mb-3 text-sm font-semibold text-slate-700">
+              Course Type
+            </h2>
+
+            <div className="flex gap-2 flex-wrap">
+              {['Links', 'Parkland', 'Heathland'].map((option) => (
+                <Chip
+                  key={option}
+                  label={option}
+                  value={option}
+                  selected={courseType === option}
+                  onClick={(v) => toggle(v, courseType, setCourseType)}
+                />
+              ))}
+            </div>
+          </section>
+        )}
+
         <section className="rounded-2xl bg-white p-5 shadow-sm">
           <h2 className="mb-3 text-sm font-semibold text-slate-700">
             Guest Access
           </h2>
 
           <div className="flex gap-2 flex-wrap">
-            {['Everyday', 'Weekdays', 'Weekend'].map((option) => (
+            {(isIreland
+              ? ['Everyday', 'Weekdays', 'Weekend', 'Limited Access']
+              : ['Everyday', 'Weekdays', 'Weekend']
+            ).map((option) => (
               <Chip
                 key={option}
                 label={option}
@@ -165,27 +202,29 @@ export default function FiltersPage() {
           </div>
         </section>
 
-        <section className="rounded-2xl bg-white p-5 shadow-sm">
-          <h2 className="mb-2 text-sm font-semibold text-slate-700">
-            Your Handicap
-          </h2>
+        {!isIreland && (
+          <section className="rounded-2xl bg-white p-5 shadow-sm">
+            <h2 className="mb-2 text-sm font-semibold text-slate-700">
+              Your Handicap
+            </h2>
 
-          <p className="mb-3 text-[13px] leading-5 text-slate-500">
-            Show courses that accept your handicap or higher. Enter N/A for courses that do not require a handicap.
-          </p>
+            <p className="mb-3 text-[13px] leading-5 text-slate-500">
+              Show courses that accept your handicap or higher. Enter N/A for courses that do not require a handicap.
+            </p>
 
-          <div className="flex gap-2 flex-wrap">
-            {['N/A', '18', '24', '28', '36', '45', '54'].map((option) => (
-              <Chip
-                key={option}
-                label={option}
-                value={option === 'N/A' ? 'N/A' : option}
-                selected={handicap === (option === 'N/A' ? 'N/A' : option)}
-                onClick={(v) => toggle(v, handicap, setHandicap)}
-              />
-            ))}
-          </div>
-        </section>
+            <div className="flex gap-2 flex-wrap">
+              {['N/A', '18', '24', '28', '36', '45', '54'].map((option) => (
+                <Chip
+                  key={option}
+                  label={option}
+                  value={option}
+                  selected={handicap === option}
+                  onClick={(v) => toggle(v, handicap, setHandicap)}
+                />
+              ))}
+            </div>
+          </section>
+        )}
 
         <section className="rounded-2xl bg-white p-5 shadow-sm">
           <h2 className="mb-3 text-sm font-semibold text-slate-700">
