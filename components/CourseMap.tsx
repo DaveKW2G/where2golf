@@ -42,7 +42,6 @@ function MapBounds({ courses }: Props) {
 }
 
 export default function CourseMap({ courses }: Props) {
-
   const defaultCenter: [number, number] = [46.8, 8.3]
 
   return (
