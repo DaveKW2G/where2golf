@@ -5,14 +5,17 @@ import { useEffect, useMemo, useState } from 'react'
 
 type GolfIrelandMember = 'Yes' | 'No' | 'Not sure'
 type DayType = 'Weekday' | 'Weekend'
-type TimePreference = 'Morning' | 'Afternoon'
+type SlotName = 'Morning' | 'Afternoon'
+type PlannerStep = 'setup' | 'planner'
 
-type TripStep = 'base' | 'details' | 'planner'
+type TripSlot = {
+  slot: SlotName
+}
 
 type TripDay = {
   dayNumber: number
   dayType: DayType
-  timePreference: TimePreference
+  slots: TripSlot[]
 }
 
 type GeocodedBase = {
@@ -21,7 +24,16 @@ type GeocodedBase = {
   longitude: number
 }
 
-const quickBases = ['Dublin', 'Cork', 'Shannon', 'Belfast', 'Galway', 'Killarney', 'Lahinch', 'Adare']
+const quickBases = [
+  'Dublin',
+  'Cork',
+  'Shannon',
+  'Belfast',
+  'Galway',
+  'Killarney',
+  'Lahinch',
+  'Adare',
+]
 
 const months = [
   'January',
@@ -38,8 +50,23 @@ const months = [
   'December',
 ]
 
+function createTripDays(numberOfGolfDays: number, existingDays: TripDay[]) {
+  return Array.from({ length: numberOfGolfDays }, (_, index) => {
+    const existingDay = existingDays[index]
+
+    return {
+      dayNumber: index + 1,
+      dayType: existingDay?.dayType || 'Weekday',
+      slots: [
+        { slot: 'Morning' as const },
+        { slot: 'Afternoon' as const },
+      ],
+    }
+  })
+}
+
 export default function PlannerPage() {
-  const [step, setStep] = useState<TripStep>('base')
+  const [step, setStep] = useState<PlannerStep>('setup')
 
   const [baseInput, setBaseInput] = useState('')
   const [geocodedBase, setGeocodedBase] = useState<GeocodedBase | null>(null)
@@ -54,54 +81,64 @@ export default function PlannerPage() {
   const [numberOfGolfDays, setNumberOfGolfDays] = useState(3)
 
   const [tripDays, setTripDays] = useState<TripDay[]>([
-    { dayNumber: 1, dayType: 'Weekday', timePreference: 'Afternoon' },
-    { dayNumber: 2, dayType: 'Weekday', timePreference: 'Afternoon' },
-    { dayNumber: 3, dayType: 'Weekday', timePreference: 'Afternoon' },
+    {
+      dayNumber: 1,
+      dayType: 'Weekday',
+      slots: [{ slot: 'Morning' }, { slot: 'Afternoon' }],
+    },
+    {
+      dayNumber: 2,
+      dayType: 'Weekday',
+      slots: [{ slot: 'Morning' }, { slot: 'Afternoon' }],
+    },
+    {
+      dayNumber: 3,
+      dayType: 'Weekday',
+      slots: [{ slot: 'Morning' }, { slot: 'Afternoon' }],
+    },
   ])
 
   useEffect(() => {
-    setTripDays((currentDays) =>
-      Array.from({ length: numberOfGolfDays }, (_, index) => {
-        const existingDay = currentDays[index]
-
-        return {
-          dayNumber: index + 1,
-          dayType: existingDay?.dayType || 'Weekday',
-          timePreference: existingDay?.timePreference || 'Afternoon',
-        }
-      })
-    )
+    setTripDays((currentDays) => createTripDays(numberOfGolfDays, currentDays))
   }, [numberOfGolfDays])
-
-  const isReadyForDetails = useMemo(() => {
-    return baseInput.trim().length > 0 && !isGeocoding
-  }, [baseInput, isGeocoding])
 
   const isReadyToStart = useMemo(() => {
     return (
+      baseInput.trim().length > 0 &&
       tripName.trim().length > 0 &&
       month.length > 0 &&
       numberOfGolfers > 0 &&
       numberOfGolfDays > 0 &&
-      geocodedBase !== null
+      !isGeocoding
     )
-  }, [tripName, month, numberOfGolfers, numberOfGolfDays, geocodedBase])
+  }, [
+    baseInput,
+    tripName,
+    month,
+    numberOfGolfers,
+    numberOfGolfDays,
+    isGeocoding,
+  ])
 
-  async function handleBaseContinue() {
-    if (!baseInput.trim() || isGeocoding) return
+  async function handleStartPlanning() {
+    if (!isReadyToStart) return
 
     setBaseError('')
     setIsGeocoding(true)
 
     try {
       const response = await fetch(
-        `/api/geocode?place=${encodeURIComponent(baseInput.trim())}&country=Ireland`
+        `/api/geocode?place=${encodeURIComponent(
+          baseInput.trim()
+        )}&country=Ireland`
       )
 
       const data = await response.json()
 
       if (!response.ok) {
-        setBaseError('We could not find that location in Ireland. Try a town, city, airport or resort name.')
+        setBaseError(
+          'We could not find that location in Ireland. Try a town, city, airport or resort name.'
+        )
         setIsGeocoding(false)
         return
       }
@@ -112,29 +149,51 @@ export default function PlannerPage() {
         longitude: data.longitude,
       })
 
-      setStep('details')
+      setStep('planner')
     } catch {
-      setBaseError('Something went wrong finding that location. Please try again.')
+      setBaseError(
+        'Something went wrong finding that location. Please try again.'
+      )
     } finally {
       setIsGeocoding(false)
     }
   }
 
-  function updateTripDay(
-    dayNumber: number,
-    field: 'dayType' | 'timePreference',
-    value: DayType | TimePreference
-  ) {
+  function updateTripDay(dayNumber: number, dayType: DayType) {
     setTripDays((currentDays) =>
       currentDays.map((day) =>
         day.dayNumber === dayNumber
           ? {
               ...day,
-              [field]: value,
+              dayType,
             }
           : day
       )
     )
+  }
+
+  function getAddCourseHref(dayNumber: number, slot: SlotName) {
+    const params = new URLSearchParams()
+
+    params.set('country', 'Ireland')
+    params.set('source', 'planner')
+    params.set('planner', 'true')
+    params.set('day', String(dayNumber))
+    params.set('slot', slot)
+    params.set('where', baseInput.trim())
+    params.set('radius', '50')
+
+    const day = tripDays.find((tripDay) => tripDay.dayNumber === dayNumber)
+
+    if (day?.dayType === 'Weekend') {
+      params.set('guestPlay', 'Weekend')
+    }
+
+    if (day?.dayType === 'Weekday') {
+      params.set('guestPlay', 'Weekdays')
+    }
+
+    return `/results?${params.toString()}`
   }
 
   return (
@@ -154,92 +213,68 @@ export default function PlannerPage() {
           </h1>
 
           <p className="mt-4 text-[15px] text-white/85">
-            Build a simple day-by-day golf trip around where you are staying.
+            Build a flexible day-by-day golf itinerary around where you are
+            staying.
           </p>
         </div>
       </section>
 
       <section className="mx-auto max-w-[480px] px-5 py-6 text-left">
-        {step === 'base' && (
+        {step === 'setup' && (
           <div className="rounded-3xl bg-white p-5 shadow-sm ring-1 ring-slate-200/70">
             <h2 className="text-[21px] font-semibold text-slate-900">
-              Where are you staying?
+              Tell us about your trip
             </h2>
 
             <p className="mt-2 text-sm leading-6 text-slate-600">
-              Your base is the anchor of the trip. We use it to suggest nearby courses and estimate distance.
+              Your base is the anchor of the trip. We use it to suggest nearby
+              courses and estimate distance.
             </p>
-
-            <div className="mt-5">
-              <input
-                value={baseInput}
-                onChange={(event) => setBaseInput(event.target.value)}
-                placeholder="Example: Lahinch, Killarney, Dublin Airport"
-                className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-4 text-sm text-slate-900 outline-none placeholder:text-slate-400 focus:border-emerald-700"
-              />
-
-              <div className="mt-4 flex flex-wrap gap-2">
-                {quickBases.map((base) => (
-                  <button
-                    key={base}
-                    type="button"
-                    onClick={() => {
-                      setBaseInput(base)
-                      setBaseError('')
-                    }}
-                    className="rounded-full border border-slate-300 bg-white px-4 py-2.5 text-sm font-medium text-slate-700 hover:border-emerald-700"
-                  >
-                    {base}
-                  </button>
-                ))}
-              </div>
-
-              {baseError && (
-                <p className="mt-3 text-sm leading-6 text-red-600">
-                  {baseError}
-                </p>
-              )}
-
-              <button
-                type="button"
-                disabled={!isReadyForDetails}
-                onClick={handleBaseContinue}
-                className="mt-5 w-full rounded-full bg-slate-900 px-5 py-4 text-sm font-semibold text-white disabled:opacity-50"
-              >
-                {isGeocoding ? 'Finding location...' : 'Continue'}
-              </button>
-            </div>
-          </div>
-        )}
-
-        {step === 'details' && geocodedBase && (
-          <div className="rounded-3xl bg-white p-5 shadow-sm ring-1 ring-slate-200/70">
-            <button
-              type="button"
-              onClick={() => setStep('base')}
-              className="mb-4 text-sm font-semibold text-emerald-800"
-            >
-              ← Change base
-            </button>
-
-            <div className="rounded-2xl bg-stone-50 p-4 ring-1 ring-slate-200">
-              <p className="text-[13px] font-semibold uppercase tracking-[0.16em] text-emerald-800">
-                Trip base
-              </p>
-              <p className="mt-1 text-sm leading-6 text-slate-700">
-                {geocodedBase.label}
-              </p>
-            </div>
-
-            <h2 className="mt-5 text-[20px] font-semibold text-slate-900">
-              Tell us about your trip
-            </h2>
 
             <div className="mt-5 grid gap-5">
               <div>
                 <label className="text-sm font-semibold text-slate-900">
+                  Where are you staying?
+                </label>
+
+                <input
+                  value={baseInput}
+                  onChange={(event) => {
+                    setBaseInput(event.target.value)
+                    setBaseError('')
+                  }}
+                  placeholder="Example: Lahinch, Killarney, Dublin Airport"
+                  className="mt-2 w-full rounded-2xl border border-slate-200 bg-white px-4 py-4 text-sm text-slate-900 outline-none placeholder:text-slate-400 focus:border-emerald-700"
+                />
+
+                <div className="mt-3 flex flex-wrap gap-2">
+                  {quickBases.map((base) => (
+                    <button
+                      key={base}
+                      type="button"
+                      onClick={() => {
+                        setBaseInput(base)
+                        setBaseError('')
+                      }}
+                      className="rounded-full border border-slate-300 bg-white px-4 py-2.5 text-sm font-medium text-slate-700 hover:border-emerald-700"
+                    >
+                      {base}
+                    </button>
+                  ))}
+                </div>
+
+                {baseError && (
+                  <p className="mt-3 text-sm leading-6 text-red-600">
+                    {baseError}
+                  </p>
+                )}
+              </div>
+
+              <div>
+                <label className="text-sm font-semibold text-slate-900">
                   Trip name
                 </label>
+
                 <input
                   value={tripName}
                   onChange={(event) => setTripName(event.target.value)}
@@ -252,6 +287,7 @@ export default function PlannerPage() {
                 <label className="text-sm font-semibold text-slate-900">
                   Month of travel
                 </label>
+
                 <select
                   value={month}
                   onChange={(event) => setMonth(event.target.value)}
@@ -355,10 +391,10 @@ export default function PlannerPage() {
               <button
                 type="button"
                 disabled={!isReadyToStart}
-                onClick={() => setStep('planner')}
+                onClick={handleStartPlanning}
                 className="rounded-full bg-slate-900 px-5 py-4 text-sm font-semibold text-white disabled:opacity-50"
               >
-                Start Planning
+                {isGeocoding ? 'Finding your base...' : 'Start Planning'}
               </button>
             </div>
           </div>
@@ -378,7 +414,8 @@ export default function PlannerPage() {
                   </h2>
 
                   <p className="mt-2 text-sm leading-6 text-slate-600">
-                    {month} · {numberOfGolfers} golfers · Golf Ireland: {golfIrelandMember}
+                    {month} · {numberOfGolfers} golfers · Golf Ireland:{' '}
+                    {golfIrelandMember}
                   </p>
 
                   <p className="mt-1 text-sm leading-6 text-slate-600">
@@ -388,7 +425,7 @@ export default function PlannerPage() {
 
                 <button
                   type="button"
-                  onClick={() => setStep('details')}
+                  onClick={() => setStep('setup')}
                   className="rounded-full border border-slate-200 px-4 py-2 text-sm font-semibold text-slate-700"
                 >
                   Edit
@@ -402,7 +439,9 @@ export default function PlannerPage() {
               </h2>
 
               <p className="mt-2 text-sm leading-6 text-slate-600">
-                Add one course per golf day. Set whether the day is a weekday or weekend, and whether you prefer morning or afternoon golf.
+                Each day can include a morning round, an afternoon round, or
+                both. Use the filters on the results page to choose the right
+                course for each slot.
               </p>
 
               <div className="mt-5 grid gap-4">
@@ -411,88 +450,64 @@ export default function PlannerPage() {
                     key={day.dayNumber}
                     className="rounded-3xl border border-slate-200 bg-stone-50 p-4"
                   >
-                    <div>
-                      <div className="text-[17px] font-semibold text-slate-900">
-                        Day {day.dayNumber}
+                    <div className="flex items-center justify-between gap-3">
+                      <div>
+                        <div className="text-[17px] font-semibold text-slate-900">
+                          Day {day.dayNumber}
+                        </div>
+
+                        <p className="mt-1 text-sm text-slate-600">
+                          Choose courses for morning or afternoon.
+                        </p>
                       </div>
-                      <p className="mt-1 text-sm text-slate-600">
-                        No course selected yet
-                      </p>
+
+                      <div className="flex gap-2">
+                        {(['Weekday', 'Weekend'] as const).map((option) => (
+                          <button
+                            key={option}
+                            type="button"
+                            onClick={() => updateTripDay(day.dayNumber, option)}
+                            className={`rounded-full px-3 py-2 text-xs font-semibold ${
+                              day.dayType === option
+                                ? 'bg-emerald-800 text-white'
+                                : 'border border-slate-200 bg-white text-slate-700'
+                            }`}
+                          >
+                            {option}
+                          </button>
+                        ))}
+                      </div>
                     </div>
 
-                    <button
-                      type="button"
-                      className="mt-4 w-full rounded-2xl bg-emerald-800 px-5 py-4 text-sm font-semibold text-white shadow-sm"
-                    >
-                      Add course
-                    </button>
-
-                    <div className="mt-4 grid grid-cols-2 gap-2">
-                      {(['Weekday', 'Weekend'] as const).map((option) => (
-                        <button
-                          key={option}
-                          type="button"
-                          onClick={() =>
-                            updateTripDay(day.dayNumber, 'dayType', option)
-                          }
-                          className={`rounded-full px-3 py-2 text-xs font-semibold ${
-                            day.dayType === option
-                              ? 'bg-emerald-800 text-white'
-                              : 'border border-slate-200 bg-white text-slate-700'
-                          }`}
+                    <div className="mt-4 grid gap-3">
+                      {day.slots.map((slot) => (
+                        <div
+                          key={`${day.dayNumber}-${slot.slot}`}
+                          className="rounded-2xl bg-white p-4 ring-1 ring-slate-200"
                         >
-                          {option}
-                        </button>
-                      ))}
-                    </div>
+                          <div className="flex items-center justify-between gap-3">
+                            <div>
+                              <div className="text-sm font-semibold text-slate-900">
+                                {slot.slot}
+                              </div>
 
-                    <div className="mt-2 grid grid-cols-2 gap-2">
-                      {(['Morning', 'Afternoon'] as const).map((option) => (
-                        <button
-                          key={option}
-                          type="button"
-                          onClick={() =>
-                            updateTripDay(day.dayNumber, 'timePreference', option)
-                          }
-                          className={`rounded-full px-3 py-2 text-xs font-semibold ${
-                            day.timePreference === option
-                              ? 'bg-slate-900 text-white'
-                              : 'border border-slate-200 bg-white text-slate-700'
-                          }`}
-                        >
-                          {option}
-                        </button>
+                              <p className="mt-1 text-sm text-slate-500">
+                                No course selected
+                              </p>
+                            </div>
+
+                            <Link
+                              href={getAddCourseHref(day.dayNumber, slot.slot)}
+                              className="rounded-full bg-emerald-800 px-4 py-2.5 text-sm font-semibold text-white no-underline"
+                            >
+                              Add
+                            </Link>
+                          </div>
+                        </div>
                       ))}
                     </div>
                   </div>
                 ))}
-              </div>
-            </div>
-
-            <div className="rounded-3xl bg-white p-5 shadow-sm ring-1 ring-slate-200/70">
-              <h2 className="text-[18px] font-semibold text-slate-900">
-                Saved courses
-              </h2>
-
-              <p className="mt-2 text-sm leading-6 text-slate-600">
-                Courses added from course pages will appear here. You will then be able to assign them to a day.
-              </p>
-
-              <div className="mt-4 rounded-3xl border border-dashed border-slate-300 bg-stone-50 p-5 text-center">
-                <p className="text-sm font-semibold text-slate-900">
-                  No courses added yet
-                </p>
-
-                <p className="mt-2 text-sm leading-6 text-slate-600">
-                  Next step: we will connect this planner to Irish course data.
-                </p>
-
-                <Link
-                  href="/ireland"
-                  className="mt-4 inline-block rounded-full bg-emerald-800 px-5 py-3 text-sm font-semibold text-white no-underline"
-                >
-                  Browse Ireland courses
-                </Link>
               </div>
             </div>
 
