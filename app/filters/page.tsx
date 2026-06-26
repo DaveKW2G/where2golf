@@ -24,10 +24,13 @@ function FiltersPageContent() {
   const [price, setPrice] = useState('')
 
   useEffect(() => {
-    if (whereParam) {
-      setWhere(whereParam)
-    }
-  }, [whereParam])
+  const params = new URLSearchParams(window.location.search)
+  const urlWhere = params.get('where')
+
+  if (urlWhere) {
+    setWhere(urlWhere)
+  }
+}, [])
 
   function toggle(value: string, current: string, setter: (v: string) => void) {
     setter(current === value ? '' : value)
