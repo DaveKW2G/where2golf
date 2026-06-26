@@ -9,27 +9,25 @@ function FiltersPageContent() {
   const searchParams = useSearchParams()
 
   const countryParam = searchParams.get('country')
-const sourceParam = searchParams.get('source')
-const plannerParam = searchParams.get('planner')
-const whereParam = searchParams.get('where')
+  const sourceParam = searchParams.get('source')
   const plannerParam = searchParams.get('planner')
-const whereParam = searchParams.get('where')
+  const whereParam = searchParams.get('where')
 
   const isIreland = countryParam === 'Ireland'
 
-  const [where, setWhere] = useState(whereParam || '')
-const [radius, setRadius] = useState('')
-const [courseType, setCourseType] = useState('')
-const [guestPlay, setGuestPlay] = useState('')
-const [holes, setHoles] = useState('')
-const [handicap, setHandicap] = useState('')
-const [price, setPrice] = useState('')
+  const [where, setWhere] = useState('')
+  const [radius, setRadius] = useState('')
+  const [courseType, setCourseType] = useState('')
+  const [guestPlay, setGuestPlay] = useState('')
+  const [holes, setHoles] = useState('')
+  const [handicap, setHandicap] = useState('')
+  const [price, setPrice] = useState('')
 
-useEffect(() => {
-  if (whereParam) {
-    setWhere(whereParam)
-  }
-}, [whereParam])
+  useEffect(() => {
+    if (whereParam) {
+      setWhere(whereParam)
+    }
+  }, [whereParam])
 
   function toggle(value: string, current: string, setter: (v: string) => void) {
     setter(current === value ? '' : value)
@@ -39,6 +37,7 @@ useEffect(() => {
     const params = new URLSearchParams()
 
     if (countryParam) params.set('country', countryParam)
+    if (sourceParam) params.set('source', sourceParam)
     if (plannerParam) params.set('planner', plannerParam)
 
     if (where) params.set('where', where)
@@ -94,9 +93,15 @@ useEffect(() => {
         <div className="mx-auto max-w-[480px]">
           <div className="flex items-center justify-between">
             <Link
-  href={sourceParam === 'planner' ? '/ireland/planner' : isIreland ? '/ireland' : '/'}
-  className="text-white no-underline"
->
+              href={
+                sourceParam === 'planner'
+                  ? '/ireland/planner'
+                  : isIreland
+                  ? '/ireland'
+                  : '/'
+              }
+              className="text-white no-underline"
+            >
               ← Back
             </Link>
 
