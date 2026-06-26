@@ -256,7 +256,11 @@ export default function PlannerPage() {
                         setBaseInput(base)
                         setBaseError('')
                       }}
-                      className="rounded-full border border-slate-300 bg-white px-4 py-2.5 text-sm font-medium text-slate-700 hover:border-emerald-700"
+                      className={`rounded-full border px-4 py-2.5 text-sm font-medium ${
+  baseInput === base
+    ? 'border-emerald-700 bg-emerald-700 text-white shadow-sm'
+    : 'border-slate-300 bg-white text-slate-700 hover:border-emerald-700'
+}`}
                     >
                       {base}
                     </button>
@@ -500,7 +504,7 @@ export default function PlannerPage() {
                               href={getAddCourseHref(day.dayNumber, slot.slot)}
                               className="rounded-full bg-emerald-800 px-4 py-2.5 text-sm font-semibold text-white no-underline"
                             >
-                              Add
+                              Choose Course
                             </Link>
                           </div>
                         </div>
