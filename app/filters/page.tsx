@@ -9,6 +9,9 @@ function FiltersPageContent() {
   const searchParams = useSearchParams()
 
   const countryParam = searchParams.get('country')
+const sourceParam = searchParams.get('source')
+const plannerParam = searchParams.get('planner')
+const whereParam = searchParams.get('where')
   const plannerParam = searchParams.get('planner')
 const whereParam = searchParams.get('where')
 
