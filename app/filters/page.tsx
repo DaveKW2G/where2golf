@@ -1,7 +1,7 @@
 'use client'
 
 import Link from 'next/link'
-import { Suspense, useState } from 'react'
+import { Suspense, useEffect, useState } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 
 function FiltersPageContent() {
@@ -14,7 +14,11 @@ const whereParam = searchParams.get('where')
 
   const isIreland = countryParam === 'Ireland'
 
-  const [where, setWhere] = useState(whereParam || '')
+  useEffect(() => {
+  if (whereParam) {
+    setWhere(whereParam)
+  }
+}, [whereParam])
   const [radius, setRadius] = useState('')
   const [courseType, setCourseType] = useState('')
   const [guestPlay, setGuestPlay] = useState('')
