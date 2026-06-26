@@ -14,17 +14,19 @@ const whereParam = searchParams.get('where')
 
   const isIreland = countryParam === 'Ireland'
 
-  useEffect(() => {
+  const [where, setWhere] = useState(whereParam || '')
+const [radius, setRadius] = useState('')
+const [courseType, setCourseType] = useState('')
+const [guestPlay, setGuestPlay] = useState('')
+const [holes, setHoles] = useState('')
+const [handicap, setHandicap] = useState('')
+const [price, setPrice] = useState('')
+
+useEffect(() => {
   if (whereParam) {
     setWhere(whereParam)
   }
 }, [whereParam])
-  const [radius, setRadius] = useState('')
-  const [courseType, setCourseType] = useState('')
-  const [guestPlay, setGuestPlay] = useState('')
-  const [holes, setHoles] = useState('')
-  const [handicap, setHandicap] = useState('')
-  const [price, setPrice] = useState('')
 
   function toggle(value: string, current: string, setter: (v: string) => void) {
     setter(current === value ? '' : value)
