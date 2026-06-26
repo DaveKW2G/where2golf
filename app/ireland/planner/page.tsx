@@ -181,19 +181,9 @@ export default function PlannerPage() {
     params.set('day', String(dayNumber))
     params.set('slot', slot)
     params.set('where', baseInput.trim())
-    params.set('radius', '50')
+    
 
-    const day = tripDays.find((tripDay) => tripDay.dayNumber === dayNumber)
-
-    if (day?.dayType === 'Weekend') {
-      params.set('guestPlay', 'Weekend')
-    }
-
-    if (day?.dayType === 'Weekday') {
-      params.set('guestPlay', 'Weekdays')
-    }
-
-    return `/results?${params.toString()}`
+    return `/filters?${params.toString()}`
   }
 
   return (
