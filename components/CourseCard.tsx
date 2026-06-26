@@ -1,4 +1,7 @@
+'use client'
+
 import Link from "next/link"
+import { useEffect, useMemo, useState } from "react"
 
 interface CourseCardProps {
   id: number
@@ -18,6 +21,22 @@ interface CourseCardProps {
   userLng?: number | null
   searchParams?: Record<string, string | string[] | undefined>
 }
+
+type PlannerCourse = {
+  id: number
+  course_name: string
+  town: string
+  region: string
+  holes?: number
+  independent_guest_days?: string
+  price_range?: string
+  course_type?: string
+  course_image?: string
+  distance?: number
+  max_handicap?: number
+}
+
+const plannerCoursesKey = "guestplaygolf_planner_courses"
 
 function isLikelyOpenToday(guestPlay?: string): boolean {
   const today = new Date()
@@ -90,9 +109,6 @@ function getAccessLabel(access?: string, isIreland?: boolean) {
 
 function shouldShowIrelandHandicap(maxHandicap?: number) {
   if (maxHandicap === undefined || maxHandicap === null) return false
-
-  // In Ireland, only show handicap when it is a meaningful disclosed limit.
-  // This hides generic/default values like 54 while still showing real limits like 24 or 36.
   return maxHandicap > 0 && maxHandicap < 54
 }
 
@@ -111,6 +127,8 @@ export default function CourseCard({
   max_handicap,
   searchParams,
 }: CourseCardProps) {
+  const [isAddedToPlanner, setIsAddedToPlanner] = useState(false)
+
   const params = new URLSearchParams()
 
   if (searchParams) {
@@ -130,14 +148,77 @@ export default function CourseCard({
 
   const countryValue = getCountryFromParams(country, searchParams)
   const isIreland = countryValue === "ireland"
+  const isPlannerMode = getSingleParam(searchParams?.planner) === "true"
 
   const accessLabel = getAccessLabel(independent_guest_days, isIreland)
 
-  return (
-    <Link
-      href={href}
-      className="block overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm transition hover:shadow-md"
-    >
+  const plannerCourse: PlannerCourse = useMemo(
+    () => ({
+      id,
+      course_name,
+      town,
+      region,
+      holes,
+      independent_guest_days,
+      price_range,
+      course_type,
+      course_image,
+      distance,
+      max_handicap,
+    }),
+    [
+      id,
+      course_name,
+      town,
+      region,
+      holes,
+      independent_guest_days,
+      price_range,
+      course_type,
+      course_image,
+      distance,
+      max_handicap,
+    ]
+  )
+
+  useEffect(() => {
+    if (!isPlannerMode) return
+
+    try {
+      const existing = window.localStorage.getItem(plannerCoursesKey)
+      const courses = existing ? (JSON.parse(existing) as PlannerCourse[]) : []
+
+      setIsAddedToPlanner(courses.some((course) => course.id === id))
+    } catch {
+      setIsAddedToPlanner(false)
+    }
+  }, [id, isPlannerMode])
+
+  function handleAddToPlanner() {
+    try {
+      const existing = window.localStorage.getItem(plannerCoursesKey)
+      const courses = existing ? (JSON.parse(existing) as PlannerCourse[]) : []
+
+      const alreadyAdded = courses.some((course) => course.id === id)
+
+      if (alreadyAdded) {
+        setIsAddedToPlanner(true)
+        return
+      }
+
+      const nextCourses = [...courses, plannerCourse]
+
+      window.localStorage.setItem(plannerCoursesKey, JSON.stringify(nextCourses))
+      setIsAddedToPlanner(true)
+
+      window.dispatchEvent(new Event("guestplaygolf-planner-courses-updated"))
+    } catch {
+      setIsAddedToPlanner(false)
+    }
+  }
+
+  const cardContent = (
+    <>
       {course_image && (
         <div className="relative h-44 w-full overflow-hidden">
           <img
@@ -223,6 +304,39 @@ export default function CourseCard({
           )}
         </div>
       </div>
+    </>
+  )
+
+  if (isPlannerMode) {
+    return (
+      <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
+        <Link href={href} className="block no-underline">
+          {cardContent}
+        </Link>
+
+        <div className="border-t border-slate-100 p-4">
+          <button
+            type="button"
+            onClick={handleAddToPlanner}
+            className={`w-full rounded-full px-5 py-3 text-sm font-semibold ${
+              isAddedToPlanner
+                ? "bg-emerald-100 text-emerald-800"
+                : "bg-emerald-800 text-white"
+            }`}
+          >
+            {isAddedToPlanner ? "Added to Trip" : "Add to Trip"}
+          </button>
+        </div>
+      </div>
+    )
+  }
+
+  return (
+    <Link
+      href={href}
+      className="block overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm transition hover:shadow-md"
+    >
+      {cardContent}
     </Link>
   )
 }
