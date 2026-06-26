@@ -9,11 +9,12 @@ function FiltersPageContent() {
   const searchParams = useSearchParams()
 
   const countryParam = searchParams.get('country')
-  const sourceParam = searchParams.get('source')
+  const plannerParam = searchParams.get('planner')
+const whereParam = searchParams.get('where')
 
   const isIreland = countryParam === 'Ireland'
 
-  const [where, setWhere] = useState('')
+  const [where, setWhere] = useState(whereParam || '')
   const [radius, setRadius] = useState('')
   const [courseType, setCourseType] = useState('')
   const [guestPlay, setGuestPlay] = useState('')
@@ -29,7 +30,7 @@ function FiltersPageContent() {
     const params = new URLSearchParams()
 
     if (countryParam) params.set('country', countryParam)
-    if (sourceParam) params.set('source', sourceParam)
+    if (plannerParam) params.set('planner', plannerParam)
 
     if (where) params.set('where', where)
     if (radius) params.set('radius', radius)
@@ -83,7 +84,10 @@ function FiltersPageContent() {
       <section className="relative overflow-hidden bg-gradient-to-b from-emerald-950 via-emerald-900 to-emerald-800 px-5 pt-5 pb-6 text-white">
         <div className="mx-auto max-w-[480px]">
           <div className="flex items-center justify-between">
-            <Link href={isIreland ? '/ireland' : '/'} className="text-white no-underline">
+            <Link
+  href={sourceParam === 'planner' ? '/ireland/planner' : isIreland ? '/ireland' : '/'}
+  className="text-white no-underline"
+>
               ← Back
             </Link>
 
