@@ -70,8 +70,10 @@ export default function PlannerPage() {
 
   const [baseInput, setBaseInput] = useState('')
   const [geocodedBase, setGeocodedBase] = useState<GeocodedBase | null>(null)
-  const [isGeocoding, setIsGeocoding] = useState(false)
+  const [isCreatingTrip, setIsCreatingTrip] = useState(false)
   const [baseError, setBaseError] = useState('')
+  const [tripError, setTripError] = useState('')
+  const [tripId, setTripId] = useState('')
 
   const [tripName, setTripName] = useState('')
   const [month, setMonth] = useState('April')
@@ -109,7 +111,7 @@ export default function PlannerPage() {
       month.length > 0 &&
       numberOfGolfers > 0 &&
       numberOfGolfDays > 0 &&
-      !isGeocoding
+      !isCreatingTrip
     )
   }, [
     baseInput,
@@ -117,45 +119,74 @@ export default function PlannerPage() {
     month,
     numberOfGolfers,
     numberOfGolfDays,
-    isGeocoding,
+    isCreatingTrip,
   ])
 
   async function handleStartPlanning() {
     if (!isReadyToStart) return
 
     setBaseError('')
-    setIsGeocoding(true)
+    setTripError('')
+    setIsCreatingTrip(true)
 
     try {
-      const response = await fetch(
+      const geocodeResponse = await fetch(
         `/api/geocode?place=${encodeURIComponent(
           baseInput.trim()
         )}&country=Ireland`
       )
 
-      const data = await response.json()
+      const geocodeData = await geocodeResponse.json()
 
-      if (!response.ok) {
+      if (!geocodeResponse.ok) {
         setBaseError(
           'We could not find that location in Ireland. Try a town, city, airport or resort name.'
         )
-        setIsGeocoding(false)
+        setIsCreatingTrip(false)
         return
       }
 
-      setGeocodedBase({
-        label: data.label || baseInput.trim(),
-        latitude: data.latitude,
-        longitude: data.longitude,
+      const confirmedBase = {
+        label: geocodeData.label || baseInput.trim(),
+        latitude: geocodeData.latitude,
+        longitude: geocodeData.longitude,
+      }
+
+      const tripResponse = await fetch('/api/trips', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          trip_name: tripName.trim(),
+          base_location: confirmedBase.label,
+          base_latitude: confirmedBase.latitude,
+          base_longitude: confirmedBase.longitude,
+          month_of_travel: month,
+          golf_ireland_member: golfIrelandMember,
+          number_of_golfers: numberOfGolfers,
+          number_of_golf_days: numberOfGolfDays,
+        }),
       })
+
+      const tripData = await tripResponse.json()
+
+      if (!tripResponse.ok || !tripData.trip_id) {
+        setTripError('We could not create your trip. Please try again.')
+        setIsCreatingTrip(false)
+        return
+      }
+
+      setGeocodedBase(confirmedBase)
+      setTripId(tripData.trip_id)
+
+      window.localStorage.setItem('guestplaygolf_trip_id', tripData.trip_id)
 
       setStep('planner')
     } catch {
-      setBaseError(
-        'Something went wrong finding that location. Please try again.'
-      )
+      setTripError('Something went wrong creating your trip. Please try again.')
     } finally {
-      setIsGeocoding(false)
+      setIsCreatingTrip(false)
     }
   }
 
@@ -181,7 +212,10 @@ export default function PlannerPage() {
     params.set('day', String(dayNumber))
     params.set('slot', slot)
     params.set('where', baseInput.trim())
-    
+
+    if (tripId) {
+      params.set('tripId', tripId)
+    }
 
     return `/filters?${params.toString()}`
   }
@@ -232,6 +266,7 @@ export default function PlannerPage() {
                   onChange={(event) => {
                     setBaseInput(event.target.value)
                     setBaseError('')
+                    setTripError('')
                   }}
                   placeholder="Example: Lahinch, Killarney, Dublin Airport"
                   className="mt-2 w-full rounded-2xl border border-slate-200 bg-white px-4 py-4 text-sm text-slate-900 outline-none placeholder:text-slate-400 focus:border-emerald-700"
@@ -245,12 +280,13 @@ export default function PlannerPage() {
                       onClick={() => {
                         setBaseInput(base)
                         setBaseError('')
+                        setTripError('')
                       }}
                       className={`rounded-full border px-4 py-2.5 text-sm font-medium ${
-  baseInput === base
-    ? 'border-emerald-700 bg-emerald-700 text-white shadow-sm'
-    : 'border-slate-300 bg-white text-slate-700 hover:border-emerald-700'
-}`}
+                        baseInput === base
+                          ? 'border-emerald-700 bg-emerald-700 text-white shadow-sm'
+                          : 'border-slate-300 bg-white text-slate-700 hover:border-emerald-700'
+                      }`}
                     >
                       {base}
                     </button>
@@ -271,7 +307,10 @@ export default function PlannerPage() {
 
                 <input
                   value={tripName}
-                  onChange={(event) => setTripName(event.target.value)}
+                  onChange={(event) => {
+                    setTripName(event.target.value)
+                    setTripError('')
+                  }}
                   placeholder="Example: Dave’s Ireland Golf Trip"
                   className="mt-2 w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none placeholder:text-slate-400 focus:border-emerald-700"
                 />
@@ -382,13 +421,17 @@ export default function PlannerPage() {
                 </div>
               </div>
 
+              {tripError && (
+                <p className="text-sm leading-6 text-red-600">{tripError}</p>
+              )}
+
               <button
                 type="button"
                 disabled={!isReadyToStart}
                 onClick={handleStartPlanning}
                 className="rounded-full bg-slate-900 px-5 py-4 text-sm font-semibold text-white disabled:opacity-50"
               >
-                {isGeocoding ? 'Finding your base...' : 'Start Planning'}
+                {isCreatingTrip ? 'Creating your trip...' : 'Start Planning'}
               </button>
             </div>
           </div>
@@ -415,6 +458,12 @@ export default function PlannerPage() {
                   <p className="mt-1 text-sm leading-6 text-slate-600">
                     Staying near: {baseInput}
                   </p>
+
+                  {tripId && (
+                    <p className="mt-2 inline-block rounded-full bg-emerald-100 px-3 py-1 text-xs font-semibold text-emerald-800">
+                      Trip saved · {tripId}
+                    </p>
+                  )}
                 </div>
 
                 <button
