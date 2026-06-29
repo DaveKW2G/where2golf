@@ -1,7 +1,7 @@
 'use client'
 
-import Link from "next/link"
-import { useEffect, useMemo, useState } from "react"
+import Link from 'next/link'
+import { useEffect, useMemo, useState } from 'react'
 
 interface CourseCardProps {
   id: number
@@ -36,7 +36,8 @@ type PlannerCourse = {
   max_handicap?: number
 }
 
-const plannerCoursesKey = "guestplaygolf_planner_courses"
+const plannerCoursesKey = 'guestplaygolf_planner_courses'
+const plannerTripIdKey = 'guestplaygolf_trip_id'
 
 function isLikelyOpenToday(guestPlay?: string): boolean {
   const today = new Date()
@@ -47,9 +48,9 @@ function isLikelyOpenToday(guestPlay?: string): boolean {
 
   const isWeekend = day === 0 || day === 6
 
-  if (guestPlay === "Everyday") return true
-  if (isWeekend && guestPlay === "Weekend") return true
-  if (!isWeekend && guestPlay === "Weekdays") return true
+  if (guestPlay === 'Everyday') return true
+  if (isWeekend && guestPlay === 'Weekend') return true
+  if (!isWeekend && guestPlay === 'Weekdays') return true
 
   return false
 }
@@ -68,7 +69,7 @@ function getCountryFromParams(
   if (country) return country.toLowerCase()
   if (paramCountry) return paramCountry.toLowerCase()
 
-  return ""
+  return ''
 }
 
 function getAccessLabel(access?: string, isIreland?: boolean) {
@@ -76,31 +77,31 @@ function getAccessLabel(access?: string, isIreland?: boolean) {
 
   const cleanAccess = access.trim()
 
-  if (cleanAccess === "Limited Access" || cleanAccess === "Limited") {
-    return isIreland ? "Limited Visitor Access" : "Limited Guest Access"
+  if (cleanAccess === 'Limited Access' || cleanAccess === 'Limited') {
+    return isIreland ? 'Limited Visitor Access' : 'Limited Guest Access'
   }
 
-  if (cleanAccess === "Resort") {
-    return "Resort Access"
+  if (cleanAccess === 'Resort') {
+    return 'Resort Access'
   }
 
   if (isIreland) {
-    if (cleanAccess === "Everyday") return "Visitors Everyday"
-    if (cleanAccess === "Weekdays") return "Visitors Weekdays"
-    if (cleanAccess === "Weekend") return "Visitors Weekend"
+    if (cleanAccess === 'Everyday') return 'Visitors Everyday'
+    if (cleanAccess === 'Weekdays') return 'Visitors Weekdays'
+    if (cleanAccess === 'Weekend') return 'Visitors Weekend'
 
-    if (cleanAccess.startsWith("Guests ")) {
-      return cleanAccess.replace("Guests", "Visitors")
+    if (cleanAccess.startsWith('Guests ')) {
+      return cleanAccess.replace('Guests', 'Visitors')
     }
 
     return `Visitors ${cleanAccess}`
   }
 
-  if (cleanAccess === "Everyday") return "Guests Everyday"
-  if (cleanAccess === "Weekdays") return "Guests Weekdays"
-  if (cleanAccess === "Weekend") return "Guests Weekend"
+  if (cleanAccess === 'Everyday') return 'Guests Everyday'
+  if (cleanAccess === 'Weekdays') return 'Guests Weekdays'
+  if (cleanAccess === 'Weekend') return 'Guests Weekend'
 
-  if (cleanAccess.startsWith("Guests ")) {
+  if (cleanAccess.startsWith('Guests ')) {
     return cleanAccess
   }
 
@@ -128,16 +129,18 @@ export default function CourseCard({
   searchParams,
 }: CourseCardProps) {
   const [isAddedToPlanner, setIsAddedToPlanner] = useState(false)
+  const [isSavingToPlanner, setIsSavingToPlanner] = useState(false)
+  const [plannerSaveError, setPlannerSaveError] = useState('')
 
   const params = new URLSearchParams()
 
   if (searchParams) {
     Object.entries(searchParams).forEach(([key, value]) => {
-      if (typeof value === "string" && value.trim() !== "") {
+      if (typeof value === 'string' && value.trim() !== '') {
         params.set(key, value)
       } else if (Array.isArray(value)) {
         value.forEach((item) => {
-          if (item.trim() !== "") params.append(key, item)
+          if (item.trim() !== '') params.append(key, item)
         })
       }
     })
@@ -147,8 +150,9 @@ export default function CourseCard({
   const href = queryString ? `/courses/${id}?${queryString}` : `/courses/${id}`
 
   const countryValue = getCountryFromParams(country, searchParams)
-  const isIreland = countryValue === "ireland"
-  const isPlannerMode = getSingleParam(searchParams?.planner) === "true"
+  const isIreland = countryValue === 'ireland'
+  const isPlannerMode = getSingleParam(searchParams?.planner) === 'true'
+  const urlTripId = getSingleParam(searchParams?.tripId)
 
   const accessLabel = getAccessLabel(independent_guest_days, isIreland)
 
@@ -194,26 +198,48 @@ export default function CourseCard({
     }
   }, [id, isPlannerMode])
 
-  function handleAddToPlanner() {
+  async function handleAddToPlanner() {
+    if (isSavingToPlanner) return
+
+    setPlannerSaveError('')
+    setIsSavingToPlanner(true)
+
     try {
       const existing = window.localStorage.getItem(plannerCoursesKey)
       const courses = existing ? (JSON.parse(existing) as PlannerCourse[]) : []
 
       const alreadyAdded = courses.some((course) => course.id === id)
-
-      if (alreadyAdded) {
-        setIsAddedToPlanner(true)
-        return
-      }
-
-      const nextCourses = [...courses, plannerCourse]
+      const nextCourses = alreadyAdded ? courses : [...courses, plannerCourse]
 
       window.localStorage.setItem(plannerCoursesKey, JSON.stringify(nextCourses))
       setIsAddedToPlanner(true)
 
-      window.dispatchEvent(new Event("guestplaygolf-planner-courses-updated"))
+      window.dispatchEvent(new Event('guestplaygolf-planner-courses-updated'))
+
+      const storedTripId = window.localStorage.getItem(plannerTripIdKey)
+      const activeTripId = urlTripId || storedTripId
+
+      if (activeTripId) {
+        const response = await fetch('/api/trips', {
+          method: 'PATCH',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            trip_id: activeTripId,
+            selected_courses: nextCourses,
+          }),
+        })
+
+        if (!response.ok) {
+          setPlannerSaveError('Added locally, but not synced to trip yet.')
+        }
+      }
     } catch {
+      setPlannerSaveError('Could not add this course. Please try again.')
       setIsAddedToPlanner(false)
+    } finally {
+      setIsSavingToPlanner(false)
     }
   }
 
@@ -245,7 +271,7 @@ export default function CourseCard({
           </p>
         )}
 
-        {searchParams?.today === "true" &&
+        {getSingleParam(searchParams?.today) === 'true' &&
           isLikelyOpenToday(independent_guest_days) && (
             <div className="mt-2">
               <span className="rounded-full bg-green-600 px-3 py-1 text-[12px] font-semibold text-white">
@@ -318,14 +344,25 @@ export default function CourseCard({
           <button
             type="button"
             onClick={handleAddToPlanner}
-            className={`w-full rounded-full px-5 py-3 text-sm font-semibold ${
+            disabled={isSavingToPlanner}
+            className={`w-full rounded-full px-5 py-3 text-sm font-semibold disabled:opacity-75 ${
               isAddedToPlanner
-                ? "bg-emerald-100 text-emerald-800"
-                : "bg-emerald-800 text-white"
+                ? 'bg-emerald-100 text-emerald-800'
+                : 'bg-emerald-800 text-white'
             }`}
           >
-            {isAddedToPlanner ? "Added to Trip" : "Add to Trip"}
+            {isSavingToPlanner
+              ? 'Adding...'
+              : isAddedToPlanner
+              ? 'Added to Trip'
+              : 'Add to Trip'}
           </button>
+
+          {plannerSaveError && (
+            <p className="mt-2 text-center text-xs text-red-600">
+              {plannerSaveError}
+            </p>
+          )}
         </div>
       </div>
     )
