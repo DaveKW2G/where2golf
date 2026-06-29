@@ -6,6 +6,12 @@ function generateTripId() {
   return `GPG-${randomPart}`
 }
 
+export async function GET() {
+  return NextResponse.json({
+    status: 'Trip API is working',
+  })
+}
+
 export async function POST(request: Request) {
   try {
     const supabase = await createClient()
