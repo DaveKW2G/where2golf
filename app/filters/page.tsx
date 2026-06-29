@@ -12,6 +12,7 @@ function FiltersPageContent() {
   const sourceParam = searchParams.get('source')
   const plannerParam = searchParams.get('planner')
   const whereParam = searchParams.get('where')
+  const tripIdParam = searchParams.get('tripId')
 
   const isIreland = countryParam === 'Ireland'
 
@@ -24,13 +25,13 @@ function FiltersPageContent() {
   const [price, setPrice] = useState('')
 
   useEffect(() => {
-  const params = new URLSearchParams(window.location.search)
-  const urlWhere = params.get('where')
+    const params = new URLSearchParams(window.location.search)
+    const urlWhere = params.get('where')
 
-  if (urlWhere) {
-    setWhere(urlWhere)
-  }
-}, [])
+    if (urlWhere) {
+      setWhere(urlWhere)
+    }
+  }, [])
 
   function toggle(value: string, current: string, setter: (v: string) => void) {
     setter(current === value ? '' : value)
@@ -42,6 +43,7 @@ function FiltersPageContent() {
     if (countryParam) params.set('country', countryParam)
     if (sourceParam) params.set('source', sourceParam)
     if (plannerParam) params.set('planner', plannerParam)
+    if (tripIdParam) params.set('tripId', tripIdParam)
 
     if (where) params.set('where', where)
     if (radius) params.set('radius', radius)
