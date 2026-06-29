@@ -32,8 +32,6 @@ export async function POST(request: Request) {
     })
 
     if (error) {
-      console.error('Trip creation error:', error)
-
       return NextResponse.json(
         {
           error: 'Unable to create trip',
@@ -46,11 +44,49 @@ export async function POST(request: Request) {
     return NextResponse.json({
       trip_id: tripId,
     })
-  } catch (error) {
-    console.error('Trip creation unexpected error:', error)
-
+  } catch {
     return NextResponse.json(
       { error: 'Unable to create trip' },
+      { status: 500 }
+    )
+  }
+}
+
+export async function PATCH(request: Request) {
+  try {
+    const supabase = await createClient()
+    const body = await request.json()
+
+    if (!body.trip_id) {
+      return NextResponse.json(
+        { error: 'Trip ID is required' },
+        { status: 400 }
+      )
+    }
+
+    const { error } = await supabase
+      .from('trips')
+      .update({
+        selected_courses: body.selected_courses || [],
+      })
+      .eq('trip_id', body.trip_id)
+
+    if (error) {
+      return NextResponse.json(
+        {
+          error: 'Unable to update trip',
+          details: error.message,
+        },
+        { status: 500 }
+      )
+    }
+
+    return NextResponse.json({
+      success: true,
+    })
+  } catch {
+    return NextResponse.json(
+      { error: 'Unable to update trip' },
       { status: 500 }
     )
   }
