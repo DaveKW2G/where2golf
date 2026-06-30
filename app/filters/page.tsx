@@ -11,12 +11,12 @@ function FiltersPageContent() {
   const countryParam = searchParams.get('country')
   const sourceParam = searchParams.get('source')
   const plannerParam = searchParams.get('planner')
-  const whereParam = searchParams.get('where')
-  const [tripId, setTripId] = useState('')
 
   const isIreland = countryParam === 'Ireland'
+  const isPlannerMode = sourceParam === 'planner' || plannerParam === 'true'
 
   const [where, setWhere] = useState('')
+  const [tripId, setTripId] = useState('')
   const [radius, setRadius] = useState('')
   const [courseType, setCourseType] = useState('')
   const [guestPlay, setGuestPlay] = useState('')
@@ -26,27 +26,24 @@ function FiltersPageContent() {
   const [isSearching, setIsSearching] = useState(false)
 
   useEffect(() => {
-  const params = new URLSearchParams(window.location.search)
-  const urlWhere = params.get('where')
-  const urlTripId = params.get('tripId')
+    const params = new URLSearchParams(window.location.search)
 
-  if (urlWhere) {
-    setWhere(urlWhere)
-  }
+    const urlWhere = params.get('where')
+    const urlTripId = params.get('tripId')
 
-  if (urlTripId) {
-    setTripId(urlTripId)
-  }
-}, [])
+    if (urlWhere) setWhere(urlWhere)
+    if (urlTripId) setTripId(urlTripId)
+  }, [])
 
   function toggle(value: string, current: string, setter: (v: string) => void) {
     setter(current === value ? '' : value)
   }
 
   function handleSearch() {
-  if (isSearching) return
+    if (isSearching) return
 
-  setIsSearching(true)
+    setIsSearching(true)
+
     const params = new URLSearchParams()
 
     if (countryParam) params.set('country', countryParam)
@@ -88,13 +85,16 @@ function FiltersPageContent() {
   }) {
     return (
       <button
-  type="button"
-  onClick={handleSearch}
-  disabled={isSearching}
-  className="w-full rounded-2xl bg-emerald-700 py-4 font-semibold text-white shadow-lg disabled:opacity-75"
->
-  {isSearching ? 'Finding courses...' : 'Show Courses'}
-</button>
+        type="button"
+        onClick={() => onClick(value)}
+        className={`rounded-full border px-4 py-2.5 text-sm font-medium transition ${
+          selected
+            ? 'border-emerald-700 bg-emerald-700 text-white shadow-sm'
+            : 'border-slate-300 bg-white text-slate-700 hover:border-slate-400'
+        }`}
+      >
+        {label}
+      </button>
     )
   }
 
@@ -104,13 +104,7 @@ function FiltersPageContent() {
         <div className="mx-auto max-w-[480px]">
           <div className="flex items-center justify-between">
             <Link
-              href={
-                sourceParam === 'planner'
-                  ? '/ireland/planner'
-                  : isIreland
-                  ? '/ireland'
-                  : '/'
-              }
+              href={isPlannerMode ? '/ireland/planner' : isIreland ? '/ireland' : '/'}
               className="text-white no-underline"
             >
               ← Back
@@ -280,9 +274,10 @@ function FiltersPageContent() {
           <button
             type="button"
             onClick={handleSearch}
-            className="w-full rounded-2xl bg-emerald-700 py-4 font-semibold text-white shadow-lg"
+            disabled={isSearching}
+            className="w-full rounded-2xl bg-emerald-700 py-4 font-semibold text-white shadow-lg disabled:opacity-75"
           >
-            Show Courses
+            {isSearching ? 'Finding courses...' : 'Show Courses'}
           </button>
         </div>
       </div>
