@@ -220,17 +220,16 @@ export default function CourseCard({
       const activeTripId = urlTripId || storedTripId
 
       if (activeTripId) {
-        const response = await fetch('/api/trips', {
-          method: 'PATCH',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            trip_id: activeTripId,
-            selected_courses: nextCourses,
-          }),
-        })
-
+        const response = await fetch('/api/trips/add-course', {
+  method: 'POST',
+  headers: {
+    'Content-Type': 'application/json',
+  },
+  body: JSON.stringify({
+    trip_id: activeTripId,
+    course: plannerCourse,
+  }),
+})
         const responseData = await response.json()
 
         if (!response.ok) {
