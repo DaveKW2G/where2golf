@@ -679,6 +679,56 @@ export default function PlannerPage() {
               )}
             </div>
 
+            {selectedCourses.length > 0 && (
+              <div className="rounded-3xl bg-white p-5 shadow-sm ring-1 ring-slate-200/70">
+                <h2 className="text-[18px] font-semibold text-slate-900">
+                  Compare Courses
+                </h2>
+
+                <p className="mt-2 text-sm leading-6 text-slate-600">
+                  Compare your selected courses by type, price, access and distance from your base.
+                </p>
+
+                <div className="mt-4 overflow-x-auto">
+                  <table className="w-full min-w-[560px] border-collapse text-left text-sm">
+                    <thead>
+                      <tr className="border-b border-slate-200 text-xs uppercase tracking-wide text-slate-500">
+                        <th className="py-3 pr-4 font-semibold">Course</th>
+                        <th className="py-3 pr-4 font-semibold">Type</th>
+                        <th className="py-3 pr-4 font-semibold">Price</th>
+                        <th className="py-3 pr-4 font-semibold">Access</th>
+                        <th className="py-3 pr-4 font-semibold">Distance</th>
+                      </tr>
+                    </thead>
+
+                    <tbody>
+                      {selectedCourses.map((course) => (
+                        <tr key={course.id} className="border-b border-slate-100">
+                          <td className="py-3 pr-4 font-semibold text-slate-900">
+                            {course.course_name}
+                          </td>
+                          <td className="py-3 pr-4 text-slate-700">
+                            {course.course_type || '—'}
+                          </td>
+                          <td className="py-3 pr-4 text-slate-700">
+                            {course.price_range || '—'}
+                          </td>
+                          <td className="py-3 pr-4 text-slate-700">
+                            {course.independent_guest_days || '—'}
+                          </td>
+                          <td className="py-3 pr-4 text-slate-700">
+                            {typeof course.distance === 'number'
+                              ? `${course.distance.toFixed(1)} km`
+                              : '—'}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            )}
+
             <div className="rounded-3xl bg-white p-5 shadow-sm ring-1 ring-slate-200/70">
               <h2 className="text-[18px] font-semibold text-slate-900">
                 Trip summary
