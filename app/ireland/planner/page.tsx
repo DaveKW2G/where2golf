@@ -69,6 +69,38 @@ function createTripDays(numberOfGolfDays: number, existingDays: TripDay[]) {
   })
 }
 
+function getAverageDistance(courses: PlannerCourse[]) {
+  const distances = courses
+    .map((course) => course.distance)
+    .filter((distance): distance is number => typeof distance === 'number')
+
+  if (distances.length === 0) return null
+
+  const totalDistance = distances.reduce((sum, distance) => sum + distance, 0)
+
+  return totalDistance / distances.length
+}
+
+function getCourseMix(courses: PlannerCourse[]) {
+  const courseTypes = Array.from(
+    new Set(courses.map((course) => course.course_type).filter(Boolean))
+  )
+
+  if (courseTypes.length === 0) return '—'
+
+  return courseTypes.join(' / ')
+}
+
+function getPriceGuide(courses: PlannerCourse[]) {
+  const prices = Array.from(
+    new Set(courses.map((course) => course.price_range).filter(Boolean))
+  )
+
+  if (prices.length === 0) return '—'
+
+  return prices.join(' / ')
+}
+
 export default function PlannerPage() {
   const [step, setStep] = useState<PlannerStep>('setup')
 
@@ -94,6 +126,10 @@ export default function PlannerPage() {
     { dayNumber: 2, dayType: 'Weekday' },
     { dayNumber: 3, dayType: 'Weekday' },
   ])
+
+  const averageDistance = getAverageDistance(selectedCourses)
+  const courseMix = getCourseMix(selectedCourses)
+  const priceGuide = getPriceGuide(selectedCourses)
 
   useEffect(() => {
     setTripDays((currentDays) => createTripDays(numberOfGolfDays, currentDays))
@@ -763,20 +799,31 @@ export default function PlannerPage() {
 
                 <div className="rounded-2xl bg-stone-50 p-4 ring-1 ring-slate-200">
                   <div className="text-[13px] font-semibold text-slate-500">
-                    Price guide
+                    Avg distance
                   </div>
                   <div className="mt-1 text-[22px] font-bold text-slate-900">
-                    —
+                    {averageDistance === null
+                      ? '—'
+                      : `${averageDistance.toFixed(1)} km`}
                   </div>
                 </div>
 
                 <div className="rounded-2xl bg-stone-50 p-4 ring-1 ring-slate-200">
                   <div className="text-[13px] font-semibold text-slate-500">
-                    Distance
+                    Price guide
                   </div>
                   <div className="mt-1 text-[22px] font-bold text-slate-900">
-                    —
+                    {priceGuide}
                   </div>
+                </div>
+              </div>
+
+              <div className="mt-3 rounded-2xl bg-stone-50 p-4 ring-1 ring-slate-200">
+                <div className="text-[13px] font-semibold text-slate-500">
+                  Course mix
+                </div>
+                <div className="mt-1 text-[18px] font-bold text-slate-900">
+                  {courseMix}
                 </div>
               </div>
 
