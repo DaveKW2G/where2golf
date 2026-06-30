@@ -30,6 +30,10 @@ type ResultsPageProps = {
     price?: string
     source?: string
     courseType?: string
+    planner?: string
+    tripId?: string
+    day?: string
+    slot?: string
   }>
 }
 
@@ -98,6 +102,7 @@ export default async function ResultsPage({ searchParams }: ResultsPageProps) {
   const supabase = await createClient()
 
   const selectedCountry = normaliseCountry(params.country || params.source)
+  const isPlannerMode = params.source === "planner" || params.planner === "true"
 
   let userLat = params.lat ? Number(params.lat) : null
   let userLng = params.lng ? Number(params.lng) : null
@@ -123,16 +128,17 @@ export default async function ResultsPage({ searchParams }: ResultsPageProps) {
         params.price
     )
 
-  const backHref =
-    params.source === "home"
-      ? "/"
-      : hasIrelandAdvancedFilters
-      ? "/filters?country=Ireland&source=ireland"
-      : selectedCountry === "switzerland"
-      ? "/switzerland"
-      : selectedCountry === "ireland"
-      ? "/ireland"
-      : "/filters"
+  const backHref = isPlannerMode
+    ? "/ireland/planner"
+    : params.source === "home"
+    ? "/"
+    : hasIrelandAdvancedFilters
+    ? "/filters?country=Ireland&source=ireland"
+    : selectedCountry === "switzerland"
+    ? "/switzerland"
+    : selectedCountry === "ireland"
+    ? "/ireland"
+    : "/filters"
 
   const selectedHandicap =
     params.handicap && params.handicap !== "N/A"
@@ -294,14 +300,27 @@ export default async function ResultsPage({ searchParams }: ResultsPageProps) {
         ))}
       </div>
 
-      <div className="fixed bottom-6 left-0 right-0 flex justify-center">
-        <Link
-          href={mapHref}
-          className="bg-emerald-700 text-white px-6 py-3 rounded-full"
-        >
-          View Map
-        </Link>
-      </div>
+      {!isPlannerMode && (
+        <div className="fixed bottom-6 left-0 right-0 flex justify-center">
+          <Link
+            href={mapHref}
+            className="bg-emerald-700 text-white px-6 py-3 rounded-full"
+          >
+            View Map
+          </Link>
+        </div>
+      )}
+
+      {isPlannerMode && (
+        <div className="fixed bottom-6 left-0 right-0 flex justify-center">
+          <Link
+            href="/ireland/planner"
+            className="bg-emerald-700 text-white px-6 py-3 rounded-full"
+          >
+            Back to Planner
+          </Link>
+        </div>
+      )}
     </main>
   )
 }
