@@ -23,6 +23,7 @@ function FiltersPageContent() {
   const [holes, setHoles] = useState('')
   const [handicap, setHandicap] = useState('')
   const [price, setPrice] = useState('')
+  const [isSearching, setIsSearching] = useState(false)
 
   useEffect(() => {
   const params = new URLSearchParams(window.location.search)
@@ -43,6 +44,9 @@ function FiltersPageContent() {
   }
 
   function handleSearch() {
+  if (isSearching) return
+
+  setIsSearching(true)
     const params = new URLSearchParams()
 
     if (countryParam) params.set('country', countryParam)
@@ -84,16 +88,13 @@ function FiltersPageContent() {
   }) {
     return (
       <button
-        type="button"
-        onClick={() => onClick(value)}
-        className={`rounded-full border px-4 py-2.5 text-sm font-medium transition ${
-          selected
-            ? 'border-emerald-700 bg-emerald-700 text-white shadow-sm'
-            : 'border-slate-300 bg-white text-slate-700 hover:border-slate-400'
-        }`}
-      >
-        {label}
-      </button>
+  type="button"
+  onClick={handleSearch}
+  disabled={isSearching}
+  className="w-full rounded-2xl bg-emerald-700 py-4 font-semibold text-white shadow-lg disabled:opacity-75"
+>
+  {isSearching ? 'Finding courses...' : 'Show Courses'}
+</button>
     )
   }
 
