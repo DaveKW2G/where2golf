@@ -58,11 +58,33 @@ export async function PATCH(request: Request) {
     const body = await request.json()
 
     if (!body.trip_id) {
+      return NextResponse.json({ error: 'Trip ID is required' }, { status: 400 })
+    }
+
+    const { data, error } = await supabase
+      .from('trips')
+      .update({
+        selected_courses: body.selected_courses || [],
+      })
+      .eq('trip_id', body.trip_id)
+      .select('trip_id, selected_courses')
+
+    if (error) {
       return NextResponse.json(
-        { error: 'Trip ID is required' },
-        { status: 400 }
+        { error: 'Unable to update trip', details: error.message },
+        { status: 500 }
       )
     }
+
+    return NextResponse.json({
+      success: true,
+      updated_rows: data?.length || 0,
+      trip_id: body.trip_id,
+    })
+  } catch {
+    return NextResponse.json({ error: 'Unable to update trip' }, { status: 500 })
+  }
+}
 
     const { error } = await supabase
       .from('trips')
