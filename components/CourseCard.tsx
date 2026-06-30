@@ -232,8 +232,14 @@ export default function CourseCard({
         })
 
         if (!response.ok) {
-          setPlannerSaveError('Added locally, but not synced to trip yet.')
-        }
+  const errorData = await response.json()
+
+  setPlannerSaveError(
+    errorData.details ||
+      errorData.error ||
+      'Added locally, but not synced to trip yet.'
+  )
+}
       }
     } catch {
       setPlannerSaveError('Could not add this course. Please try again.')
