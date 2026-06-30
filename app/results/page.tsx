@@ -314,7 +314,7 @@ export default async function ResultsPage({ searchParams }: ResultsPageProps) {
       {isPlannerMode && (
         <div className="fixed bottom-6 left-0 right-0 flex justify-center">
           <Link
-            href="/ireland/planner"
+            href={params.tripId ? `/ireland/planner?tripId=${params.tripId}` : '/ireland/planner'}
             className="bg-emerald-700 text-white px-6 py-3 rounded-full"
           >
             Back to Planner
