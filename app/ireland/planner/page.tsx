@@ -5,17 +5,11 @@ import { useEffect, useMemo, useState } from 'react'
 
 type GolfIrelandMember = 'Yes' | 'No' | 'Not sure'
 type DayType = 'Weekday' | 'Weekend'
-type SlotName = 'Morning' | 'Afternoon'
 type PlannerStep = 'setup' | 'planner'
-
-type TripSlot = {
-  slot: SlotName
-}
 
 type TripDay = {
   dayNumber: number
   dayType: DayType
-  slots: TripSlot[]
 }
 
 type GeocodedBase = {
@@ -71,10 +65,6 @@ function createTripDays(numberOfGolfDays: number, existingDays: TripDay[]) {
     return {
       dayNumber: index + 1,
       dayType: existingDay?.dayType || 'Weekday',
-      slots: [
-        { slot: 'Morning' as const },
-        { slot: 'Afternoon' as const },
-      ],
     }
   })
 }
@@ -99,21 +89,9 @@ export default function PlannerPage() {
   const [numberOfGolfDays, setNumberOfGolfDays] = useState(3)
 
   const [tripDays, setTripDays] = useState<TripDay[]>([
-    {
-      dayNumber: 1,
-      dayType: 'Weekday',
-      slots: [{ slot: 'Morning' }, { slot: 'Afternoon' }],
-    },
-    {
-      dayNumber: 2,
-      dayType: 'Weekday',
-      slots: [{ slot: 'Morning' }, { slot: 'Afternoon' }],
-    },
-    {
-      dayNumber: 3,
-      dayType: 'Weekday',
-      slots: [{ slot: 'Morning' }, { slot: 'Afternoon' }],
-    },
+    { dayNumber: 1, dayType: 'Weekday' },
+    { dayNumber: 2, dayType: 'Weekday' },
+    { dayNumber: 3, dayType: 'Weekday' },
   ])
 
   useEffect(() => {
@@ -279,14 +257,12 @@ export default function PlannerPage() {
     )
   }
 
-  function getAddCourseHref(dayNumber: number, slot: SlotName) {
+  function getChooseCoursesHref() {
     const params = new URLSearchParams()
 
     params.set('country', 'Ireland')
     params.set('source', 'planner')
     params.set('planner', 'true')
-    params.set('day', String(dayNumber))
-    params.set('slot', slot)
     params.set('where', baseInput.trim())
 
     if (tripId) {
@@ -566,80 +542,57 @@ export default function PlannerPage() {
 
             <div className="rounded-3xl bg-white p-5 shadow-sm ring-1 ring-slate-200/70">
               <h2 className="text-[18px] font-semibold text-slate-900">
-                Day-by-day plan
+                Trip structure
               </h2>
 
               <p className="mt-2 text-sm leading-6 text-slate-600">
-                Each day can include a morning round, an afternoon round, or
-                both. Use the filters on the results page to choose the right
-                course for each slot.
+                Your trip is set up for {numberOfGolfDays} golf day
+                {numberOfGolfDays === 1 ? '' : 's'}. Choose courses first, then
+                organise them into specific days and tee time slots later.
               </p>
 
-              <div className="mt-5 grid gap-4">
+              <div className="mt-5 grid gap-3">
                 {tripDays.map((day) => (
                   <div
                     key={day.dayNumber}
-                    className="rounded-3xl border border-slate-200 bg-stone-50 p-4"
+                    className="flex items-center justify-between rounded-2xl bg-stone-50 p-4 ring-1 ring-slate-200"
                   >
-                    <div className="flex items-center justify-between gap-3">
-                      <div>
-                        <div className="text-[17px] font-semibold text-slate-900">
-                          Day {day.dayNumber}
-                        </div>
-
-                        <p className="mt-1 text-sm text-slate-600">
-                          Choose courses for morning or afternoon.
-                        </p>
+                    <div>
+                      <div className="text-sm font-semibold text-slate-900">
+                        Day {day.dayNumber}
                       </div>
 
-                      <div className="flex gap-2">
-                        {(['Weekday', 'Weekend'] as const).map((option) => (
-                          <button
-                            key={option}
-                            type="button"
-                            onClick={() => updateTripDay(day.dayNumber, option)}
-                            className={`rounded-full px-3 py-2 text-xs font-semibold ${
-                              day.dayType === option
-                                ? 'bg-emerald-800 text-white'
-                                : 'border border-slate-200 bg-white text-slate-700'
-                            }`}
-                          >
-                            {option}
-                          </button>
-                        ))}
-                      </div>
+                      <p className="mt-1 text-sm text-slate-600">
+                        Morning / Afternoon slots available later
+                      </p>
                     </div>
 
-                    <div className="mt-4 grid gap-3">
-                      {day.slots.map((slot) => (
-                        <div
-                          key={`${day.dayNumber}-${slot.slot}`}
-                          className="rounded-2xl bg-white p-4 ring-1 ring-slate-200"
+                    <div className="flex gap-2">
+                      {(['Weekday', 'Weekend'] as const).map((option) => (
+                        <button
+                          key={option}
+                          type="button"
+                          onClick={() => updateTripDay(day.dayNumber, option)}
+                          className={`rounded-full px-3 py-2 text-xs font-semibold ${
+                            day.dayType === option
+                              ? 'bg-emerald-800 text-white'
+                              : 'border border-slate-200 bg-white text-slate-700'
+                          }`}
                         >
-                          <div className="flex items-center justify-between gap-3">
-                            <div>
-                              <div className="text-sm font-semibold text-slate-900">
-                                {slot.slot}
-                              </div>
-
-                              <p className="mt-1 text-sm text-slate-500">
-                                No course selected
-                              </p>
-                            </div>
-
-                            <Link
-                              href={getAddCourseHref(day.dayNumber, slot.slot)}
-                              className="rounded-full bg-emerald-800 px-4 py-2.5 text-sm font-semibold text-white no-underline"
-                            >
-                              Choose Course
-                            </Link>
-                          </div>
-                        </div>
+                          {option}
+                        </button>
                       ))}
                     </div>
                   </div>
                 ))}
               </div>
+
+              <Link
+                href={getChooseCoursesHref()}
+                className="mt-5 block rounded-full bg-emerald-800 px-5 py-4 text-center text-sm font-semibold text-white no-underline"
+              >
+                Choose Courses
+              </Link>
             </div>
 
             <div className="rounded-3xl bg-white p-5 shadow-sm ring-1 ring-slate-200/70">
@@ -686,7 +639,8 @@ export default function PlannerPage() {
                 </h2>
 
                 <p className="mt-2 text-sm leading-6 text-slate-600">
-                  Compare your selected courses by type, price, access and distance from your base.
+                  Compare your selected courses by type, price, access and
+                  distance from your base.
                 </p>
 
                 <div className="mt-4 overflow-x-auto">
