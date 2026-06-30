@@ -16,12 +16,13 @@ export async function POST(request: Request) {
       )
     }
 
-    const { data: trip, error: readError } = await supabase
-      .from('trips')
-      .select('selected_courses')
-      .eq('trip_id', tripId)
-      .single()
+    const { data: trips, error: readError } = await supabase
+  .from('trips')
+  .select('selected_courses')
+  .eq('trip_id', tripId)
+  .limit(1)
 
+const trip = trips?.[0]
     if (readError) {
       return NextResponse.json(
         { error: 'Unable to read trip', details: readError.message },
