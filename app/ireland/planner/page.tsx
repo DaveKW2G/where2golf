@@ -76,6 +76,7 @@ export default function PlannerPage() {
   const [geocodedBase, setGeocodedBase] = useState<GeocodedBase | null>(null)
   const [isCreatingTrip, setIsCreatingTrip] = useState(false)
   const [isLoadingTrip, setIsLoadingTrip] = useState(false)
+  const [isRemovingCourse, setIsRemovingCourse] = useState<number | null>(null)
   const [baseError, setBaseError] = useState('')
   const [tripError, setTripError] = useState('')
   const [tripId, setTripId] = useState('')
@@ -114,6 +115,9 @@ export default function PlannerPage() {
         }
 
         const trip = data.trip
+        const courses = Array.isArray(trip.selected_courses)
+          ? trip.selected_courses
+          : []
 
         setTripId(trip.trip_id)
         setTripName(trip.trip_name || '')
@@ -122,9 +126,7 @@ export default function PlannerPage() {
         setGolfIrelandMember(trip.golf_ireland_member || 'No')
         setNumberOfGolfers(trip.number_of_golfers || 4)
         setNumberOfGolfDays(trip.number_of_golf_days || 3)
-        setSelectedCourses(
-          Array.isArray(trip.selected_courses) ? trip.selected_courses : []
-        )
+        setSelectedCourses(courses)
 
         setGeocodedBase({
           label: trip.base_location || '',
@@ -135,9 +137,7 @@ export default function PlannerPage() {
         window.localStorage.setItem('guestplaygolf_trip_id', trip.trip_id)
         window.localStorage.setItem(
           'guestplaygolf_planner_courses',
-          JSON.stringify(
-            Array.isArray(trip.selected_courses) ? trip.selected_courses : []
-          )
+          JSON.stringify(courses)
         )
 
         setStep('planner')
@@ -241,6 +241,47 @@ export default function PlannerPage() {
       setTripError('Something went wrong creating your trip. Please try again.')
     } finally {
       setIsCreatingTrip(false)
+    }
+  }
+
+  async function handleRemoveCourse(courseId: number) {
+    if (!tripId || isRemovingCourse) return
+
+    setTripError('')
+    setIsRemovingCourse(courseId)
+
+    try {
+      const response = await fetch('/api/trips/remove-course', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          trip_id: tripId,
+          course_id: courseId,
+        }),
+      })
+
+      const data = await response.json()
+
+      if (!response.ok) {
+        setTripError('We could not remove this course. Please try again.')
+        return
+      }
+
+      const updatedCourses = Array.isArray(data.selected_courses)
+        ? data.selected_courses
+        : selectedCourses.filter((course) => course.id !== courseId)
+
+      setSelectedCourses(updatedCourses)
+      window.localStorage.setItem(
+        'guestplaygolf_planner_courses',
+        JSON.stringify(updatedCourses)
+      )
+    } catch {
+      setTripError('Something went wrong removing this course.')
+    } finally {
+      setIsRemovingCourse(null)
     }
   }
 
@@ -591,7 +632,7 @@ export default function PlannerPage() {
                 href={getChooseCoursesHref()}
                 className="mt-5 block rounded-full bg-emerald-800 px-5 py-4 text-center text-sm font-semibold text-white no-underline"
               >
-                Choose Courses
+                Choose Courses ({selectedCourses.length} selected)
               </Link>
             </div>
 
@@ -611,21 +652,34 @@ export default function PlannerPage() {
                       key={course.id}
                       className="rounded-2xl bg-stone-50 p-4 ring-1 ring-slate-200"
                     >
-                      <div className="text-sm font-semibold text-slate-900">
-                        {course.course_name}
+                      <div className="flex items-start justify-between gap-3">
+                        <div>
+                          <div className="text-sm font-semibold text-slate-900">
+                            {course.course_name}
+                          </div>
+
+                          <p className="mt-1 text-sm text-slate-600">
+                            {[course.course_type, course.region, course.price_range]
+                              .filter(Boolean)
+                              .join(' · ')}
+                          </p>
+
+                          {typeof course.distance === 'number' && (
+                            <p className="mt-1 text-sm text-slate-500">
+                              {course.distance.toFixed(1)} km from base
+                            </p>
+                          )}
+                        </div>
+
+                        <button
+                          type="button"
+                          onClick={() => handleRemoveCourse(course.id)}
+                          disabled={isRemovingCourse === course.id}
+                          className="rounded-full border border-red-200 bg-white px-3 py-1.5 text-xs font-semibold text-red-700 disabled:opacity-50"
+                        >
+                          {isRemovingCourse === course.id ? 'Removing...' : 'Remove'}
+                        </button>
                       </div>
-
-                      <p className="mt-1 text-sm text-slate-600">
-                        {[course.course_type, course.region, course.price_range]
-                          .filter(Boolean)
-                          .join(' · ')}
-                      </p>
-
-                      {typeof course.distance === 'number' && (
-                        <p className="mt-1 text-sm text-slate-500">
-                          {course.distance.toFixed(1)} km from base
-                        </p>
-                      )}
                     </div>
                   ))}
                 </div>
@@ -725,6 +779,12 @@ export default function PlannerPage() {
                   </div>
                 </div>
               </div>
+
+              {tripError && (
+                <p className="mt-4 text-sm leading-6 text-red-600">
+                  {tripError}
+                </p>
+              )}
 
               <button
                 type="button"
