@@ -33,10 +33,7 @@ export async function POST(request: Request) {
 
     if (error) {
       return NextResponse.json(
-        {
-          error: 'Unable to create trip',
-          details: error.message,
-        },
+        { error: 'Unable to create trip', details: error.message },
         { status: 500 }
       )
     }
@@ -80,31 +77,7 @@ export async function PATCH(request: Request) {
       success: true,
       updated_rows: data?.length || 0,
       trip_id: body.trip_id,
-    })
-  } catch {
-    return NextResponse.json({ error: 'Unable to update trip' }, { status: 500 })
-  }
-}
-
-    const { error } = await supabase
-      .from('trips')
-      .update({
-        selected_courses: body.selected_courses || [],
-      })
-      .eq('trip_id', body.trip_id)
-
-    if (error) {
-      return NextResponse.json(
-        {
-          error: 'Unable to update trip',
-          details: error.message,
-        },
-        { status: 500 }
-      )
-    }
-
-    return NextResponse.json({
-      success: true,
+      selected_courses: data?.[0]?.selected_courses || [],
     })
   } catch {
     return NextResponse.json(
