@@ -208,8 +208,8 @@ export default function CourseCard({
       const existing = window.localStorage.getItem(plannerCoursesKey)
       const courses = existing ? (JSON.parse(existing) as PlannerCourse[]) : []
 
-      const alreadyAdded = courses.some((course) => course.id === id)
-      const nextCourses = alreadyAdded ? courses : [...courses, plannerCourse]
+      const filteredCourses = courses.filter((course) => course.id !== id)
+      const nextCourses = [...filteredCourses, plannerCourse]
 
       window.localStorage.setItem(plannerCoursesKey, JSON.stringify(nextCourses))
       setIsAddedToPlanner(true)
@@ -231,15 +231,17 @@ export default function CourseCard({
           }),
         })
 
-        if (!response.ok) {
-  const errorData = await response.json()
+        const responseData = await response.json()
 
-  setPlannerSaveError(
-    errorData.details ||
-      errorData.error ||
-      'Added locally, but not synced to trip yet.'
-  )
-}
+        if (!response.ok) {
+          setPlannerSaveError(
+            responseData.details ||
+              responseData.error ||
+              'Added locally, but not synced to trip yet.'
+          )
+        }
+      } else {
+        setPlannerSaveError('Added locally, but no active trip was found.')
       }
     } catch {
       setPlannerSaveError('Could not add this course. Please try again.')
