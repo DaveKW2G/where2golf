@@ -24,6 +24,20 @@ type GeocodedBase = {
   longitude: number
 }
 
+type PlannerCourse = {
+  id: number
+  course_name: string
+  town?: string
+  region?: string
+  holes?: number
+  independent_guest_days?: string
+  price_range?: string
+  course_type?: string
+  course_image?: string
+  distance?: number
+  max_handicap?: number | string
+}
+
 const quickBases = [
   'Dublin',
   'Cork',
@@ -71,9 +85,11 @@ export default function PlannerPage() {
   const [baseInput, setBaseInput] = useState('')
   const [geocodedBase, setGeocodedBase] = useState<GeocodedBase | null>(null)
   const [isCreatingTrip, setIsCreatingTrip] = useState(false)
+  const [isLoadingTrip, setIsLoadingTrip] = useState(false)
   const [baseError, setBaseError] = useState('')
   const [tripError, setTripError] = useState('')
   const [tripId, setTripId] = useState('')
+  const [selectedCourses, setSelectedCourses] = useState<PlannerCourse[]>([])
 
   const [tripName, setTripName] = useState('')
   const [month, setMonth] = useState('April')
@@ -103,6 +119,64 @@ export default function PlannerPage() {
   useEffect(() => {
     setTripDays((currentDays) => createTripDays(numberOfGolfDays, currentDays))
   }, [numberOfGolfDays])
+
+  useEffect(() => {
+    async function loadExistingTrip(existingTripId: string) {
+      setIsLoadingTrip(true)
+      setTripError('')
+
+      try {
+        const response = await fetch(`/api/trips/get?tripId=${existingTripId}`)
+        const data = await response.json()
+
+        if (!response.ok || !data.trip) {
+          setTripError('We could not load this trip.')
+          setIsLoadingTrip(false)
+          return
+        }
+
+        const trip = data.trip
+
+        setTripId(trip.trip_id)
+        setTripName(trip.trip_name || '')
+        setBaseInput(trip.base_location || '')
+        setMonth(trip.month_of_travel || 'April')
+        setGolfIrelandMember(trip.golf_ireland_member || 'No')
+        setNumberOfGolfers(trip.number_of_golfers || 4)
+        setNumberOfGolfDays(trip.number_of_golf_days || 3)
+        setSelectedCourses(
+          Array.isArray(trip.selected_courses) ? trip.selected_courses : []
+        )
+
+        setGeocodedBase({
+          label: trip.base_location || '',
+          latitude: trip.base_latitude || 0,
+          longitude: trip.base_longitude || 0,
+        })
+
+        window.localStorage.setItem('guestplaygolf_trip_id', trip.trip_id)
+        window.localStorage.setItem(
+          'guestplaygolf_planner_courses',
+          JSON.stringify(
+            Array.isArray(trip.selected_courses) ? trip.selected_courses : []
+          )
+        )
+
+        setStep('planner')
+      } catch {
+        setTripError('Something went wrong loading this trip.')
+      } finally {
+        setIsLoadingTrip(false)
+      }
+    }
+
+    const params = new URLSearchParams(window.location.search)
+    const urlTripId = params.get('tripId')
+
+    if (urlTripId) {
+      loadExistingTrip(urlTripId)
+    }
+  }, [])
 
   const isReadyToStart = useMemo(() => {
     return (
@@ -179,8 +253,10 @@ export default function PlannerPage() {
 
       setGeocodedBase(confirmedBase)
       setTripId(tripData.trip_id)
+      setSelectedCourses([])
 
       window.localStorage.setItem('guestplaygolf_trip_id', tripData.trip_id)
+      window.localStorage.setItem('guestplaygolf_planner_courses', '[]')
 
       setStep('planner')
     } catch {
@@ -218,6 +294,18 @@ export default function PlannerPage() {
     }
 
     return `/filters?${params.toString()}`
+  }
+
+  if (isLoadingTrip) {
+    return (
+      <main className="min-h-screen bg-stone-100 px-5 py-10 text-slate-800">
+        <div className="mx-auto max-w-[480px] rounded-3xl bg-white p-5 text-center shadow-sm ring-1 ring-slate-200/70">
+          <p className="text-sm font-semibold text-slate-900">
+            Loading your trip...
+          </p>
+        </div>
+      </main>
+    )
   }
 
   return (
@@ -556,6 +644,43 @@ export default function PlannerPage() {
 
             <div className="rounded-3xl bg-white p-5 shadow-sm ring-1 ring-slate-200/70">
               <h2 className="text-[18px] font-semibold text-slate-900">
+                Selected Courses ({selectedCourses.length})
+              </h2>
+
+              {selectedCourses.length === 0 ? (
+                <p className="mt-2 text-sm leading-6 text-slate-600">
+                  No courses selected yet.
+                </p>
+              ) : (
+                <div className="mt-4 grid gap-3">
+                  {selectedCourses.map((course) => (
+                    <div
+                      key={course.id}
+                      className="rounded-2xl bg-stone-50 p-4 ring-1 ring-slate-200"
+                    >
+                      <div className="text-sm font-semibold text-slate-900">
+                        {course.course_name}
+                      </div>
+
+                      <p className="mt-1 text-sm text-slate-600">
+                        {[course.course_type, course.region, course.price_range]
+                          .filter(Boolean)
+                          .join(' · ')}
+                      </p>
+
+                      {typeof course.distance === 'number' && (
+                        <p className="mt-1 text-sm text-slate-500">
+                          {course.distance.toFixed(1)} km from base
+                        </p>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            <div className="rounded-3xl bg-white p-5 shadow-sm ring-1 ring-slate-200/70">
+              <h2 className="text-[18px] font-semibold text-slate-900">
                 Trip summary
               </h2>
 
@@ -565,7 +690,7 @@ export default function PlannerPage() {
                     Courses
                   </div>
                   <div className="mt-1 text-[22px] font-bold text-slate-900">
-                    0
+                    {selectedCourses.length}
                   </div>
                 </div>
 
