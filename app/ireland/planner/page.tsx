@@ -32,6 +32,17 @@ type PlannerCourse = {
   max_handicap?: number | string
 }
 
+type SavedTrip = {
+  trip_id: string
+  trip_name?: string
+  base_location?: string
+  month_of_travel?: string
+  number_of_golfers?: number
+  number_of_golf_days?: number
+  selected_courses?: PlannerCourse[] | null
+  created_at?: string
+}
+
 const quickBases = [
   'Dublin',
   'Cork',
@@ -113,6 +124,8 @@ export default function PlannerPage() {
   const [tripError, setTripError] = useState('')
   const [tripId, setTripId] = useState('')
   const [selectedCourses, setSelectedCourses] = useState<PlannerCourse[]>([])
+  const [savedTrips, setSavedTrips] = useState<SavedTrip[]>([])
+  const [isLoadingTrips, setIsLoadingTrips] = useState(false)
 
   const [tripName, setTripName] = useState('')
   const [month, setMonth] = useState('April')
@@ -184,11 +197,30 @@ export default function PlannerPage() {
       }
     }
 
+    async function loadSavedTrips() {
+      setIsLoadingTrips(true)
+
+      try {
+        const response = await fetch('/api/trips/list')
+        const data = await response.json()
+
+        if (response.ok && Array.isArray(data.trips)) {
+          setSavedTrips(data.trips)
+        }
+      } catch {
+        setSavedTrips([])
+      } finally {
+        setIsLoadingTrips(false)
+      }
+    }
+
     const params = new URLSearchParams(window.location.search)
     const urlTripId = params.get('tripId')
 
     if (urlTripId) {
       loadExistingTrip(urlTripId)
+    } else {
+      loadSavedTrips()
     }
   }, [])
 
@@ -386,6 +418,77 @@ export default function PlannerPage() {
 
       <section className="mx-auto max-w-[480px] px-5 py-6 text-left">
         {step === 'setup' && (
+          <>
+            <div className="mb-6 rounded-3xl bg-white p-5 shadow-sm ring-1 ring-slate-200/70">
+              <div className="flex items-center justify-between gap-3">
+                <div>
+                  <h2 className="text-[21px] font-semibold text-slate-900">
+                    My Trips
+                  </h2>
+
+                  <p className="mt-2 text-sm leading-6 text-slate-600">
+                    Open a saved trip or start a new one below.
+                  </p>
+                </div>
+
+                {isLoadingTrips && (
+                  <span className="text-xs font-semibold text-slate-500">
+                    Loading...
+                  </span>
+                )}
+              </div>
+
+              {!isLoadingTrips && savedTrips.length === 0 && (
+                <p className="mt-4 text-sm leading-6 text-slate-600">
+                  No saved trips yet.
+                </p>
+              )}
+
+              {savedTrips.length > 0 && (
+                <div className="mt-4 grid gap-3">
+                  {savedTrips.map((savedTrip) => {
+                    const courseCount = Array.isArray(savedTrip.selected_courses)
+                      ? savedTrip.selected_courses.length
+                      : 0
+
+                    return (
+                      <div
+                        key={savedTrip.trip_id}
+                        className="rounded-2xl bg-stone-50 p-4 ring-1 ring-slate-200"
+                      >
+                        <div className="flex items-start justify-between gap-3">
+                          <div>
+                            <div className="text-sm font-semibold text-slate-900">
+                              {savedTrip.trip_name || 'Untitled trip'}
+                            </div>
+
+                            <p className="mt-1 text-sm text-slate-600">
+                              {[savedTrip.base_location, savedTrip.month_of_travel]
+                                .filter(Boolean)
+                                .join(' · ')}
+                            </p>
+
+                            <p className="mt-1 text-sm text-slate-500">
+                              {courseCount} course{courseCount === 1 ? '' : 's'} ·{' '}
+                              {savedTrip.number_of_golf_days || 0} golf day
+                              {savedTrip.number_of_golf_days === 1 ? '' : 's'}
+                            </p>
+                          </div>
+
+                          <Link
+                            href={`/ireland/planner?tripId=${savedTrip.trip_id}`}
+                            className="rounded-full bg-emerald-800 px-4 py-2 text-xs font-semibold text-white no-underline"
+                          >
+                            Open
+                          </Link>
+                        </div>
+                      </div>
+                    )
+                  })}
+                </div>
+              )}
+            </div>
+
           <div className="rounded-3xl bg-white p-5 shadow-sm ring-1 ring-slate-200/70">
             <h2 className="text-[21px] font-semibold text-slate-900">
               Tell us about your trip
@@ -576,6 +679,7 @@ export default function PlannerPage() {
               </button>
             </div>
           </div>
+          </>
         )}
 
         {step === 'planner' && geocodedBase && (
