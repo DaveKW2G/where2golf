@@ -16,6 +16,8 @@ interface CourseCardProps {
   course_type?: string
   course_image?: string
   distance?: number
+  latitude?: number
+  longitude?: number
   max_handicap?: number
   userLat?: number | null
   userLng?: number | null
@@ -33,6 +35,8 @@ type PlannerCourse = {
   course_type?: string
   course_image?: string
   distance?: number
+  latitude?: number
+  longitude?: number
   max_handicap?: number
 }
 
@@ -125,6 +129,8 @@ export default function CourseCard({
   course_type,
   course_image,
   distance,
+  latitude,
+  longitude,
   max_handicap,
   searchParams,
 }: CourseCardProps) {
@@ -158,18 +164,20 @@ export default function CourseCard({
 
   const plannerCourse: PlannerCourse = useMemo(
     () => ({
-  id,
-  course_name: course_name?.trim(),
-  town: town?.trim(),
-  region: region?.trim(),
-  holes,
-  independent_guest_days: independent_guest_days?.trim(),
-  price_range: price_range?.trim(),
-  course_type: course_type?.trim(),
-  course_image,
-  distance,
-  max_handicap,
-}),
+      id,
+      course_name: course_name?.trim(),
+      town: town?.trim(),
+      region: region?.trim(),
+      holes,
+      independent_guest_days: independent_guest_days?.trim(),
+      price_range: price_range?.trim(),
+      course_type: course_type?.trim(),
+      course_image,
+      distance,
+      latitude,
+      longitude,
+      max_handicap,
+    }),
     [
       id,
       course_name,
@@ -181,6 +189,8 @@ export default function CourseCard({
       course_type,
       course_image,
       distance,
+      latitude,
+      longitude,
       max_handicap,
     ]
   )
@@ -221,15 +231,16 @@ export default function CourseCard({
 
       if (activeTripId) {
         const response = await fetch('/api/trips/add-course', {
-  method: 'POST',
-  headers: {
-    'Content-Type': 'application/json',
-  },
-  body: JSON.stringify({
-    trip_id: activeTripId,
-    course: plannerCourse,
-  }),
-})
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            trip_id: activeTripId,
+            course: plannerCourse,
+          }),
+        })
+
         const responseData = await response.json()
 
         if (!response.ok) {
