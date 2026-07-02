@@ -21,6 +21,7 @@ export async function POST(request: Request) {
 
     const { error } = await supabase.from('trips').insert({
       trip_id: tripId,
+      planner_user_id: body.planner_user_id,
       trip_name: body.trip_name,
       base_location: body.base_location,
       base_latitude: body.base_latitude,
