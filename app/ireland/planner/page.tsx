@@ -647,7 +647,7 @@ export default function PlannerPage() {
   return (
     <main className="min-h-screen bg-stone-100 text-slate-800">
       <section className="relative overflow-hidden bg-gradient-to-b from-emerald-950 via-emerald-900 to-emerald-800 px-5 pt-8 pb-10 text-white">
-        <div className="relative z-10 mx-auto max-w-[480px] text-left">
+        <div className="relative z-10 mx-auto max-w-[1120px] text-left">
           <div className="text-[15px] font-semibold uppercase tracking-[0.28em] text-white/85">
             GuestPlayGolf
           </div>
@@ -667,9 +667,9 @@ export default function PlannerPage() {
         </div>
       </section>
 
-      <section className="mx-auto max-w-[480px] px-5 py-6 text-left">
+      <section className="mx-auto max-w-[1120px] px-5 py-6 text-left">
         {step === "setup" && (
-          <>
+          <div className="mx-auto max-w-[480px]">
             <div className="mb-6 rounded-3xl bg-white p-5 shadow-sm ring-1 ring-slate-200/70">
               <div className="flex items-center justify-between gap-3">
                 <div>
@@ -943,12 +943,12 @@ export default function PlannerPage() {
                 </button>
               </div>
             </div>
-          </>
+          </div>
         )}
 
         {step === "planner" && geocodedBase && (
-          <div className="grid gap-6">
-            <div className="overflow-hidden rounded-3xl bg-white shadow-sm ring-1 ring-slate-200/70">
+          <div className="grid gap-6 lg:grid-cols-[minmax(0,1.1fr)_minmax(360px,0.9fr)] lg:items-start">
+            <div className="overflow-hidden rounded-3xl bg-white shadow-sm ring-1 ring-slate-200/70 lg:col-span-2">
               <div className="bg-gradient-to-br from-emerald-950 via-emerald-900 to-emerald-800 p-5 text-white">
                 <div className="flex items-start justify-between gap-4">
                   <div className="min-w-0">
@@ -1303,7 +1303,7 @@ export default function PlannerPage() {
             </div>
 
             {selectedCourses.length > 0 && (
-              <div className="rounded-3xl bg-white p-5 shadow-sm ring-1 ring-slate-200/70">
+              <div className="rounded-3xl bg-white p-5 shadow-sm ring-1 ring-slate-200/70 lg:col-span-2">
                 <div className="flex items-start justify-between gap-3">
                   <div>
                     <p className="text-[12px] font-semibold uppercase tracking-[0.18em] text-emerald-800">
@@ -1491,8 +1491,8 @@ export default function PlannerPage() {
               </h2>
 
               <p className="mt-2 text-sm leading-6 text-slate-600">
-                Featured accommodation options for golf trips will appear here
-                once partner placements are available.
+                A curated stay section for golf trips is being prepared. Future
+                listings will be reserved for selected GuestPlayGolf partners.
               </p>
             </div>
           </div>
