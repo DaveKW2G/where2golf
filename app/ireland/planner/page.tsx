@@ -1,378 +1,389 @@
-'use client'
+"use client";
 
-import Link from 'next/link'
-import { useEffect, useMemo, useState } from 'react'
+import Link from "next/link";
+import { useEffect, useMemo, useState } from "react";
 
-type GolfIrelandMember = 'Yes' | 'No' | 'Not sure'
-type DayType = 'Weekday' | 'Weekend'
-type PlannerStep = 'setup' | 'planner'
+type GolfIrelandMember = "Yes" | "No" | "Not sure";
+type DayType = "Weekday" | "Weekend";
+type PlannerStep = "setup" | "planner";
 
 type TripDay = {
-  dayNumber: number
-  dayType: DayType
-}
+  dayNumber: number;
+  dayType: DayType;
+};
 
 type GeocodedBase = {
-  label: string
-  latitude: number
-  longitude: number
-}
+  label: string;
+  latitude: number;
+  longitude: number;
+};
 
 type PlannerCourse = {
-  id: number
-  course_name: string
-  town?: string
-  region?: string
-  holes?: number
-  independent_guest_days?: string
-  price_range?: string
-  course_type?: string
-  course_image?: string
-  distance?: number
-  max_handicap?: number | string
-  assigned_day?: number | null
-  assigned_slot?: 'Morning' | 'Afternoon' | null
-}
+  id: number;
+  course_name: string;
+  town?: string;
+  region?: string;
+  holes?: number;
+  independent_guest_days?: string;
+  price_range?: string;
+  course_type?: string;
+  course_image?: string;
+  distance?: number;
+  max_handicap?: number | string;
+  assigned_day?: number | null;
+  assigned_slot?: "Morning" | "Afternoon" | null;
+};
 
 type SavedTrip = {
-  trip_id: string
-  trip_name?: string
-  base_location?: string
-  month_of_travel?: string
-  number_of_golfers?: number
-  number_of_golf_days?: number
-  selected_courses?: PlannerCourse[] | null
-  created_at?: string
-}
+  trip_id: string;
+  trip_name?: string;
+  base_location?: string;
+  month_of_travel?: string;
+  number_of_golfers?: number;
+  number_of_golf_days?: number;
+  selected_courses?: PlannerCourse[] | null;
+  created_at?: string;
+};
 
 const quickBases = [
-  'Dublin',
-  'Cork',
-  'Shannon',
-  'Belfast',
-  'Galway',
-  'Killarney',
-  'Lahinch',
-  'Adare',
-]
+  "Dublin",
+  "Cork",
+  "Shannon",
+  "Belfast",
+  "Galway",
+  "Killarney",
+  "Lahinch",
+  "Adare",
+];
 
 const months = [
-  'January',
-  'February',
-  'March',
-  'April',
-  'May',
-  'June',
-  'July',
-  'August',
-  'September',
-  'October',
-  'November',
-  'December',
-]
+  "January",
+  "February",
+  "March",
+  "April",
+  "May",
+  "June",
+  "July",
+  "August",
+  "September",
+  "October",
+  "November",
+  "December",
+];
 
 function createTripDays(numberOfGolfDays: number, existingDays: TripDay[]) {
   return Array.from({ length: numberOfGolfDays }, (_, index) => {
-    const existingDay = existingDays[index]
+    const existingDay = existingDays[index];
 
     return {
       dayNumber: index + 1,
-      dayType: existingDay?.dayType || 'Weekday',
-    }
-  })
+      dayType: existingDay?.dayType || "Weekday",
+    };
+  });
 }
 
 function getAverageDistance(courses: PlannerCourse[]) {
   const distances = courses
     .map((course) => course.distance)
-    .filter((distance): distance is number => typeof distance === 'number')
+    .filter((distance): distance is number => typeof distance === "number");
 
-  if (distances.length === 0) return null
+  if (distances.length === 0) return null;
 
-  const totalDistance = distances.reduce((sum, distance) => sum + distance, 0)
+  const totalDistance = distances.reduce((sum, distance) => sum + distance, 0);
 
-  return totalDistance / distances.length
+  return totalDistance / distances.length;
 }
 
 function getCourseMix(courses: PlannerCourse[]) {
   const courseTypes = Array.from(
-    new Set(courses.map((course) => course.course_type).filter(Boolean))
-  )
+    new Set(courses.map((course) => course.course_type).filter(Boolean)),
+  );
 
-  if (courseTypes.length === 0) return '—'
+  if (courseTypes.length === 0) return "—";
 
-  return courseTypes.join(' / ')
+  return courseTypes.join(" / ");
 }
 
 function getGreenFeeRange(priceRange?: string) {
-  const cleanPrice = priceRange?.trim()
+  const cleanPrice = priceRange?.trim();
 
-  if (cleanPrice === '€') return { low: 0, high: 100 }
-  if (cleanPrice === '€€') return { low: 101, high: 200 }
-  if (cleanPrice === '€€€') return { low: 201, high: 300 }
-  if (cleanPrice === '€€€€') return { low: 300, high: 450 }
+  if (cleanPrice === "€") return { low: 0, high: 100 };
+  if (cleanPrice === "€€") return { low: 101, high: 200 };
+  if (cleanPrice === "€€€") return { low: 201, high: 300 };
+  if (cleanPrice === "€€€€") return { low: 300, high: 450 };
 
-  return null
+  return null;
 }
 
 function formatEuroAmount(amount: number) {
-  return `€${Math.round(amount).toLocaleString('en-IE')}`
+  return `€${Math.round(amount).toLocaleString("en-IE")}`;
 }
 
 function getGreenFeeEstimate(courses: PlannerCourse[]) {
   const courseRanges = courses
     .map((course) => getGreenFeeRange(course.price_range))
-    .filter((range): range is { low: number; high: number } => Boolean(range))
+    .filter((range): range is { low: number; high: number } => Boolean(range));
 
-  if (courseRanges.length === 0) return null
+  if (courseRanges.length === 0) return null;
 
-  const perGolferLow = courseRanges.reduce((sum, range) => sum + range.low, 0)
-  const perGolferHigh = courseRanges.reduce((sum, range) => sum + range.high, 0)
+  const perGolferLow = courseRanges.reduce((sum, range) => sum + range.low, 0);
+  const perGolferHigh = courseRanges.reduce(
+    (sum, range) => sum + range.high,
+    0,
+  );
 
   return {
     pricedCourses: courseRanges.length,
     perGolferLow,
     perGolferHigh,
-  }
+  };
 }
 
 function generatePlannerUserId() {
-  return `GPG-USER-${Math.random().toString(36).substring(2, 10).toUpperCase()}`
+  return `GPG-USER-${Math.random().toString(36).substring(2, 10).toUpperCase()}`;
 }
 
 function getOrCreatePlannerUserId() {
-  const existingUserId = window.localStorage.getItem('guestplaygolf_planner_user_id')
+  const existingUserId = window.localStorage.getItem(
+    "guestplaygolf_planner_user_id",
+  );
 
-  if (existingUserId) return existingUserId
+  if (existingUserId) return existingUserId;
 
-  const newUserId = generatePlannerUserId()
-  window.localStorage.setItem('guestplaygolf_planner_user_id', newUserId)
+  const newUserId = generatePlannerUserId();
+  window.localStorage.setItem("guestplaygolf_planner_user_id", newUserId);
 
-  return newUserId
+  return newUserId;
 }
 
 function getShortPlaceName(place?: string) {
-  if (!place) return ''
+  if (!place) return "";
 
-  return place
-    .split('\n')[0]
-    .split(',')[0]
-    .trim()
+  return place.split("\n")[0].split(",")[0].trim();
 }
 
-
 function parseAssignmentValue(value: string) {
-  if (value === 'unassigned') {
+  if (value === "unassigned") {
     return {
       assignedDay: null as number | null,
-      assignedSlot: null as 'Morning' | 'Afternoon' | null,
-    }
+      assignedSlot: null as "Morning" | "Afternoon" | null,
+    };
   }
 
-  const [dayPart, slotPart] = value.split('-')
-  const assignedDay = Number(dayPart)
-  const assignedSlot = slotPart === 'Afternoon' ? 'Afternoon' : 'Morning'
+  const [dayPart, slotPart] = value.split("-");
+  const assignedDay = Number(dayPart);
+  const assignedSlot = slotPart === "Afternoon" ? "Afternoon" : "Morning";
 
   return {
     assignedDay: Number.isNaN(assignedDay) ? null : assignedDay,
     assignedSlot: Number.isNaN(assignedDay)
       ? null
-      : (assignedSlot as 'Morning' | 'Afternoon'),
-  }
+      : (assignedSlot as "Morning" | "Afternoon"),
+  };
 }
 
 function getAssignmentValue(course: PlannerCourse) {
-  if (!course.assigned_day || !course.assigned_slot) return 'unassigned'
+  if (!course.assigned_day || !course.assigned_slot) return "unassigned";
 
-  return `${course.assigned_day}-${course.assigned_slot}`
+  return `${course.assigned_day}-${course.assigned_slot}`;
+}
+
+function getAssignmentLabel(course: PlannerCourse) {
+  if (!course.assigned_day || !course.assigned_slot) return "Not assigned";
+
+  return `Day ${course.assigned_day} ${course.assigned_slot}`;
 }
 
 function getAssignedCourse(
   courses: PlannerCourse[],
   dayNumber: number,
-  slot: 'Morning' | 'Afternoon'
+  slot: "Morning" | "Afternoon",
 ) {
   return courses.find(
-    (course) => course.assigned_day === dayNumber && course.assigned_slot === slot
-  )
+    (course) =>
+      course.assigned_day === dayNumber && course.assigned_slot === slot,
+  );
 }
 
-
 function getAccessValidation(course: PlannerCourse, dayType: DayType) {
-  const access = course.independent_guest_days?.trim()
+  const access = course.independent_guest_days?.trim();
 
   if (!access) {
     return {
       isValid: false,
-      message: 'Check visitor access',
-    }
+      message: "Check visitor access",
+    };
   }
 
-  if (access === 'Everyday') {
+  if (access === "Everyday") {
     return {
       isValid: true,
-      message: 'Access matches day',
-    }
+      message: "Access matches day",
+    };
   }
 
-  if (dayType === 'Weekday' && access === 'Weekdays') {
+  if (dayType === "Weekday" && access === "Weekdays") {
     return {
       isValid: true,
-      message: 'Access matches day',
-    }
+      message: "Access matches day",
+    };
   }
 
-  if (dayType === 'Weekend' && access === 'Weekend') {
+  if (dayType === "Weekend" && access === "Weekend") {
     return {
       isValid: true,
-      message: 'Access matches day',
-    }
+      message: "Access matches day",
+    };
   }
 
-  if (access === 'Weekdays') {
+  if (access === "Weekdays") {
     return {
       isValid: false,
-      message: 'Weekday guests only',
-    }
+      message: "Weekday guests only",
+    };
   }
 
-  if (access === 'Weekend') {
+  if (access === "Weekend") {
     return {
       isValid: false,
-      message: 'Weekend guests only',
-    }
+      message: "Weekend guests only",
+    };
   }
 
-  if (access === 'Limited Access' || access === 'Limited') {
+  if (access === "Limited Access" || access === "Limited") {
     return {
       isValid: false,
-      message: 'Check limited visitor access',
-    }
+      message: "Check limited visitor access",
+    };
   }
 
   return {
     isValid: false,
-    message: 'Check visitor access',
-  }
+    message: "Check visitor access",
+  };
 }
 
 export default function PlannerPage() {
-  const [step, setStep] = useState<PlannerStep>('setup')
+  const [step, setStep] = useState<PlannerStep>("setup");
 
-  const [baseInput, setBaseInput] = useState('')
-  const [geocodedBase, setGeocodedBase] = useState<GeocodedBase | null>(null)
-  const [isCreatingTrip, setIsCreatingTrip] = useState(false)
-  const [isLoadingTrip, setIsLoadingTrip] = useState(false)
-  const [isRemovingCourse, setIsRemovingCourse] = useState<number | null>(null)
-  const [isAssigningCourse, setIsAssigningCourse] = useState<number | null>(null)
-  const [baseError, setBaseError] = useState('')
-  const [tripError, setTripError] = useState('')
-  const [tripId, setTripId] = useState('')
-  const [plannerUserId, setPlannerUserId] = useState('')
-  const [selectedCourses, setSelectedCourses] = useState<PlannerCourse[]>([])
-  const [savedTrips, setSavedTrips] = useState<SavedTrip[]>([])
-  const [isLoadingTrips, setIsLoadingTrips] = useState(false)
-  const [shareCopied, setShareCopied] = useState(false)
+  const [baseInput, setBaseInput] = useState("");
+  const [geocodedBase, setGeocodedBase] = useState<GeocodedBase | null>(null);
+  const [isCreatingTrip, setIsCreatingTrip] = useState(false);
+  const [isLoadingTrip, setIsLoadingTrip] = useState(false);
+  const [isRemovingCourse, setIsRemovingCourse] = useState<number | null>(null);
+  const [isAssigningCourse, setIsAssigningCourse] = useState<number | null>(
+    null,
+  );
+  const [baseError, setBaseError] = useState("");
+  const [tripError, setTripError] = useState("");
+  const [tripId, setTripId] = useState("");
+  const [plannerUserId, setPlannerUserId] = useState("");
+  const [selectedCourses, setSelectedCourses] = useState<PlannerCourse[]>([]);
+  const [savedTrips, setSavedTrips] = useState<SavedTrip[]>([]);
+  const [isLoadingTrips, setIsLoadingTrips] = useState(false);
+  const [shareCopied, setShareCopied] = useState(false);
 
-  const [tripName, setTripName] = useState('')
-  const [month, setMonth] = useState('April')
+  const [tripName, setTripName] = useState("");
+  const [month, setMonth] = useState("April");
   const [golfIrelandMember, setGolfIrelandMember] =
-    useState<GolfIrelandMember>('No')
-  const [numberOfGolfers, setNumberOfGolfers] = useState(4)
-  const [numberOfGolfDays, setNumberOfGolfDays] = useState(3)
+    useState<GolfIrelandMember>("No");
+  const [numberOfGolfers, setNumberOfGolfers] = useState(4);
+  const [numberOfGolfDays, setNumberOfGolfDays] = useState(3);
 
   const [tripDays, setTripDays] = useState<TripDay[]>([
-    { dayNumber: 1, dayType: 'Weekday' },
-    { dayNumber: 2, dayType: 'Weekday' },
-    { dayNumber: 3, dayType: 'Weekday' },
-  ])
+    { dayNumber: 1, dayType: "Weekday" },
+    { dayNumber: 2, dayType: "Weekday" },
+    { dayNumber: 3, dayType: "Weekday" },
+  ]);
 
-  const averageDistance = getAverageDistance(selectedCourses)
-  const courseMix = getCourseMix(selectedCourses)
-  const greenFeeEstimate = getGreenFeeEstimate(selectedCourses)
-
-  useEffect(() => {
-    setTripDays((currentDays) => createTripDays(numberOfGolfDays, currentDays))
-  }, [numberOfGolfDays])
+  const averageDistance = getAverageDistance(selectedCourses);
+  const courseMix = getCourseMix(selectedCourses);
+  const greenFeeEstimate = getGreenFeeEstimate(selectedCourses);
 
   useEffect(() => {
-    const currentPlannerUserId = getOrCreatePlannerUserId()
-    setPlannerUserId(currentPlannerUserId)
+    setTripDays((currentDays) => createTripDays(numberOfGolfDays, currentDays));
+  }, [numberOfGolfDays]);
+
+  useEffect(() => {
+    const currentPlannerUserId = getOrCreatePlannerUserId();
+    setPlannerUserId(currentPlannerUserId);
 
     async function loadExistingTrip(existingTripId: string) {
-      setIsLoadingTrip(true)
-      setTripError('')
+      setIsLoadingTrip(true);
+      setTripError("");
 
       try {
-        const response = await fetch(`/api/trips/get?tripId=${existingTripId}`)
-        const data = await response.json()
+        const response = await fetch(`/api/trips/get?tripId=${existingTripId}`);
+        const data = await response.json();
 
         if (!response.ok || !data.trip) {
-          setTripError('We could not load this trip.')
-          setIsLoadingTrip(false)
-          return
+          setTripError("We could not load this trip.");
+          setIsLoadingTrip(false);
+          return;
         }
 
-        const trip = data.trip
+        const trip = data.trip;
         const courses = Array.isArray(trip.selected_courses)
           ? trip.selected_courses
-          : []
+          : [];
 
-        setTripId(trip.trip_id)
-        setTripName(trip.trip_name || '')
-        setBaseInput(getShortPlaceName(trip.base_location || ''))
-        setMonth(trip.month_of_travel || 'April')
-        setGolfIrelandMember(trip.golf_ireland_member || 'No')
-        setNumberOfGolfers(trip.number_of_golfers || 4)
-        setNumberOfGolfDays(trip.number_of_golf_days || 3)
-        setSelectedCourses(courses)
+        setTripId(trip.trip_id);
+        setTripName(trip.trip_name || "");
+        setBaseInput(getShortPlaceName(trip.base_location || ""));
+        setMonth(trip.month_of_travel || "April");
+        setGolfIrelandMember(trip.golf_ireland_member || "No");
+        setNumberOfGolfers(trip.number_of_golfers || 4);
+        setNumberOfGolfDays(trip.number_of_golf_days || 3);
+        setSelectedCourses(courses);
 
         setGeocodedBase({
-          label: getShortPlaceName(trip.base_location || ''),
+          label: getShortPlaceName(trip.base_location || ""),
           latitude: trip.base_latitude || 0,
           longitude: trip.base_longitude || 0,
-        })
+        });
 
-        window.localStorage.setItem('guestplaygolf_trip_id', trip.trip_id)
+        window.localStorage.setItem("guestplaygolf_trip_id", trip.trip_id);
         window.localStorage.setItem(
-          'guestplaygolf_planner_courses',
-          JSON.stringify(courses)
-        )
+          "guestplaygolf_planner_courses",
+          JSON.stringify(courses),
+        );
 
-        setStep('planner')
+        setStep("planner");
       } catch {
-        setTripError('Something went wrong loading this trip.')
+        setTripError("Something went wrong loading this trip.");
       } finally {
-        setIsLoadingTrip(false)
+        setIsLoadingTrip(false);
       }
     }
 
     async function loadSavedTrips() {
-      setIsLoadingTrips(true)
+      setIsLoadingTrips(true);
 
       try {
-        const response = await fetch(`/api/trips/list?plannerUserId=${currentPlannerUserId}`)
-        const data = await response.json()
+        const response = await fetch(
+          `/api/trips/list?plannerUserId=${currentPlannerUserId}`,
+        );
+        const data = await response.json();
 
         if (response.ok && Array.isArray(data.trips)) {
-          setSavedTrips(data.trips)
+          setSavedTrips(data.trips);
         }
       } catch {
-        setSavedTrips([])
+        setSavedTrips([]);
       } finally {
-        setIsLoadingTrips(false)
+        setIsLoadingTrips(false);
       }
     }
 
-    const params = new URLSearchParams(window.location.search)
-    const urlTripId = params.get('tripId')
+    const params = new URLSearchParams(window.location.search);
+    const urlTripId = params.get("tripId");
 
     if (urlTripId) {
-      loadExistingTrip(urlTripId)
+      loadExistingTrip(urlTripId);
     } else {
-      loadSavedTrips()
+      loadSavedTrips();
     }
-  }, [])
+  }, []);
 
   const isReadyToStart = useMemo(() => {
     return (
@@ -382,7 +393,7 @@ export default function PlannerPage() {
       numberOfGolfers > 0 &&
       numberOfGolfDays > 0 &&
       !isCreatingTrip
-    )
+    );
   }, [
     baseInput,
     tripName,
@@ -390,45 +401,45 @@ export default function PlannerPage() {
     numberOfGolfers,
     numberOfGolfDays,
     isCreatingTrip,
-  ])
+  ]);
 
   async function handleStartPlanning() {
-    if (!isReadyToStart) return
+    if (!isReadyToStart) return;
 
-    setBaseError('')
-    setTripError('')
-    setIsCreatingTrip(true)
+    setBaseError("");
+    setTripError("");
+    setIsCreatingTrip(true);
 
-    const currentPlannerUserId = plannerUserId || getOrCreatePlannerUserId()
-    setPlannerUserId(currentPlannerUserId)
+    const currentPlannerUserId = plannerUserId || getOrCreatePlannerUserId();
+    setPlannerUserId(currentPlannerUserId);
 
     try {
       const geocodeResponse = await fetch(
         `/api/geocode?place=${encodeURIComponent(
-          baseInput.trim()
-        )}&country=Ireland`
-      )
+          baseInput.trim(),
+        )}&country=Ireland`,
+      );
 
-      const geocodeData = await geocodeResponse.json()
+      const geocodeData = await geocodeResponse.json();
 
       if (!geocodeResponse.ok) {
         setBaseError(
-          'We could not find that location in Ireland. Try a town, city, airport or resort name.'
-        )
-        setIsCreatingTrip(false)
-        return
+          "We could not find that location in Ireland. Try a town, city, airport or resort name.",
+        );
+        setIsCreatingTrip(false);
+        return;
       }
 
       const confirmedBase = {
         label: getShortPlaceName(geocodeData.label || baseInput.trim()),
         latitude: geocodeData.latitude,
         longitude: geocodeData.longitude,
-      }
+      };
 
-      const tripResponse = await fetch('/api/trips', {
-        method: 'POST',
+      const tripResponse = await fetch("/api/trips", {
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify({
           planner_user_id: currentPlannerUserId,
@@ -441,85 +452,87 @@ export default function PlannerPage() {
           number_of_golfers: numberOfGolfers,
           number_of_golf_days: numberOfGolfDays,
         }),
-      })
+      });
 
-      const tripData = await tripResponse.json()
+      const tripData = await tripResponse.json();
 
       if (!tripResponse.ok || !tripData.trip_id) {
-        setTripError('We could not create your trip. Please try again.')
-        setIsCreatingTrip(false)
-        return
+        setTripError("We could not create your trip. Please try again.");
+        setIsCreatingTrip(false);
+        return;
       }
 
-      setGeocodedBase(confirmedBase)
-      setTripId(tripData.trip_id)
-      setSelectedCourses([])
+      setGeocodedBase(confirmedBase);
+      setTripId(tripData.trip_id);
+      setSelectedCourses([]);
 
-      window.localStorage.setItem('guestplaygolf_trip_id', tripData.trip_id)
-      window.localStorage.setItem('guestplaygolf_planner_courses', '[]')
+      window.localStorage.setItem("guestplaygolf_trip_id", tripData.trip_id);
+      window.localStorage.setItem("guestplaygolf_planner_courses", "[]");
 
-      setStep('planner')
+      setStep("planner");
     } catch {
-      setTripError('Something went wrong creating your trip. Please try again.')
+      setTripError(
+        "Something went wrong creating your trip. Please try again.",
+      );
     } finally {
-      setIsCreatingTrip(false)
+      setIsCreatingTrip(false);
     }
   }
 
   async function handleRemoveCourse(courseId: number) {
-    if (!tripId || isRemovingCourse) return
+    if (!tripId || isRemovingCourse) return;
 
-    setTripError('')
-    setIsRemovingCourse(courseId)
+    setTripError("");
+    setIsRemovingCourse(courseId);
 
     try {
-      const response = await fetch('/api/trips/remove-course', {
-        method: 'POST',
+      const response = await fetch("/api/trips/remove-course", {
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify({
           trip_id: tripId,
           course_id: courseId,
         }),
-      })
+      });
 
-      const data = await response.json()
+      const data = await response.json();
 
       if (!response.ok) {
-        setTripError('We could not remove this course. Please try again.')
-        return
+        setTripError("We could not remove this course. Please try again.");
+        return;
       }
 
       const updatedCourses = Array.isArray(data.selected_courses)
         ? data.selected_courses
-        : selectedCourses.filter((course) => course.id !== courseId)
+        : selectedCourses.filter((course) => course.id !== courseId);
 
-      setSelectedCourses(updatedCourses)
+      setSelectedCourses(updatedCourses);
       window.localStorage.setItem(
-        'guestplaygolf_planner_courses',
-        JSON.stringify(updatedCourses)
-      )
+        "guestplaygolf_planner_courses",
+        JSON.stringify(updatedCourses),
+      );
     } catch {
-      setTripError('Something went wrong removing this course.')
+      setTripError("Something went wrong removing this course.");
     } finally {
-      setIsRemovingCourse(null)
+      setIsRemovingCourse(null);
     }
   }
 
   async function handleAssignCourse(courseId: number, assignmentValue: string) {
-    if (!tripId || isAssigningCourse) return
+    if (!tripId || isAssigningCourse) return;
 
-    const { assignedDay, assignedSlot } = parseAssignmentValue(assignmentValue)
+    const { assignedDay, assignedSlot } = parseAssignmentValue(assignmentValue);
 
-    setTripError('')
-    setIsAssigningCourse(courseId)
+    setTripError("");
+    setIsAssigningCourse(courseId);
 
     try {
-      const response = await fetch('/api/trips/assign-course', {
-        method: 'POST',
+      const response = await fetch("/api/trips/assign-course", {
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify({
           trip_id: tripId,
@@ -527,13 +540,13 @@ export default function PlannerPage() {
           assigned_day: assignedDay,
           assigned_slot: assignedSlot,
         }),
-      })
+      });
 
-      const data = await response.json()
+      const data = await response.json();
 
       if (!response.ok) {
-        setTripError('We could not assign this course. Please try again.')
-        return
+        setTripError("We could not assign this course. Please try again.");
+        return;
       }
 
       const updatedCourses = Array.isArray(data.selected_courses)
@@ -544,7 +557,7 @@ export default function PlannerPage() {
                 ...course,
                 assigned_day: assignedDay,
                 assigned_slot: assignedSlot,
-              }
+              };
             }
 
             if (
@@ -557,35 +570,37 @@ export default function PlannerPage() {
                 ...course,
                 assigned_day: null,
                 assigned_slot: null,
-              }
+              };
             }
 
-            return course
-          })
+            return course;
+          });
 
-      setSelectedCourses(updatedCourses)
+      setSelectedCourses(updatedCourses);
       window.localStorage.setItem(
-        'guestplaygolf_planner_courses',
-        JSON.stringify(updatedCourses)
-      )
+        "guestplaygolf_planner_courses",
+        JSON.stringify(updatedCourses),
+      );
     } catch {
-      setTripError('Something went wrong assigning this course.')
+      setTripError("Something went wrong assigning this course.");
     } finally {
-      setIsAssigningCourse(null)
+      setIsAssigningCourse(null);
     }
   }
 
   async function handleCopyShareLink() {
-    if (!tripId) return
+    if (!tripId) return;
 
-    const shareUrl = `${window.location.origin}/ireland/planner?tripId=${tripId}`
+    const shareUrl = `${window.location.origin}/ireland/planner?tripId=${tripId}`;
 
     try {
-      await window.navigator.clipboard.writeText(shareUrl)
-      setShareCopied(true)
-      window.setTimeout(() => setShareCopied(false), 2500)
+      await window.navigator.clipboard.writeText(shareUrl);
+      setShareCopied(true);
+      window.setTimeout(() => setShareCopied(false), 2500);
     } catch {
-      setTripError('We could not copy the link. Please copy it from your browser address bar.')
+      setTripError(
+        "We could not copy the link. Please copy it from your browser address bar.",
+      );
     }
   }
 
@@ -597,24 +612,24 @@ export default function PlannerPage() {
               ...day,
               dayType,
             }
-          : day
-      )
-    )
+          : day,
+      ),
+    );
   }
 
   function getChooseCoursesHref() {
-    const params = new URLSearchParams()
+    const params = new URLSearchParams();
 
-    params.set('country', 'Ireland')
-    params.set('source', 'planner')
-    params.set('planner', 'true')
-    params.set('where', baseInput.trim())
+    params.set("country", "Ireland");
+    params.set("source", "planner");
+    params.set("planner", "true");
+    params.set("where", baseInput.trim());
 
     if (tripId) {
-      params.set('tripId', tripId)
+      params.set("tripId", tripId);
     }
 
-    return `/filters?${params.toString()}`
+    return `/filters?${params.toString()}`;
   }
 
   if (isLoadingTrip) {
@@ -626,7 +641,7 @@ export default function PlannerPage() {
           </p>
         </div>
       </main>
-    )
+    );
   }
 
   return (
@@ -653,7 +668,7 @@ export default function PlannerPage() {
       </section>
 
       <section className="mx-auto max-w-[480px] px-5 py-6 text-left">
-        {step === 'setup' && (
+        {step === "setup" && (
           <>
             <div className="mb-6 rounded-3xl bg-white p-5 shadow-sm ring-1 ring-slate-200/70">
               <div className="flex items-center justify-between gap-3">
@@ -683,9 +698,11 @@ export default function PlannerPage() {
               {savedTrips.length > 0 && (
                 <div className="mt-4 grid gap-3">
                   {savedTrips.map((savedTrip) => {
-                    const courseCount = Array.isArray(savedTrip.selected_courses)
+                    const courseCount = Array.isArray(
+                      savedTrip.selected_courses,
+                    )
                       ? savedTrip.selected_courses.length
-                      : 0
+                      : 0;
 
                     return (
                       <div
@@ -695,19 +712,22 @@ export default function PlannerPage() {
                         <div className="flex items-start justify-between gap-3">
                           <div>
                             <div className="text-sm font-semibold text-slate-900">
-                              {savedTrip.trip_name || 'Untitled trip'}
+                              {savedTrip.trip_name || "Untitled trip"}
                             </div>
 
                             <p className="mt-1 text-sm text-slate-600">
-                              {[getShortPlaceName(savedTrip.base_location), savedTrip.month_of_travel]
+                              {[
+                                getShortPlaceName(savedTrip.base_location),
+                                savedTrip.month_of_travel,
+                              ]
                                 .filter(Boolean)
-                                .join(' · ')}
+                                .join(" · ")}
                             </p>
 
                             <p className="mt-1 text-sm text-slate-500">
-                              {courseCount} course{courseCount === 1 ? '' : 's'} ·{' '}
-                              {savedTrip.number_of_golf_days || 0} golf day
-                              {savedTrip.number_of_golf_days === 1 ? '' : 's'}
+                              {courseCount} course{courseCount === 1 ? "" : "s"}{" "}
+                              · {savedTrip.number_of_golf_days || 0} golf day
+                              {savedTrip.number_of_golf_days === 1 ? "" : "s"}
                             </p>
                           </div>
 
@@ -719,279 +739,298 @@ export default function PlannerPage() {
                           </Link>
                         </div>
                       </div>
-                    )
+                    );
                   })}
                 </div>
               )}
             </div>
 
-          <div className="rounded-3xl bg-white p-5 shadow-sm ring-1 ring-slate-200/70">
-            <h2 className="text-[21px] font-semibold text-slate-900">
-              Tell us about your trip
-            </h2>
-
-            <p className="mt-2 text-sm leading-6 text-slate-600">
-              Your base is the anchor of the trip. We use it to suggest nearby
-              courses and estimate distance.
-            </p>
-
-            <div className="mt-5 grid gap-5">
-              <div>
-                <label className="text-sm font-semibold text-slate-900">
-                  Where are you staying?
-                </label>
-
-                <input
-                  value={baseInput}
-                  onChange={(event) => {
-                    setBaseInput(event.target.value)
-                    setBaseError('')
-                    setTripError('')
-                  }}
-                  placeholder="Example: Lahinch, Killarney, Dublin Airport"
-                  className="mt-2 w-full rounded-2xl border border-slate-200 bg-white px-4 py-4 text-sm text-slate-900 outline-none placeholder:text-slate-400 focus:border-emerald-700"
-                />
-
-                <div className="mt-3 flex flex-wrap gap-2">
-                  {quickBases.map((base) => (
-                    <button
-                      key={base}
-                      type="button"
-                      onClick={() => {
-                        setBaseInput(base)
-                        setBaseError('')
-                        setTripError('')
-                      }}
-                      className={`rounded-full border px-4 py-2.5 text-sm font-medium ${
-                        baseInput === base
-                          ? 'border-emerald-700 bg-emerald-700 text-white shadow-sm'
-                          : 'border-slate-300 bg-white text-slate-700 hover:border-emerald-700'
-                      }`}
-                    >
-                      {base}
-                    </button>
-                  ))}
-                </div>
-
-                {baseError && (
-                  <p className="mt-3 text-sm leading-6 text-red-600">
-                    {baseError}
-                  </p>
-                )}
-              </div>
-
-              <div>
-                <label className="text-sm font-semibold text-slate-900">
-                  Trip name
-                </label>
-
-                <input
-                  value={tripName}
-                  onChange={(event) => {
-                    setTripName(event.target.value)
-                    setTripError('')
-                  }}
-                  placeholder="Example: Dave’s Ireland Golf Trip"
-                  className="mt-2 w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none placeholder:text-slate-400 focus:border-emerald-700"
-                />
-              </div>
-
-              <div>
-                <label className="text-sm font-semibold text-slate-900">
-                  Month of travel
-                </label>
-
-                <select
-                  value={month}
-                  onChange={(event) => setMonth(event.target.value)}
-                  className="mt-2 w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none focus:border-emerald-700"
-                >
-                  {months.map((monthOption) => (
-                    <option key={monthOption} value={monthOption}>
-                      {monthOption}
-                    </option>
-                  ))}
-                </select>
-              </div>
-
-              <div>
-                <label className="text-sm font-semibold text-slate-900">
-                  Golf Ireland member?
-                </label>
-
-                <div className="mt-2 grid grid-cols-3 gap-2">
-                  {(['Yes', 'No', 'Not sure'] as const).map((option) => (
-                    <button
-                      key={option}
-                      type="button"
-                      onClick={() => setGolfIrelandMember(option)}
-                      className={`rounded-2xl px-3 py-3 text-sm font-semibold ${
-                        golfIrelandMember === option
-                          ? 'bg-emerald-800 text-white'
-                          : 'border border-slate-200 bg-white text-slate-700'
-                      }`}
-                    >
-                      {option}
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              <div>
-                <label className="text-sm font-semibold text-slate-900">
-                  Number of golfers
-                </label>
-
-                <div className="mt-2 flex items-center justify-between rounded-2xl border border-slate-200 bg-white px-4 py-3">
-                  <button
-                    type="button"
-                    onClick={() =>
-                      setNumberOfGolfers((current) => Math.max(1, current - 1))
-                    }
-                    className="h-9 w-9 rounded-full bg-slate-100 text-lg font-semibold text-slate-800"
-                  >
-                    -
-                  </button>
-
-                  <div className="text-[18px] font-semibold text-slate-900">
-                    {numberOfGolfers}
-                  </div>
-
-                  <button
-                    type="button"
-                    onClick={() =>
-                      setNumberOfGolfers((current) => Math.min(32, current + 1))
-                    }
-                    className="h-9 w-9 rounded-full bg-slate-100 text-lg font-semibold text-slate-800"
-                  >
-                    +
-                  </button>
-                </div>
-              </div>
-
-              <div>
-                <label className="text-sm font-semibold text-slate-900">
-                  Number of golf days
-                </label>
-
-                <div className="mt-2 flex items-center justify-between rounded-2xl border border-slate-200 bg-white px-4 py-3">
-                  <button
-                    type="button"
-                    onClick={() =>
-                      setNumberOfGolfDays((current) => Math.max(1, current - 1))
-                    }
-                    className="h-9 w-9 rounded-full bg-slate-100 text-lg font-semibold text-slate-800"
-                  >
-                    -
-                  </button>
-
-                  <div className="text-[18px] font-semibold text-slate-900">
-                    {numberOfGolfDays}
-                  </div>
-
-                  <button
-                    type="button"
-                    onClick={() =>
-                      setNumberOfGolfDays((current) => Math.min(10, current + 1))
-                    }
-                    className="h-9 w-9 rounded-full bg-slate-100 text-lg font-semibold text-slate-800"
-                  >
-                    +
-                  </button>
-                </div>
-              </div>
-
-              {tripError && (
-                <p className="text-sm leading-6 text-red-600">{tripError}</p>
-              )}
-
-              <button
-                type="button"
-                disabled={!isReadyToStart}
-                onClick={handleStartPlanning}
-                className="rounded-full bg-slate-900 px-5 py-4 text-sm font-semibold text-white disabled:opacity-50"
-              >
-                {isCreatingTrip ? 'Creating your trip...' : 'Start Planning'}
-              </button>
-            </div>
-          </div>
-          </>
-        )}
-
-        {step === 'planner' && geocodedBase && (
-          <div className="grid gap-6">
             <div className="rounded-3xl bg-white p-5 shadow-sm ring-1 ring-slate-200/70">
-              <div className="flex items-start justify-between gap-4">
+              <h2 className="text-[21px] font-semibold text-slate-900">
+                Tell us about your trip
+              </h2>
+
+              <p className="mt-2 text-sm leading-6 text-slate-600">
+                Your base is the anchor of the trip. We use it to suggest nearby
+                courses and estimate distance.
+              </p>
+
+              <div className="mt-5 grid gap-5">
                 <div>
-                  <p className="text-[13px] font-semibold uppercase tracking-[0.18em] text-emerald-800">
-                    My Trip
-                  </p>
+                  <label className="text-sm font-semibold text-slate-900">
+                    Where are you staying?
+                  </label>
 
-                  <h2 className="mt-1 text-[22px] font-semibold text-slate-900">
-                    {tripName}
-                  </h2>
+                  <input
+                    value={baseInput}
+                    onChange={(event) => {
+                      setBaseInput(event.target.value);
+                      setBaseError("");
+                      setTripError("");
+                    }}
+                    placeholder="Example: Lahinch, Killarney, Dublin Airport"
+                    className="mt-2 w-full rounded-2xl border border-slate-200 bg-white px-4 py-4 text-sm text-slate-900 outline-none placeholder:text-slate-400 focus:border-emerald-700"
+                  />
 
-                  <p className="mt-2 text-sm leading-6 text-slate-600">
-                    {month} · {numberOfGolfers} golfers · Golf Ireland:{' '}
-                    {golfIrelandMember}
-                  </p>
+                  <div className="mt-3 flex flex-wrap gap-2">
+                    {quickBases.map((base) => (
+                      <button
+                        key={base}
+                        type="button"
+                        onClick={() => {
+                          setBaseInput(base);
+                          setBaseError("");
+                          setTripError("");
+                        }}
+                        className={`rounded-full border px-4 py-2.5 text-sm font-medium ${
+                          baseInput === base
+                            ? "border-emerald-700 bg-emerald-700 text-white shadow-sm"
+                            : "border-slate-300 bg-white text-slate-700 hover:border-emerald-700"
+                        }`}
+                      >
+                        {base}
+                      </button>
+                    ))}
+                  </div>
 
-                  <p className="mt-1 text-sm leading-6 text-slate-600">
-                    Staying near: {baseInput}
-                  </p>
-
-                  {tripId && (
-                    <p className="mt-2 inline-block rounded-full bg-emerald-100 px-3 py-1 text-xs font-semibold text-emerald-800">
-                      Trip saved · {tripId}
+                  {baseError && (
+                    <p className="mt-3 text-sm leading-6 text-red-600">
+                      {baseError}
                     </p>
                   )}
                 </div>
 
-                <div className="flex shrink-0 flex-col gap-2">
-                  <button
-                    type="button"
-                    onClick={() => setStep('setup')}
-                    className="rounded-full border border-slate-200 px-4 py-2 text-sm font-semibold text-slate-700"
-                  >
-                    Edit
-                  </button>
+                <div>
+                  <label className="text-sm font-semibold text-slate-900">
+                    Trip name
+                  </label>
 
-                  {tripId && (
+                  <input
+                    value={tripName}
+                    onChange={(event) => {
+                      setTripName(event.target.value);
+                      setTripError("");
+                    }}
+                    placeholder="Example: Dave’s Ireland Golf Trip"
+                    className="mt-2 w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none placeholder:text-slate-400 focus:border-emerald-700"
+                  />
+                </div>
+
+                <div>
+                  <label className="text-sm font-semibold text-slate-900">
+                    Month of travel
+                  </label>
+
+                  <select
+                    value={month}
+                    onChange={(event) => setMonth(event.target.value)}
+                    className="mt-2 w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none focus:border-emerald-700"
+                  >
+                    {months.map((monthOption) => (
+                      <option key={monthOption} value={monthOption}>
+                        {monthOption}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                <div>
+                  <label className="text-sm font-semibold text-slate-900">
+                    Golf Ireland member?
+                  </label>
+
+                  <div className="mt-2 grid grid-cols-3 gap-2">
+                    {(["Yes", "No", "Not sure"] as const).map((option) => (
+                      <button
+                        key={option}
+                        type="button"
+                        onClick={() => setGolfIrelandMember(option)}
+                        className={`rounded-2xl px-3 py-3 text-sm font-semibold ${
+                          golfIrelandMember === option
+                            ? "bg-emerald-800 text-white"
+                            : "border border-slate-200 bg-white text-slate-700"
+                        }`}
+                      >
+                        {option}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                <div>
+                  <label className="text-sm font-semibold text-slate-900">
+                    Number of golfers
+                  </label>
+
+                  <div className="mt-2 flex items-center justify-between rounded-2xl border border-slate-200 bg-white px-4 py-3">
                     <button
                       type="button"
-                      onClick={handleCopyShareLink}
-                      className="rounded-full bg-emerald-800 px-4 py-2 text-sm font-semibold text-white"
+                      onClick={() =>
+                        setNumberOfGolfers((current) =>
+                          Math.max(1, current - 1),
+                        )
+                      }
+                      className="h-9 w-9 rounded-full bg-slate-100 text-lg font-semibold text-slate-800"
                     >
-                      {shareCopied ? 'Copied ✓' : 'Share'}
+                      -
                     </button>
-                  )}
+
+                    <div className="text-[18px] font-semibold text-slate-900">
+                      {numberOfGolfers}
+                    </div>
+
+                    <button
+                      type="button"
+                      onClick={() =>
+                        setNumberOfGolfers((current) =>
+                          Math.min(32, current + 1),
+                        )
+                      }
+                      className="h-9 w-9 rounded-full bg-slate-100 text-lg font-semibold text-slate-800"
+                    >
+                      +
+                    </button>
+                  </div>
                 </div>
+
+                <div>
+                  <label className="text-sm font-semibold text-slate-900">
+                    Number of golf days
+                  </label>
+
+                  <div className="mt-2 flex items-center justify-between rounded-2xl border border-slate-200 bg-white px-4 py-3">
+                    <button
+                      type="button"
+                      onClick={() =>
+                        setNumberOfGolfDays((current) =>
+                          Math.max(1, current - 1),
+                        )
+                      }
+                      className="h-9 w-9 rounded-full bg-slate-100 text-lg font-semibold text-slate-800"
+                    >
+                      -
+                    </button>
+
+                    <div className="text-[18px] font-semibold text-slate-900">
+                      {numberOfGolfDays}
+                    </div>
+
+                    <button
+                      type="button"
+                      onClick={() =>
+                        setNumberOfGolfDays((current) =>
+                          Math.min(10, current + 1),
+                        )
+                      }
+                      className="h-9 w-9 rounded-full bg-slate-100 text-lg font-semibold text-slate-800"
+                    >
+                      +
+                    </button>
+                  </div>
+                </div>
+
+                {tripError && (
+                  <p className="text-sm leading-6 text-red-600">{tripError}</p>
+                )}
+
+                <button
+                  type="button"
+                  disabled={!isReadyToStart}
+                  onClick={handleStartPlanning}
+                  className="rounded-full bg-slate-900 px-5 py-4 text-sm font-semibold text-white disabled:opacity-50"
+                >
+                  {isCreatingTrip ? "Creating your trip..." : "Start Planning"}
+                </button>
+              </div>
+            </div>
+          </>
+        )}
+
+        {step === "planner" && geocodedBase && (
+          <div className="grid gap-6">
+            <div className="overflow-hidden rounded-3xl bg-white shadow-sm ring-1 ring-slate-200/70">
+              <div className="bg-gradient-to-br from-emerald-950 via-emerald-900 to-emerald-800 p-5 text-white">
+                <div className="flex items-start justify-between gap-4">
+                  <div className="min-w-0">
+                    <p className="text-[12px] font-semibold uppercase tracking-[0.22em] text-emerald-100/80">
+                      My Trip
+                    </p>
+
+                    <h2 className="mt-2 text-[24px] font-bold leading-tight text-white">
+                      {tripName}
+                    </h2>
+
+                    <div className="mt-4 grid gap-2 text-sm text-white/90">
+                      <div>📍 {baseInput}</div>
+                      <div>📅 {month}</div>
+                      <div>👥 {numberOfGolfers} golfers</div>
+                    </div>
+                  </div>
+
+                  <div className="flex shrink-0 flex-col gap-2">
+                    {tripId && (
+                      <button
+                        type="button"
+                        onClick={handleCopyShareLink}
+                        className="rounded-full bg-white px-4 py-2 text-sm font-semibold text-emerald-900 shadow-sm"
+                      >
+                        {shareCopied ? "Copied ✓" : "Share"}
+                      </button>
+                    )}
+
+                    <button
+                      type="button"
+                      onClick={() => setStep("setup")}
+                      className="rounded-full border border-white/30 px-4 py-2 text-sm font-semibold text-white/90"
+                    >
+                      Edit
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              <div className="flex items-center justify-between gap-3 px-5 py-3 text-xs text-slate-500">
+                <span>Golf Ireland: {golfIrelandMember}</span>
+                {tripId && <span>Trip ID: {tripId}</span>}
               </div>
             </div>
 
             <div className="rounded-3xl bg-white p-5 shadow-sm ring-1 ring-slate-200/70">
-              <h2 className="text-[18px] font-semibold text-slate-900">
-                Trip structure
-              </h2>
+              <div className="flex items-start justify-between gap-3">
+                <div>
+                  <p className="text-[12px] font-semibold uppercase tracking-[0.18em] text-emerald-800">
+                    Itinerary builder
+                  </p>
 
-              <p className="mt-2 text-sm leading-6 text-slate-600">
-                Assign selected courses to each day and slot. We will flag any
-                possible access issues based on whether the day is a weekday or
-                weekend.
-              </p>
+                  <h2 className="mt-1 text-[20px] font-semibold text-slate-900">
+                    Trip Structure
+                  </h2>
+
+                  <p className="mt-2 text-sm leading-6 text-slate-600">
+                    Assign courses to each day. We flag any possible
+                    visitor-access issues based on weekday or weekend play.
+                  </p>
+                </div>
+              </div>
 
               <div className="mt-5 grid gap-4">
                 {tripDays.map((day) => {
                   const morningCourse = getAssignedCourse(
                     selectedCourses,
                     day.dayNumber,
-                    'Morning'
-                  )
+                    "Morning",
+                  );
                   const afternoonCourse = getAssignedCourse(
                     selectedCourses,
                     day.dayNumber,
-                    'Afternoon'
-                  )
+                    "Afternoon",
+                  );
+                  const assignedCourses = [
+                    morningCourse,
+                    afternoonCourse,
+                  ].filter((course): course is PlannerCourse =>
+                    Boolean(course),
+                  );
 
                   return (
                     <div
@@ -1000,25 +1039,31 @@ export default function PlannerPage() {
                     >
                       <div className="flex items-start justify-between gap-3">
                         <div>
-                          <div className="text-[17px] font-semibold text-slate-900">
+                          <div className="text-[18px] font-semibold text-slate-900">
                             Day {day.dayNumber}
                           </div>
 
                           <p className="mt-1 text-sm text-slate-600">
-                            Morning and afternoon planning slots
+                            {assignedCourses.length === 0
+                              ? "No course assigned yet"
+                              : assignedCourses.length === 1
+                                ? "One round planned"
+                                : "Two rounds planned"}
                           </p>
                         </div>
 
                         <div className="flex gap-2">
-                          {(['Weekday', 'Weekend'] as const).map((option) => (
+                          {(["Weekday", "Weekend"] as const).map((option) => (
                             <button
                               key={option}
                               type="button"
-                              onClick={() => updateTripDay(day.dayNumber, option)}
+                              onClick={() =>
+                                updateTripDay(day.dayNumber, option)
+                              }
                               className={`rounded-full px-3 py-2 text-xs font-semibold ${
                                 day.dayType === option
-                                  ? 'bg-emerald-800 text-white'
-                                  : 'border border-slate-200 bg-white text-slate-700'
+                                  ? "bg-emerald-800 text-white"
+                                  : "border border-slate-200 bg-white text-slate-700"
                               }`}
                             >
                               {option}
@@ -1028,75 +1073,136 @@ export default function PlannerPage() {
                       </div>
 
                       <div className="mt-4 grid gap-3">
-                        {(['Morning', 'Afternoon'] as const).map((slot) => {
-                          const assignedCourse =
-                            slot === 'Morning' ? morningCourse : afternoonCourse
-                          const validation = assignedCourse
-                            ? getAccessValidation(assignedCourse, day.dayType)
-                            : null
+                        {assignedCourses.length === 0 && (
+                          <div className="rounded-2xl bg-white p-4 ring-1 ring-slate-200">
+                            <div className="text-sm font-semibold text-slate-900">
+                              Not assigned
+                            </div>
+                            <p className="mt-1 text-sm text-slate-500">
+                              Choose a course below and assign it to this day.
+                            </p>
+                          </div>
+                        )}
 
-                          return (
-                            <div
-                              key={`${day.dayNumber}-${slot}`}
-                              className="rounded-2xl bg-white p-4 ring-1 ring-slate-200"
-                            >
-                              <div className="text-xs font-semibold uppercase tracking-wide text-slate-500">
-                                {slot}
-                              </div>
+                        {assignedCourses.length === 1 &&
+                          (() => {
+                            const assignedCourse = assignedCourses[0];
+                            const validation = getAccessValidation(
+                              assignedCourse,
+                              day.dayType,
+                            );
 
-                              {assignedCourse ? (
-                                <div className="mt-2">
-                                  <div className="flex items-start justify-between gap-3">
-                                    <div className="min-w-0">
-                                      <div className="text-sm font-semibold text-slate-900">
-                                        {assignedCourse.course_name}
-                                      </div>
-
-                                      <p className="mt-1 text-sm text-slate-600">
-                                        {[
-                                          assignedCourse.course_type,
-                                          assignedCourse.region,
-                                          assignedCourse.price_range,
-                                        ]
-                                          .filter(Boolean)
-                                          .join(' · ')}
-                                      </p>
+                            return (
+                              <div className="rounded-2xl bg-white p-4 ring-1 ring-slate-200">
+                                <div className="flex items-start justify-between gap-3">
+                                  <div className="min-w-0">
+                                    <div className="text-[17px] font-bold text-slate-900">
+                                      {assignedCourse.course_name}
                                     </div>
 
-                                    <span
-                                      className={`shrink-0 rounded-full px-2.5 py-1 text-xs font-semibold ${
-                                        validation?.isValid
-                                          ? 'bg-emerald-100 text-emerald-800'
-                                          : 'bg-amber-100 text-amber-800'
-                                      }`}
-                                    >
-                                      {validation?.isValid ? '✓' : '⚠'}
-                                    </span>
+                                    <p className="mt-1 text-sm text-slate-600">
+                                      {[
+                                        assignedCourse.course_type,
+                                        assignedCourse.price_range,
+                                      ]
+                                        .filter(Boolean)
+                                        .join(" · ")}
+                                    </p>
                                   </div>
 
-                                  {validation && (
+                                  <span
+                                    className={`shrink-0 rounded-full px-2.5 py-1 text-xs font-semibold ${
+                                      validation.isValid
+                                        ? "bg-emerald-100 text-emerald-800"
+                                        : "bg-amber-100 text-amber-800"
+                                    }`}
+                                  >
+                                    {validation.isValid ? "✓" : "⚠"}
+                                  </span>
+                                </div>
+
+                                <p
+                                  className={`mt-2 text-xs font-semibold ${
+                                    validation.isValid
+                                      ? "text-emerald-700"
+                                      : "text-amber-700"
+                                  }`}
+                                >
+                                  {validation.message}
+                                </p>
+                              </div>
+                            );
+                          })()}
+
+                        {assignedCourses.length > 1 &&
+                          (["Morning", "Afternoon"] as const).map((slot) => {
+                            const assignedCourse =
+                              slot === "Morning"
+                                ? morningCourse
+                                : afternoonCourse;
+                            const validation = assignedCourse
+                              ? getAccessValidation(assignedCourse, day.dayType)
+                              : null;
+
+                            return (
+                              <div
+                                key={`${day.dayNumber}-${slot}`}
+                                className="rounded-2xl bg-white p-4 ring-1 ring-slate-200"
+                              >
+                                <div className="text-xs font-semibold uppercase tracking-wide text-slate-500">
+                                  {slot}
+                                </div>
+
+                                {assignedCourse && validation ? (
+                                  <div className="mt-2">
+                                    <div className="flex items-start justify-between gap-3">
+                                      <div className="min-w-0">
+                                        <div className="text-[16px] font-bold text-slate-900">
+                                          {assignedCourse.course_name}
+                                        </div>
+
+                                        <p className="mt-1 text-sm text-slate-600">
+                                          {[
+                                            assignedCourse.course_type,
+                                            assignedCourse.price_range,
+                                          ]
+                                            .filter(Boolean)
+                                            .join(" · ")}
+                                        </p>
+                                      </div>
+
+                                      <span
+                                        className={`shrink-0 rounded-full px-2.5 py-1 text-xs font-semibold ${
+                                          validation.isValid
+                                            ? "bg-emerald-100 text-emerald-800"
+                                            : "bg-amber-100 text-amber-800"
+                                        }`}
+                                      >
+                                        {validation.isValid ? "✓" : "⚠"}
+                                      </span>
+                                    </div>
+
                                     <p
                                       className={`mt-2 text-xs font-semibold ${
                                         validation.isValid
-                                          ? 'text-emerald-700'
-                                          : 'text-amber-700'
+                                          ? "text-emerald-700"
+                                          : "text-amber-700"
                                       }`}
                                     >
                                       {validation.message}
                                     </p>
-                                  )}
-                                </div>
-                              ) : (
-                                <p className="mt-2 text-sm text-slate-500">
-                                  Not assigned
-                                </p>
-                              )}
-                            </div>
-                          )
-                        })}
+                                  </div>
+                                ) : (
+                                  <p className="mt-2 text-sm text-slate-500">
+                                    Not assigned
+                                  </p>
+                                )}
+                              </div>
+                            );
+                          })}
                       </div>
                     </div>
-                  )
+                  );
                 })}
               </div>
 
@@ -1131,12 +1237,16 @@ export default function PlannerPage() {
                           </div>
 
                           <p className="mt-1 text-sm text-slate-600">
-                            {[course.course_type, course.region, course.price_range]
+                            {[
+                              course.course_type,
+                              course.region,
+                              course.price_range,
+                            ]
                               .filter(Boolean)
-                              .join(' · ')}
+                              .join(" · ")}
                           </p>
 
-                          {typeof course.distance === 'number' && (
+                          {typeof course.distance === "number" && (
                             <p className="mt-1 text-sm text-slate-500">
                               {course.distance.toFixed(1)} km from base
                             </p>
@@ -1150,21 +1260,26 @@ export default function PlannerPage() {
                             <select
                               value={getAssignmentValue(course)}
                               onChange={(event) =>
-                                handleAssignCourse(course.id, event.target.value)
+                                handleAssignCourse(
+                                  course.id,
+                                  event.target.value,
+                                )
                               }
                               disabled={isAssigningCourse === course.id}
                               className="mt-1 w-full rounded-2xl border border-slate-200 bg-white px-3 py-2.5 text-sm text-slate-900 outline-none focus:border-emerald-700 disabled:opacity-50"
                             >
                               <option value="unassigned">Not Assigned</option>
                               {tripDays.flatMap((day) =>
-                                (['Morning', 'Afternoon'] as const).map((slot) => (
-                                  <option
-                                    key={`${day.dayNumber}-${slot}`}
-                                    value={`${day.dayNumber}-${slot}`}
-                                  >
-                                    Day {day.dayNumber} {slot}
-                                  </option>
-                                ))
+                                (["Morning", "Afternoon"] as const).map(
+                                  (slot) => (
+                                    <option
+                                      key={`${day.dayNumber}-${slot}`}
+                                      value={`${day.dayNumber}-${slot}`}
+                                    >
+                                      Day {day.dayNumber} {slot}
+                                    </option>
+                                  ),
+                                ),
                               )}
                             </select>
                           </div>
@@ -1176,7 +1291,9 @@ export default function PlannerPage() {
                           disabled={isRemovingCourse === course.id}
                           className="rounded-full border border-red-200 bg-white px-3 py-1.5 text-xs font-semibold text-red-700 disabled:opacity-50"
                         >
-                          {isRemovingCourse === course.id ? 'Removing...' : 'Remove'}
+                          {isRemovingCourse === course.id
+                            ? "Removing..."
+                            : "Remove"}
                         </button>
                       </div>
                     </div>
@@ -1198,7 +1315,8 @@ export default function PlannerPage() {
                     </h2>
 
                     <p className="mt-2 text-sm leading-6 text-slate-600">
-                      Review the courses in your trip by access, assignment, price band and distance.
+                      Compare your selected courses side-by-side by type, price,
+                      access, assignment and distance.
                     </p>
                   </div>
 
@@ -1212,59 +1330,58 @@ export default function PlannerPage() {
                   </div>
                 </div>
 
-                <div className="mt-5 grid gap-3">
-                  {selectedCourses.map((course) => (
-                    <div
-                      key={course.id}
-                      className="rounded-2xl bg-stone-50 p-4 ring-1 ring-slate-200"
-                    >
-                      <div className="flex items-start justify-between gap-3">
-                        <div className="min-w-0">
-                          <div className="text-sm font-semibold text-slate-900">
+                <div className="mt-5 overflow-x-auto rounded-2xl ring-1 ring-slate-200">
+                  <table className="w-full min-w-[720px] border-collapse bg-white text-left text-sm">
+                    <thead className="bg-stone-50">
+                      <tr className="border-b border-slate-200 text-[11px] uppercase tracking-wide text-slate-500">
+                        <th className="px-4 py-3 font-semibold">Course</th>
+                        <th className="px-4 py-3 font-semibold">Type</th>
+                        <th className="px-4 py-3 font-semibold">Price</th>
+                        <th className="px-4 py-3 font-semibold">Access</th>
+                        <th className="px-4 py-3 font-semibold">Day</th>
+                        <th className="px-4 py-3 font-semibold">Distance</th>
+                      </tr>
+                    </thead>
+
+                    <tbody>
+                      {selectedCourses.map((course) => (
+                        <tr
+                          key={course.id}
+                          className="border-b border-slate-100 last:border-b-0"
+                        >
+                          <td className="px-4 py-4 font-semibold text-slate-900">
                             {course.course_name}
-                          </div>
-
-                          <p className="mt-1 text-sm text-slate-600">
-                            {[course.course_type, course.region, course.price_range]
-                              .filter(Boolean)
-                              .join(' · ')}
-                          </p>
-                        </div>
-
-                        <div className="shrink-0 rounded-full bg-white px-3 py-1 text-xs font-semibold text-slate-700 ring-1 ring-slate-200">
-                          {typeof course.distance === 'number'
-                            ? `${course.distance.toFixed(1)} km`
-                            : 'Distance —'}
-                        </div>
-                      </div>
-
-                      <div className="mt-4 grid grid-cols-2 gap-2">
-                        <div className="rounded-2xl bg-white p-3 ring-1 ring-slate-200">
-                          <div className="text-[11px] font-semibold uppercase tracking-wide text-slate-500">
-                            Access
-                          </div>
-                          <div className="mt-1 text-sm font-semibold text-slate-900">
-                            {course.independent_guest_days || '—'}
-                          </div>
-                        </div>
-
-                        <div className="rounded-2xl bg-white p-3 ring-1 ring-slate-200">
-                          <div className="text-[11px] font-semibold uppercase tracking-wide text-slate-500">
-                            Assignment
-                          </div>
-                          <div className="mt-1 text-sm font-semibold text-slate-900">
-                            {course.assigned_day && course.assigned_slot
-                              ? `Day ${course.assigned_day} ${course.assigned_slot}`
-                              : 'Not assigned'}
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  ))}
+                          </td>
+                          <td className="px-4 py-4">
+                            <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-700">
+                              {course.course_type || "—"}
+                            </span>
+                          </td>
+                          <td className="px-4 py-4">
+                            <span className="rounded-full bg-amber-100 px-3 py-1 text-xs font-bold text-amber-800">
+                              {course.price_range || "—"}
+                            </span>
+                          </td>
+                          <td className="px-4 py-4">
+                            <span className="rounded-full bg-emerald-50 px-3 py-1 text-xs font-semibold text-emerald-800 ring-1 ring-emerald-100">
+                              {course.independent_guest_days || "—"}
+                            </span>
+                          </td>
+                          <td className="px-4 py-4 text-slate-700">
+                            {getAssignmentLabel(course)}
+                          </td>
+                          <td className="px-4 py-4 font-semibold text-slate-700">
+                            {typeof course.distance === "number"
+                              ? `${course.distance.toFixed(1)} km`
+                              : "—"}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
                 </div>
               </div>
             )}
-
 
             <div className="rounded-3xl bg-white p-5 shadow-sm ring-1 ring-slate-200/70">
               <div>
@@ -1299,7 +1416,7 @@ export default function PlannerPage() {
                 <div className="rounded-2xl bg-stone-50 p-3 text-center ring-1 ring-slate-200">
                   <div className="text-[20px] font-bold text-slate-900">
                     {averageDistance === null
-                      ? '—'
+                      ? "—"
                       : `${averageDistance.toFixed(1)} km`}
                   </div>
                   <div className="mt-1 text-[11px] font-semibold uppercase tracking-wide text-slate-500">
@@ -1325,17 +1442,28 @@ export default function PlannerPage() {
                 {greenFeeEstimate ? (
                   <div className="mt-2 grid gap-2">
                     <div className="text-[22px] font-bold text-slate-900">
-                      {formatEuroAmount(greenFeeEstimate.perGolferLow)} - {formatEuroAmount(greenFeeEstimate.perGolferHigh)}
+                      {formatEuroAmount(greenFeeEstimate.perGolferLow)} -{" "}
+                      {formatEuroAmount(greenFeeEstimate.perGolferHigh)}
                     </div>
 
                     <p className="text-xs leading-5 text-slate-600">
-                      Per golfer guide only. Actual green fees can vary by weekday/weekend, season, tee time and booking conditions.
+                      Per golfer guide only. Actual green fees can vary by
+                      weekday/weekend, season, tee time and booking conditions.
                     </p>
 
-                    {greenFeeEstimate.pricedCourses < selectedCourses.length && (
+                    {greenFeeEstimate.pricedCourses <
+                      selectedCourses.length && (
                       <p className="text-xs leading-5 text-slate-600">
-                        Guide excludes {selectedCourses.length - greenFeeEstimate.pricedCourses} course
-                        {selectedCourses.length - greenFeeEstimate.pricedCourses === 1 ? '' : 's'} without a price band.
+                        Guide excludes{" "}
+                        {selectedCourses.length -
+                          greenFeeEstimate.pricedCourses}{" "}
+                        course
+                        {selectedCourses.length -
+                          greenFeeEstimate.pricedCourses ===
+                        1
+                          ? ""
+                          : "s"}{" "}
+                        without a price band.
                       </p>
                     )}
                   </div>
@@ -1352,9 +1480,24 @@ export default function PlannerPage() {
                 </p>
               )}
             </div>
+
+            <div className="rounded-3xl bg-white p-5 shadow-sm ring-1 ring-slate-200/70">
+              <p className="text-[12px] font-semibold uppercase tracking-[0.18em] text-emerald-800">
+                Coming soon
+              </p>
+
+              <h2 className="mt-1 text-[20px] font-semibold text-slate-900">
+                Accommodation Partners
+              </h2>
+
+              <p className="mt-2 text-sm leading-6 text-slate-600">
+                Featured accommodation options for golf trips will appear here
+                once partner placements are available.
+              </p>
+            </div>
           </div>
         )}
       </section>
     </main>
-  )
+  );
 }
