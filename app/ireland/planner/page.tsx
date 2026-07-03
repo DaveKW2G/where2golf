@@ -104,16 +104,6 @@ function getCourseMix(courses: PlannerCourse[]) {
   return courseTypes.join(' / ')
 }
 
-function getPriceGuide(courses: PlannerCourse[]) {
-  const prices = Array.from(
-    new Set(courses.map((course) => course.price_range).filter(Boolean))
-  )
-
-  if (prices.length === 0) return '—'
-
-  return prices.join(' / ')
-}
-
 function getGreenFeeRange(priceRange?: string) {
   const cleanPrice = priceRange?.trim()
 
@@ -129,7 +119,7 @@ function formatEuroAmount(amount: number) {
   return `€${Math.round(amount).toLocaleString('en-IE')}`
 }
 
-function getGreenFeeEstimate(courses: PlannerCourse[], numberOfGolfers: number) {
+function getGreenFeeEstimate(courses: PlannerCourse[]) {
   const courseRanges = courses
     .map((course) => getGreenFeeRange(course.price_range))
     .filter((range): range is { low: number; high: number } => Boolean(range))
@@ -143,8 +133,6 @@ function getGreenFeeEstimate(courses: PlannerCourse[], numberOfGolfers: number) 
     pricedCourses: courseRanges.length,
     perGolferLow,
     perGolferHigh,
-    groupLow: perGolferLow * numberOfGolfers,
-    groupHigh: perGolferHigh * numberOfGolfers,
   }
 }
 
@@ -300,8 +288,7 @@ export default function PlannerPage() {
 
   const averageDistance = getAverageDistance(selectedCourses)
   const courseMix = getCourseMix(selectedCourses)
-  const priceGuide = getPriceGuide(selectedCourses)
-  const greenFeeEstimate = getGreenFeeEstimate(selectedCourses, numberOfGolfers)
+  const greenFeeEstimate = getGreenFeeEstimate(selectedCourses)
 
   useEffect(() => {
     setTripDays((currentDays) => createTripDays(numberOfGolfDays, currentDays))
@@ -1262,15 +1249,6 @@ export default function PlannerPage() {
                       : `${averageDistance.toFixed(1)} km`}
                   </div>
                 </div>
-
-                <div className="rounded-2xl bg-stone-50 p-4 ring-1 ring-slate-200">
-                  <div className="text-[13px] font-semibold text-slate-500">
-                    Price guide
-                  </div>
-                  <div className="mt-1 text-[22px] font-bold text-slate-900">
-                    {priceGuide}
-                  </div>
-                </div>
               </div>
 
               <div className="mt-3 rounded-2xl bg-stone-50 p-4 ring-1 ring-slate-200">
@@ -1284,7 +1262,7 @@ export default function PlannerPage() {
 
               <div className="mt-3 rounded-2xl bg-emerald-50 p-4 ring-1 ring-emerald-100">
                 <div className="text-[13px] font-semibold text-emerald-800">
-                  Indicative green fee guide
+                  Green Fee Guide
                 </div>
 
                 {greenFeeEstimate ? (
@@ -1295,15 +1273,6 @@ export default function PlannerPage() {
                       </div>
                       <div className="mt-1 text-[22px] font-bold text-slate-900">
                         {formatEuroAmount(greenFeeEstimate.perGolferLow)} - {formatEuroAmount(greenFeeEstimate.perGolferHigh)}
-                      </div>
-                    </div>
-
-                    <div className="border-t border-emerald-100 pt-2">
-                      <div className="text-xs font-semibold uppercase tracking-wide text-emerald-700/80">
-                        Group guide ({numberOfGolfers} golfers)
-                      </div>
-                      <div className="mt-1 text-[18px] font-bold text-slate-900">
-                        {formatEuroAmount(greenFeeEstimate.groupLow)} - {formatEuroAmount(greenFeeEstimate.groupHigh)}
                       </div>
                     </div>
 
