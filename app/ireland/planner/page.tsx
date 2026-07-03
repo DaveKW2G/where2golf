@@ -130,16 +130,11 @@ function getOrCreatePlannerUserId() {
 function getShortPlaceName(place?: string) {
   if (!place) return ''
 
-  const cleanPlace = place
-    .split('\n')
-    .map((part) => part.trim())
-    .filter(Boolean)
-
-  if (cleanPlace.length > 0) return cleanPlace[0]
-
-  return place.split(',')[0]?.trim() || place.trim()
+  return place
+    .split('\n')[0]
+    .split(',')[0]
+    .trim()
 }
-
 export default function PlannerPage() {
   const [step, setStep] = useState<PlannerStep>('setup')
 
