@@ -38,13 +38,28 @@ export async function POST(request: Request) {
       : []
 
     const updatedCourses = existingCourses.map((course: any) => {
-      if (course.id !== courseId) return course
-
-      return {
-        ...course,
-        assigned_day: assignedDay || null,
-        assigned_slot: assignedSlot || null,
+      if (course.id === courseId) {
+        return {
+          ...course,
+          assigned_day: assignedDay || null,
+          assigned_slot: assignedSlot || null,
+        }
       }
+
+      if (
+        assignedDay &&
+        assignedSlot &&
+        course.assigned_day === assignedDay &&
+        course.assigned_slot === assignedSlot
+      ) {
+        return {
+          ...course,
+          assigned_day: null,
+          assigned_slot: null,
+        }
+      }
+
+      return course
     })
 
     const { error: updateError } = await supabase

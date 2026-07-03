@@ -30,6 +30,8 @@ type PlannerCourse = {
   course_image?: string
   distance?: number
   max_handicap?: number | string
+  assigned_day?: number | null
+  assigned_slot?: 'Morning' | 'Afternoon' | null
 }
 
 type SavedTrip = {
@@ -135,6 +137,44 @@ function getShortPlaceName(place?: string) {
     .split(',')[0]
     .trim()
 }
+
+
+function parseAssignmentValue(value: string) {
+  if (value === 'unassigned') {
+    return {
+      assignedDay: null as number | null,
+      assignedSlot: null as 'Morning' | 'Afternoon' | null,
+    }
+  }
+
+  const [dayPart, slotPart] = value.split('-')
+  const assignedDay = Number(dayPart)
+  const assignedSlot = slotPart === 'Afternoon' ? 'Afternoon' : 'Morning'
+
+  return {
+    assignedDay: Number.isNaN(assignedDay) ? null : assignedDay,
+    assignedSlot: Number.isNaN(assignedDay)
+      ? null
+      : (assignedSlot as 'Morning' | 'Afternoon'),
+  }
+}
+
+function getAssignmentValue(course: PlannerCourse) {
+  if (!course.assigned_day || !course.assigned_slot) return 'unassigned'
+
+  return `${course.assigned_day}-${course.assigned_slot}`
+}
+
+function getAssignedCourse(
+  courses: PlannerCourse[],
+  dayNumber: number,
+  slot: 'Morning' | 'Afternoon'
+) {
+  return courses.find(
+    (course) => course.assigned_day === dayNumber && course.assigned_slot === slot
+  )
+}
+
 export default function PlannerPage() {
   const [step, setStep] = useState<PlannerStep>('setup')
 
@@ -143,6 +183,7 @@ export default function PlannerPage() {
   const [isCreatingTrip, setIsCreatingTrip] = useState(false)
   const [isLoadingTrip, setIsLoadingTrip] = useState(false)
   const [isRemovingCourse, setIsRemovingCourse] = useState<number | null>(null)
+  const [isAssigningCourse, setIsAssigningCourse] = useState<number | null>(null)
   const [baseError, setBaseError] = useState('')
   const [tripError, setTripError] = useState('')
   const [tripId, setTripId] = useState('')
@@ -384,6 +425,74 @@ export default function PlannerPage() {
     }
   }
 
+  async function handleAssignCourse(courseId: number, assignmentValue: string) {
+    if (!tripId || isAssigningCourse) return
+
+    const { assignedDay, assignedSlot } = parseAssignmentValue(assignmentValue)
+
+    setTripError('')
+    setIsAssigningCourse(courseId)
+
+    try {
+      const response = await fetch('/api/trips/assign-course', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          trip_id: tripId,
+          course_id: courseId,
+          assigned_day: assignedDay,
+          assigned_slot: assignedSlot,
+        }),
+      })
+
+      const data = await response.json()
+
+      if (!response.ok) {
+        setTripError('We could not assign this course. Please try again.')
+        return
+      }
+
+      const updatedCourses = Array.isArray(data.selected_courses)
+        ? data.selected_courses
+        : selectedCourses.map((course) => {
+            if (course.id === courseId) {
+              return {
+                ...course,
+                assigned_day: assignedDay,
+                assigned_slot: assignedSlot,
+              }
+            }
+
+            if (
+              assignedDay &&
+              assignedSlot &&
+              course.assigned_day === assignedDay &&
+              course.assigned_slot === assignedSlot
+            ) {
+              return {
+                ...course,
+                assigned_day: null,
+                assigned_slot: null,
+              }
+            }
+
+            return course
+          })
+
+      setSelectedCourses(updatedCourses)
+      window.localStorage.setItem(
+        'guestplaygolf_planner_courses',
+        JSON.stringify(updatedCourses)
+      )
+    } catch {
+      setTripError('Something went wrong assigning this course.')
+    } finally {
+      setIsAssigningCourse(null)
+    }
+  }
+
   function updateTripDay(dayNumber: number, dayType: DayType) {
     setTripDays((currentDays) =>
       currentDays.map((day) =>
@@ -506,15 +615,12 @@ export default function PlannerPage() {
                             </p>
                           </div>
 
-                          <button
-                            type="button"
-                            onClick={() => {
-                              window.location.href = `/ireland/planner?tripId=${savedTrip.trip_id}`
-                            }}
-                            className="rounded-full bg-emerald-800 px-4 py-2 text-xs font-semibold text-white"
+                          <Link
+                            href={`/ireland/planner?tripId=${savedTrip.trip_id}`}
+                            className="rounded-full bg-emerald-800 px-4 py-2 text-xs font-semibold text-white no-underline"
                           >
                             Open
-                          </button>
+                          </Link>
                         </div>
                       </div>
                     )
@@ -827,7 +933,7 @@ export default function PlannerPage() {
                       className="rounded-2xl bg-stone-50 p-4 ring-1 ring-slate-200"
                     >
                       <div className="flex items-start justify-between gap-3">
-                        <div>
+                        <div className="min-w-0 flex-1">
                           <div className="text-sm font-semibold text-slate-900">
                             {course.course_name}
                           </div>
@@ -843,6 +949,33 @@ export default function PlannerPage() {
                               {course.distance.toFixed(1)} km from base
                             </p>
                           )}
+
+                          <div className="mt-3">
+                            <label className="text-xs font-semibold uppercase tracking-wide text-slate-500">
+                              Assignment
+                            </label>
+
+                            <select
+                              value={getAssignmentValue(course)}
+                              onChange={(event) =>
+                                handleAssignCourse(course.id, event.target.value)
+                              }
+                              disabled={isAssigningCourse === course.id}
+                              className="mt-1 w-full rounded-2xl border border-slate-200 bg-white px-3 py-2.5 text-sm text-slate-900 outline-none focus:border-emerald-700 disabled:opacity-50"
+                            >
+                              <option value="unassigned">Not Assigned</option>
+                              {tripDays.flatMap((day) =>
+                                (['Morning', 'Afternoon'] as const).map((slot) => (
+                                  <option
+                                    key={`${day.dayNumber}-${slot}`}
+                                    value={`${day.dayNumber}-${slot}`}
+                                  >
+                                    Day {day.dayNumber} {slot}
+                                  </option>
+                                ))
+                              )}
+                            </select>
+                          </div>
                         </div>
 
                         <button
@@ -863,6 +996,64 @@ export default function PlannerPage() {
             {selectedCourses.length > 0 && (
               <div className="rounded-3xl bg-white p-5 shadow-sm ring-1 ring-slate-200/70">
                 <h2 className="text-[18px] font-semibold text-slate-900">
+                  Trip Itinerary
+                </h2>
+
+                <p className="mt-2 text-sm leading-6 text-slate-600">
+                  Assign courses to a day and time slot to start building your trip itinerary.
+                </p>
+
+                <div className="mt-5 grid gap-4">
+                  {tripDays.map((day) => {
+                    const morningCourse = getAssignedCourse(
+                      selectedCourses,
+                      day.dayNumber,
+                      'Morning'
+                    )
+                    const afternoonCourse = getAssignedCourse(
+                      selectedCourses,
+                      day.dayNumber,
+                      'Afternoon'
+                    )
+
+                    return (
+                      <div
+                        key={day.dayNumber}
+                        className="rounded-3xl border border-slate-200 bg-stone-50 p-4"
+                      >
+                        <div className="text-[17px] font-semibold text-slate-900">
+                          Day {day.dayNumber}
+                        </div>
+
+                        <div className="mt-3 grid gap-3">
+                          <div className="rounded-2xl bg-white p-4 ring-1 ring-slate-200">
+                            <div className="text-xs font-semibold uppercase tracking-wide text-slate-500">
+                              Morning
+                            </div>
+                            <div className="mt-1 text-sm font-semibold text-slate-900">
+                              {morningCourse?.course_name || 'Not assigned'}
+                            </div>
+                          </div>
+
+                          <div className="rounded-2xl bg-white p-4 ring-1 ring-slate-200">
+                            <div className="text-xs font-semibold uppercase tracking-wide text-slate-500">
+                              Afternoon
+                            </div>
+                            <div className="mt-1 text-sm font-semibold text-slate-900">
+                              {afternoonCourse?.course_name || 'Not assigned'}
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    )
+                  })}
+                </div>
+              </div>
+            )}
+
+            {selectedCourses.length > 0 && (
+              <div className="rounded-3xl bg-white p-5 shadow-sm ring-1 ring-slate-200/70">
+                <h2 className="text-[18px] font-semibold text-slate-900">
                   Compare Courses
                 </h2>
 
@@ -879,6 +1070,7 @@ export default function PlannerPage() {
                         <th className="py-3 pr-4 font-semibold">Type</th>
                         <th className="py-3 pr-4 font-semibold">Price</th>
                         <th className="py-3 pr-4 font-semibold">Access</th>
+                        <th className="py-3 pr-4 font-semibold">Assignment</th>
                         <th className="py-3 pr-4 font-semibold">Distance</th>
                       </tr>
                     </thead>
@@ -897,6 +1089,11 @@ export default function PlannerPage() {
                           </td>
                           <td className="py-3 pr-4 text-slate-700">
                             {course.independent_guest_days || '—'}
+                          </td>
+                          <td className="py-3 pr-4 text-slate-700">
+                            {course.assigned_day && course.assigned_slot
+                              ? `Day ${course.assigned_day} ${course.assigned_slot}`
+                              : '—'}
                           </td>
                           <td className="py-3 pr-4 text-slate-700">
                             {typeof course.distance === 'number'
