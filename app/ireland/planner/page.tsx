@@ -511,12 +511,15 @@ export default function PlannerPage() {
                             </p>
                           </div>
 
-                          <Link
-                            href={`/ireland/planner?tripId=${savedTrip.trip_id}`}
-                            className="rounded-full bg-emerald-800 px-4 py-2 text-xs font-semibold text-white no-underline"
+                          <button
+                            type="button"
+                            onClick={() => {
+                              window.location.href = `/ireland/planner?tripId=${savedTrip.trip_id}`
+                            }}
+                            className="rounded-full bg-emerald-800 px-4 py-2 text-xs font-semibold text-white"
                           >
                             Open
-                          </Link>
+                          </button>
                         </div>
                       </div>
                     )
