@@ -272,6 +272,7 @@ export default function PlannerPage() {
   const [selectedCourses, setSelectedCourses] = useState<PlannerCourse[]>([])
   const [savedTrips, setSavedTrips] = useState<SavedTrip[]>([])
   const [isLoadingTrips, setIsLoadingTrips] = useState(false)
+  const [shareCopied, setShareCopied] = useState(false)
 
   const [tripName, setTripName] = useState('')
   const [month, setMonth] = useState('April')
@@ -571,6 +572,20 @@ export default function PlannerPage() {
       setTripError('Something went wrong assigning this course.')
     } finally {
       setIsAssigningCourse(null)
+    }
+  }
+
+  async function handleCopyShareLink() {
+    if (!tripId) return
+
+    const shareUrl = `${window.location.origin}/ireland/planner?tripId=${tripId}`
+
+    try {
+      await window.navigator.clipboard.writeText(shareUrl)
+      setShareCopied(true)
+      window.setTimeout(() => setShareCopied(false), 2500)
+    } catch {
+      setTripError('We could not copy the link. Please copy it from your browser address bar.')
     }
   }
 
@@ -932,13 +947,25 @@ export default function PlannerPage() {
                   )}
                 </div>
 
-                <button
-                  type="button"
-                  onClick={() => setStep('setup')}
-                  className="rounded-full border border-slate-200 px-4 py-2 text-sm font-semibold text-slate-700"
-                >
-                  Edit
-                </button>
+                <div className="flex shrink-0 flex-col gap-2">
+                  <button
+                    type="button"
+                    onClick={() => setStep('setup')}
+                    className="rounded-full border border-slate-200 px-4 py-2 text-sm font-semibold text-slate-700"
+                  >
+                    Edit
+                  </button>
+
+                  {tripId && (
+                    <button
+                      type="button"
+                      onClick={handleCopyShareLink}
+                      className="rounded-full bg-emerald-800 px-4 py-2 text-sm font-semibold text-white"
+                    >
+                      {shareCopied ? 'Copied ✓' : 'Share'}
+                    </button>
+                  )}
+                </div>
               </div>
             </div>
 
@@ -1160,93 +1187,123 @@ export default function PlannerPage() {
 
             {selectedCourses.length > 0 && (
               <div className="rounded-3xl bg-white p-5 shadow-sm ring-1 ring-slate-200/70">
-                <h2 className="text-[18px] font-semibold text-slate-900">
-                  Compare Courses
-                </h2>
+                <div className="flex items-start justify-between gap-3">
+                  <div>
+                    <p className="text-[12px] font-semibold uppercase tracking-[0.18em] text-emerald-800">
+                      Course shortlist
+                    </p>
 
-                <p className="mt-2 text-sm leading-6 text-slate-600">
-                  Compare your selected courses by type, price, access and
-                  distance from your base.
-                </p>
+                    <h2 className="mt-1 text-[20px] font-semibold text-slate-900">
+                      Compare Courses
+                    </h2>
 
-                <div className="mt-4 overflow-x-auto">
-                  <table className="w-full min-w-[560px] border-collapse text-left text-sm">
-                    <thead>
-                      <tr className="border-b border-slate-200 text-xs uppercase tracking-wide text-slate-500">
-                        <th className="py-3 pr-4 font-semibold">Course</th>
-                        <th className="py-3 pr-4 font-semibold">Type</th>
-                        <th className="py-3 pr-4 font-semibold">Price</th>
-                        <th className="py-3 pr-4 font-semibold">Access</th>
-                        <th className="py-3 pr-4 font-semibold">Assignment</th>
-                        <th className="py-3 pr-4 font-semibold">Distance</th>
-                      </tr>
-                    </thead>
+                    <p className="mt-2 text-sm leading-6 text-slate-600">
+                      Review the courses in your trip by access, assignment, price band and distance.
+                    </p>
+                  </div>
 
-                    <tbody>
-                      {selectedCourses.map((course) => (
-                        <tr key={course.id} className="border-b border-slate-100">
-                          <td className="py-3 pr-4 font-semibold text-slate-900">
+                  <div className="rounded-2xl bg-emerald-50 px-3 py-2 text-center ring-1 ring-emerald-100">
+                    <div className="text-[20px] font-bold text-emerald-900">
+                      {selectedCourses.length}
+                    </div>
+                    <div className="text-[11px] font-semibold uppercase tracking-wide text-emerald-700">
+                      Courses
+                    </div>
+                  </div>
+                </div>
+
+                <div className="mt-5 grid gap-3">
+                  {selectedCourses.map((course) => (
+                    <div
+                      key={course.id}
+                      className="rounded-2xl bg-stone-50 p-4 ring-1 ring-slate-200"
+                    >
+                      <div className="flex items-start justify-between gap-3">
+                        <div className="min-w-0">
+                          <div className="text-sm font-semibold text-slate-900">
                             {course.course_name}
-                          </td>
-                          <td className="py-3 pr-4 text-slate-700">
-                            {course.course_type || '—'}
-                          </td>
-                          <td className="py-3 pr-4 text-slate-700">
-                            {course.price_range || '—'}
-                          </td>
-                          <td className="py-3 pr-4 text-slate-700">
+                          </div>
+
+                          <p className="mt-1 text-sm text-slate-600">
+                            {[course.course_type, course.region, course.price_range]
+                              .filter(Boolean)
+                              .join(' · ')}
+                          </p>
+                        </div>
+
+                        <div className="shrink-0 rounded-full bg-white px-3 py-1 text-xs font-semibold text-slate-700 ring-1 ring-slate-200">
+                          {typeof course.distance === 'number'
+                            ? `${course.distance.toFixed(1)} km`
+                            : 'Distance —'}
+                        </div>
+                      </div>
+
+                      <div className="mt-4 grid grid-cols-2 gap-2">
+                        <div className="rounded-2xl bg-white p-3 ring-1 ring-slate-200">
+                          <div className="text-[11px] font-semibold uppercase tracking-wide text-slate-500">
+                            Access
+                          </div>
+                          <div className="mt-1 text-sm font-semibold text-slate-900">
                             {course.independent_guest_days || '—'}
-                          </td>
-                          <td className="py-3 pr-4 text-slate-700">
+                          </div>
+                        </div>
+
+                        <div className="rounded-2xl bg-white p-3 ring-1 ring-slate-200">
+                          <div className="text-[11px] font-semibold uppercase tracking-wide text-slate-500">
+                            Assignment
+                          </div>
+                          <div className="mt-1 text-sm font-semibold text-slate-900">
                             {course.assigned_day && course.assigned_slot
                               ? `Day ${course.assigned_day} ${course.assigned_slot}`
-                              : '—'}
-                          </td>
-                          <td className="py-3 pr-4 text-slate-700">
-                            {typeof course.distance === 'number'
-                              ? `${course.distance.toFixed(1)} km`
-                              : '—'}
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
+                              : 'Not assigned'}
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
                 </div>
               </div>
             )}
 
-            <div className="rounded-3xl bg-white p-5 shadow-sm ring-1 ring-slate-200/70">
-              <h2 className="text-[18px] font-semibold text-slate-900">
-                Trip summary
-              </h2>
 
-              <div className="mt-4 grid grid-cols-2 gap-3">
-                <div className="rounded-2xl bg-stone-50 p-4 ring-1 ring-slate-200">
-                  <div className="text-[13px] font-semibold text-slate-500">
-                    Courses
-                  </div>
-                  <div className="mt-1 text-[22px] font-bold text-slate-900">
+            <div className="rounded-3xl bg-white p-5 shadow-sm ring-1 ring-slate-200/70">
+              <div>
+                <p className="text-[12px] font-semibold uppercase tracking-[0.18em] text-emerald-800">
+                  Overview
+                </p>
+
+                <h2 className="mt-1 text-[20px] font-semibold text-slate-900">
+                  Trip Summary
+                </h2>
+              </div>
+
+              <div className="mt-4 grid grid-cols-3 gap-2">
+                <div className="rounded-2xl bg-stone-50 p-3 text-center ring-1 ring-slate-200">
+                  <div className="text-[20px] font-bold text-slate-900">
                     {selectedCourses.length}
                   </div>
+                  <div className="mt-1 text-[11px] font-semibold uppercase tracking-wide text-slate-500">
+                    Courses
+                  </div>
                 </div>
 
-                <div className="rounded-2xl bg-stone-50 p-4 ring-1 ring-slate-200">
-                  <div className="text-[13px] font-semibold text-slate-500">
-                    Golf days
-                  </div>
-                  <div className="mt-1 text-[22px] font-bold text-slate-900">
+                <div className="rounded-2xl bg-stone-50 p-3 text-center ring-1 ring-slate-200">
+                  <div className="text-[20px] font-bold text-slate-900">
                     {numberOfGolfDays}
                   </div>
+                  <div className="mt-1 text-[11px] font-semibold uppercase tracking-wide text-slate-500">
+                    Days
+                  </div>
                 </div>
 
-                <div className="rounded-2xl bg-stone-50 p-4 ring-1 ring-slate-200">
-                  <div className="text-[13px] font-semibold text-slate-500">
-                    Avg distance
-                  </div>
-                  <div className="mt-1 text-[22px] font-bold text-slate-900">
+                <div className="rounded-2xl bg-stone-50 p-3 text-center ring-1 ring-slate-200">
+                  <div className="text-[20px] font-bold text-slate-900">
                     {averageDistance === null
                       ? '—'
                       : `${averageDistance.toFixed(1)} km`}
+                  </div>
+                  <div className="mt-1 text-[11px] font-semibold uppercase tracking-wide text-slate-500">
+                    Avg distance
                   </div>
                 </div>
               </div>
@@ -1267,17 +1324,12 @@ export default function PlannerPage() {
 
                 {greenFeeEstimate ? (
                   <div className="mt-2 grid gap-2">
-                    <div>
-                      <div className="text-xs font-semibold uppercase tracking-wide text-emerald-700/80">
-                        Per golfer
-                      </div>
-                      <div className="mt-1 text-[22px] font-bold text-slate-900">
-                        {formatEuroAmount(greenFeeEstimate.perGolferLow)} - {formatEuroAmount(greenFeeEstimate.perGolferHigh)}
-                      </div>
+                    <div className="text-[22px] font-bold text-slate-900">
+                      {formatEuroAmount(greenFeeEstimate.perGolferLow)} - {formatEuroAmount(greenFeeEstimate.perGolferHigh)}
                     </div>
 
                     <p className="text-xs leading-5 text-slate-600">
-                      Guide only. Actual green fees can vary by weekday/weekend, season, tee time and booking conditions.
+                      Per golfer guide only. Actual green fees can vary by weekday/weekend, season, tee time and booking conditions.
                     </p>
 
                     {greenFeeEstimate.pricedCourses < selectedCourses.length && (
@@ -1299,14 +1351,6 @@ export default function PlannerPage() {
                   {tripError}
                 </p>
               )}
-
-              <button
-                type="button"
-                disabled
-                className="mt-5 w-full rounded-full bg-slate-900 px-5 py-4 text-sm font-semibold text-white opacity-50"
-              >
-                Save Trip coming next
-              </button>
             </div>
           </div>
         )}
