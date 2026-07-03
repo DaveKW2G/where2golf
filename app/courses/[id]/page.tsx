@@ -1,49 +1,50 @@
-import type { Metadata } from "next"
-import Script from "next/script"
-import Link from "next/link"
-import { createClient } from "@/lib/supabase/server"
-import BackButton from "@/components/BackButton"
-import CourseCTAButtons from "@/components/CourseCTAButtons"
+import type { Metadata } from "next";
+import Script from "next/script";
+import Link from "next/link";
+import { createClient } from "@/lib/supabase/server";
+import BackButton from "@/components/BackButton";
+import CourseCTAButtons from "@/components/CourseCTAButtons";
+import CourseAddToTripButton from "@/components/CourseAddToTripButton";
 
 type CoursePageProps = {
   params: Promise<{
-    id: string
-  }>
+    id: string;
+  }>;
   searchParams?: Promise<{
-    [key: string]: string | string[] | undefined
-  }>
-}
+    [key: string]: string | string[] | undefined;
+  }>;
+};
 
 type Course = {
-  id: number
-  course_name: string
-  country?: string | null
-  town: string
-  region: string
-  full_address?: string | null
-  holes: number
-  independent_guest_days: string
-  season: string
-  price_range?: string | null
-  golf_ireland_discount?: string | null
-  course_type?: string | null
-  handicap_required?: boolean | null
-  max_handicap?: number | null
-  website?: string | null
-  phone_number?: string | null
-  notes?: string | null
-  course_image?: string | null
-  latitude?: number | null
-  longitude?: number | null
-}
+  id: number;
+  course_name: string;
+  country?: string | null;
+  town: string;
+  region: string;
+  full_address?: string | null;
+  holes: number;
+  independent_guest_days: string;
+  season: string;
+  price_range?: string | null;
+  golf_ireland_discount?: string | null;
+  course_type?: string | null;
+  handicap_required?: boolean | null;
+  max_handicap?: number | null;
+  website?: string | null;
+  phone_number?: string | null;
+  notes?: string | null;
+  course_image?: string | null;
+  latitude?: number | null;
+  longitude?: number | null;
+};
 
 type NearbyGuideLink = {
-  title: string
-  href: string
-  description: string
-}
+  title: string;
+  href: string;
+  description: string;
+};
 
-const siteUrl = "https://guestplaygolf.com"
+const siteUrl = "https://guestplaygolf.com";
 
 const irelandGolfHubs = [
   {
@@ -57,7 +58,8 @@ const irelandGolfHubs = [
   {
     title: "Golf Near Cork",
     href: "/golf-near-cork",
-    description: "Explore visitor-friendly golf around Cork and the south coast.",
+    description:
+      "Explore visitor-friendly golf around Cork and the south coast.",
     lat: 51.8985,
     lng: -8.4756,
     radiusKm: 70,
@@ -65,7 +67,8 @@ const irelandGolfHubs = [
   {
     title: "Golf Near Galway",
     href: "/golf-near-galway",
-    description: "Explore visitor-friendly golf around Galway and the west of Ireland.",
+    description:
+      "Explore visitor-friendly golf around Galway and the west of Ireland.",
     lat: 53.2707,
     lng: -9.0568,
     radiusKm: 75,
@@ -73,7 +76,8 @@ const irelandGolfHubs = [
   {
     title: "Golf Near Belfast",
     href: "/golf-near-belfast",
-    description: "Explore visitor-friendly golf around Belfast and Northern Ireland.",
+    description:
+      "Explore visitor-friendly golf around Belfast and Northern Ireland.",
     lat: 54.5973,
     lng: -5.9301,
     radiusKm: 100,
@@ -81,12 +85,13 @@ const irelandGolfHubs = [
   {
     title: "Golf Near Adare Manor",
     href: "/golf-near-adare-manor",
-    description: "Explore visitor-friendly golf around Adare Manor and the Ryder Cup region.",
+    description:
+      "Explore visitor-friendly golf around Adare Manor and the Ryder Cup region.",
     lat: 52.5619,
     lng: -8.7957,
     radiusKm: 100,
   },
-]
+];
 
 const regionNames: Record<string, string> = {
   AG: "Aargau",
@@ -115,31 +120,19 @@ const regionNames: Record<string, string> = {
   VS: "Valais",
   ZG: "Zug",
   ZH: "Zurich",
-}
-
-const sourceBackHrefs: Record<string, string> = {
-  home: "/",
-  switzerland: "/switzerland",
-  ireland: "/ireland",
-  dublin: "/golf-near-dublin",
-  adare: "/golf-near-adare-manor",
-  cork: "/golf-near-cork",
-  galway: "/golf-near-galway",
-  belfast: "/golf-near-belfast",
-  limerick: "/golf-near-limerick",
-}
+};
 
 export async function generateMetadata({
   params,
 }: CoursePageProps): Promise<Metadata> {
-  const resolvedParams = await params
-  const supabase = await createClient()
+  const resolvedParams = await params;
+  const supabase = await createClient();
 
   const { data } = await supabase
     .from("courses")
     .select("id, course_name, country, town, region, course_image")
     .eq("id", Number(resolvedParams.id))
-    .single()
+    .single();
 
   if (!data) {
     return {
@@ -150,12 +143,12 @@ export async function generateMetadata({
         index: false,
         follow: false,
       },
-    }
+    };
   }
 
-  const country = data.country || "Switzerland"
-  const regionName = regionNames[data.region] || data.region
-  const canonicalUrl = `${siteUrl}/courses/${data.id}`
+  const country = data.country || "Switzerland";
+  const regionName = regionNames[data.region] || data.region;
+  const canonicalUrl = `${siteUrl}/courses/${data.id}`;
 
   return {
     metadataBase: new URL(siteUrl),
@@ -179,16 +172,10 @@ export async function generateMetadata({
         : undefined,
       type: "website",
     },
-  }
+  };
 }
 
-function DetailRow({
-  label,
-  value,
-}: {
-  label: string
-  value?: string
-}) {
+function DetailRow({ label, value }: { label: string; value?: string }) {
   return (
     <div className="flex items-center justify-between border-b border-slate-200 px-5 py-4 last:border-b-0">
       <span className="text-sm text-slate-500">{label}</span>
@@ -197,103 +184,102 @@ function DetailRow({
         {value || "—"}
       </span>
     </div>
-  )
+  );
 }
 
-function getSingleParam(value: string | string[] | undefined): string | undefined {
-  if (Array.isArray(value)) return value[0]
-  return value
+function getSingleParam(
+  value: string | string[] | undefined,
+): string | undefined {
+  if (Array.isArray(value)) return value[0];
+  return value;
 }
 
 function buildFallbackHref(
   searchParams: {
-    [key: string]: string | string[] | undefined
+    [key: string]: string | string[] | undefined;
   },
-  defaultHref: string
+  defaultHref: string,
 ) {
-  const source = getSingleParam(searchParams.source)
+  const returnTo = getSingleParam(searchParams.returnTo);
 
-  if (source && sourceBackHrefs[source]) {
-    return sourceBackHrefs[source]
+  if (returnTo && returnTo.startsWith("/")) {
+    return returnTo;
   }
 
-  const params = new URLSearchParams()
+  const params = new URLSearchParams();
 
   for (const [key, value] of Object.entries(searchParams)) {
+    if (key === "returnTo") continue;
+
     if (typeof value === "string" && value.trim() !== "") {
-      params.set(key, value)
+      params.set(key, value);
     } else if (Array.isArray(value)) {
       value.forEach((item) => {
         if (item.trim() !== "") {
-          params.append(key, item)
+          params.append(key, item);
         }
-      })
+      });
     }
   }
 
-  const queryString = params.toString()
-  return queryString ? `/results?${queryString}` : defaultHref
+  const queryString = params.toString();
+  return queryString ? `/results?${queryString}` : defaultHref;
 }
 
 function toRad(value: number) {
-  return (value * Math.PI) / 180
+  return (value * Math.PI) / 180;
 }
 
-function getDistanceKm(
-  lat1: number,
-  lng1: number,
-  lat2: number,
-  lng2: number
-) {
-  const earthRadiusKm = 6371
+function getDistanceKm(lat1: number, lng1: number, lat2: number, lng2: number) {
+  const earthRadiusKm = 6371;
 
-  const dLat = toRad(lat2 - lat1)
-  const dLng = toRad(lng2 - lng1)
+  const dLat = toRad(lat2 - lat1);
+  const dLng = toRad(lng2 - lng1);
 
   const a =
     Math.sin(dLat / 2) * Math.sin(dLat / 2) +
     Math.cos(toRad(lat1)) *
       Math.cos(toRad(lat2)) *
       Math.sin(dLng / 2) *
-      Math.sin(dLng / 2)
+      Math.sin(dLng / 2);
 
-  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a))
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
 
-  return earthRadiusKm * c
+  return earthRadiusKm * c;
 }
 
 function getNearbyIrelandGuideLinks(course: Course): NearbyGuideLink[] {
   if (course.latitude == null || course.longitude == null) {
-    return []
+    return [];
   }
 
-  const nearbyLinks: NearbyGuideLink[] = []
+  const nearbyLinks: NearbyGuideLink[] = [];
 
   irelandGolfHubs.forEach((hub) => {
     const distanceKm = getDistanceKm(
       hub.lat,
       hub.lng,
       course.latitude as number,
-      course.longitude as number
-    )
+      course.longitude as number,
+    );
 
     if (distanceKm <= hub.radiusKm) {
       nearbyLinks.push({
         title: hub.title,
         href: hub.href,
         description: hub.description,
-      })
+      });
     }
-  })
+  });
 
-  const isLinksCourse = course.course_type === "Links"
+  const isLinksCourse = course.course_type === "Links";
 
   const distanceToDublinKm = getDistanceKm(
     53.3498,
     -6.2603,
     course.latitude,
-    course.longitude
-  )
+    course.longitude,
+  );
 
   if (isLinksCourse && distanceToDublinKm <= 100) {
     nearbyLinks.splice(1, 0, {
@@ -301,84 +287,89 @@ function getNearbyIrelandGuideLinks(course: Course): NearbyGuideLink[] {
       href: "/links-golf-near-dublin",
       description:
         "Compare classic links golf courses within easy reach of Dublin.",
-    })
+    });
   }
 
-  return nearbyLinks
+  return nearbyLinks;
 }
 
 function getWebsiteUrl(website?: string | null) {
-  if (!website) return null
+  if (!website) return null;
 
-  const trimmed = website.trim()
-  if (!trimmed) return null
+  const trimmed = website.trim();
+  if (!trimmed) return null;
 
   if (/^https?:\/\//i.test(trimmed)) {
-    return trimmed
+    return trimmed;
   }
 
-  return `https://${trimmed}`
+  return `https://${trimmed}`;
 }
 
 function getAccessLabel(access: string, country: string) {
-  const cleanAccess = access.trim()
+  const cleanAccess = access.trim();
 
   if (cleanAccess === "Limited Access" || cleanAccess === "Limited") {
-    return country === "Ireland" ? "Limited Visitor Access" : "Limited Guest Access"
+    return country === "Ireland"
+      ? "Limited Visitor Access"
+      : "Limited Guest Access";
   }
 
   if (cleanAccess === "Resort") {
-    return "Resort Access"
+    return "Resort Access";
   }
 
   if (country === "Ireland") {
-    if (cleanAccess === "Everyday") return "Visitors Everyday"
-    if (cleanAccess === "Weekdays") return "Visitors Weekdays"
-    if (cleanAccess === "Weekend") return "Visitors Weekend"
+    if (cleanAccess === "Everyday") return "Visitors Everyday";
+    if (cleanAccess === "Weekdays") return "Visitors Weekdays";
+    if (cleanAccess === "Weekend") return "Visitors Weekend";
 
     if (cleanAccess.startsWith("Guests ")) {
-      return cleanAccess.replace("Guests", "Visitors")
+      return cleanAccess.replace("Guests", "Visitors");
     }
 
-    return `Visitors ${cleanAccess}`
+    return `Visitors ${cleanAccess}`;
   }
 
-  if (cleanAccess === "Everyday") return "Guests Everyday"
-  if (cleanAccess === "Weekdays") return "Guests Weekdays"
-  if (cleanAccess === "Weekend") return "Guests Weekend"
+  if (cleanAccess === "Everyday") return "Guests Everyday";
+  if (cleanAccess === "Weekdays") return "Guests Weekdays";
+  if (cleanAccess === "Weekend") return "Guests Weekend";
 
   if (cleanAccess.startsWith("Guests ")) {
-    return cleanAccess
+    return cleanAccess;
   }
 
-  return `Guests ${cleanAccess}`
+  return `Guests ${cleanAccess}`;
 }
 
 function shouldShowIrelandHandicap(maxHandicap?: number | null) {
-  if (maxHandicap === undefined || maxHandicap === null) return false
+  if (maxHandicap === undefined || maxHandicap === null) return false;
 
-  return maxHandicap > 0 && maxHandicap < 54
+  return maxHandicap > 0 && maxHandicap < 54;
 }
 
 export default async function CoursePage({
   params,
   searchParams,
 }: CoursePageProps) {
-  const resolvedParams = await params
-  const resolvedSearchParams = searchParams ? await searchParams : {}
+  const resolvedParams = await params;
+  const resolvedSearchParams = searchParams ? await searchParams : {};
 
-  const supabase = await createClient()
+  const supabase = await createClient();
 
   const { data, error } = await supabase
     .from("courses")
     .select(
-      "id, course_name, country, town, region, full_address, holes, independent_guest_days, season, price_range, golf_ireland_discount, course_type, handicap_required, max_handicap, website, phone_number, notes, course_image, latitude, longitude"
+      "id, course_name, country, town, region, full_address, holes, independent_guest_days, season, price_range, golf_ireland_discount, course_type, handicap_required, max_handicap, website, phone_number, notes, course_image, latitude, longitude",
     )
     .eq("id", Number(resolvedParams.id))
-    .single()
+    .single();
 
   if (error || !data) {
-    const fallbackHref = buildFallbackHref(resolvedSearchParams, "/switzerland")
+    const fallbackHref = buildFallbackHref(
+      resolvedSearchParams,
+      "/switzerland",
+    );
 
     return (
       <main className="min-h-screen bg-stone-100 px-4 py-6">
@@ -395,33 +386,34 @@ export default async function CoursePage({
           </h1>
         </div>
       </main>
-    )
+    );
   }
 
-  const course = data as Course
-  const country = course.country || "Switzerland"
-  const isIreland = country === "Ireland"
-  const regionName = regionNames[course.region] || course.region
+  const course = data as Course;
+  const country = course.country || "Switzerland";
+  const isIreland = country === "Ireland";
+  const regionName = regionNames[course.region] || course.region;
 
-  const countryHref = isIreland ? "/ireland" : "/switzerland"
-  const fallbackHref = buildFallbackHref(resolvedSearchParams, countryHref)
+  const countryHref = isIreland ? "/ireland" : "/switzerland";
+  const fallbackHref = buildFallbackHref(resolvedSearchParams, countryHref);
 
   const regionHref = isIreland
     ? "/ireland"
-    : `/switzerland/${course.region.toLowerCase()}`
+    : `/switzerland/${course.region.toLowerCase()}`;
 
   const regionLinkText = isIreland
     ? "Explore more golf in Ireland"
-    : `Explore more golf in ${regionName}`
+    : `Explore more golf in ${regionName}`;
 
   const nearbyIrelandGuideLinks = isIreland
     ? getNearbyIrelandGuideLinks(course)
-    : []
+    : [];
 
-  const latParam = getSingleParam(resolvedSearchParams.lat)
-  const lngParam = getSingleParam(resolvedSearchParams.lng)
+  const latParam = getSingleParam(resolvedSearchParams.lat);
+  const lngParam = getSingleParam(resolvedSearchParams.lng);
 
-  let distanceBadge: string | null = null
+  let distanceBadge: string | null = null;
+  let distanceKmForPlanner: number | undefined;
 
   if (
     latParam &&
@@ -429,42 +421,43 @@ export default async function CoursePage({
     course.latitude != null &&
     course.longitude != null
   ) {
-    const userLat = Number(latParam)
-    const userLng = Number(lngParam)
+    const userLat = Number(latParam);
+    const userLng = Number(lngParam);
 
     if (!Number.isNaN(userLat) && !Number.isNaN(userLng)) {
       const distanceKm = getDistanceKm(
         userLat,
         userLng,
         course.latitude,
-        course.longitude
-      )
+        course.longitude,
+      );
 
-      distanceBadge = `📍 ${distanceKm.toFixed(1)} km`
+      distanceKmForPlanner = distanceKm;
+      distanceBadge = `📍 ${distanceKm.toFixed(1)} km`;
     }
   }
 
-  const websiteUrl = getWebsiteUrl(course.website)
+  const websiteUrl = getWebsiteUrl(course.website);
 
   const directionsQuery = encodeURIComponent(
-    `${course.course_name}, ${course.town}, ${course.region}, ${country}`
-  )
+    `${course.course_name}, ${course.town}, ${course.region}, ${country}`,
+  );
 
-  const directionsUrl = `https://www.google.com/maps/search/?api=1&query=${directionsQuery}`
+  const directionsUrl = `https://www.google.com/maps/search/?api=1&query=${directionsQuery}`;
 
   const handicapText =
     course.max_handicap != null
       ? `Max Handicap ${course.max_handicap}`
       : course.handicap_required
-      ? "Handicap Required"
-      : "Handicap Not Specified"
+        ? "Handicap Required"
+        : "Handicap Not Specified";
 
-  const accessLabel = getAccessLabel(course.independent_guest_days, country)
+  const accessLabel = getAccessLabel(course.independent_guest_days, country);
 
   const golfIrelandDiscountText =
     course.golf_ireland_discount && course.golf_ireland_discount.trim() !== ""
       ? course.golf_ireland_discount
-      : "Not specified"
+      : "Not specified";
 
   const structuredData = {
     "@context": "https://schema.org",
@@ -488,7 +481,7 @@ export default async function CoursePage({
             longitude: course.longitude,
           }
         : undefined,
-  }
+  };
 
   return (
     <main className="min-h-screen bg-stone-100 px-4 py-4 pb-28">
@@ -610,9 +603,34 @@ export default async function CoursePage({
               />
             </>
           ) : (
-            <DetailRow label="Price" value={course.price_range || "Not listed"} />
+            <DetailRow
+              label="Price"
+              value={course.price_range || "Not listed"}
+            />
           )}
         </div>
+
+        {isIreland && (
+          <div className="border-t border-slate-200 px-5 py-5">
+            <CourseAddToTripButton
+              course={{
+                id: course.id,
+                course_name: course.course_name,
+                town: course.town,
+                region: course.region,
+                holes: course.holes,
+                independent_guest_days: course.independent_guest_days,
+                price_range: course.price_range || undefined,
+                course_type: course.course_type || undefined,
+                course_image: course.course_image || undefined,
+                distance: distanceKmForPlanner,
+                latitude: course.latitude || undefined,
+                longitude: course.longitude || undefined,
+                max_handicap: course.max_handicap || undefined,
+              }}
+            />
+          </div>
+        )}
 
         {course.notes && (
           <div className="border-t border-slate-200 px-5 py-5">
@@ -678,5 +696,5 @@ export default async function CoursePage({
         region={course.region}
       />
     </main>
-  )
+  );
 }
