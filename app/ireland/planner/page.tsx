@@ -112,6 +112,34 @@ function getPriceGuide(courses: PlannerCourse[]) {
   return prices.join(' / ')
 }
 
+function generatePlannerUserId() {
+  return `GPG-USER-${Math.random().toString(36).substring(2, 10).toUpperCase()}`
+}
+
+function getOrCreatePlannerUserId() {
+  const existingUserId = window.localStorage.getItem('guestplaygolf_planner_user_id')
+
+  if (existingUserId) return existingUserId
+
+  const newUserId = generatePlannerUserId()
+  window.localStorage.setItem('guestplaygolf_planner_user_id', newUserId)
+
+  return newUserId
+}
+
+function getShortPlaceName(place?: string) {
+  if (!place) return ''
+
+  const cleanPlace = place
+    .split('\n')
+    .map((part) => part.trim())
+    .filter(Boolean)
+
+  if (cleanPlace.length > 0) return cleanPlace[0]
+
+  return place.split(',')[0]?.trim() || place.trim()
+}
+
 export default function PlannerPage() {
   const [step, setStep] = useState<PlannerStep>('setup')
 
@@ -123,6 +151,7 @@ export default function PlannerPage() {
   const [baseError, setBaseError] = useState('')
   const [tripError, setTripError] = useState('')
   const [tripId, setTripId] = useState('')
+  const [plannerUserId, setPlannerUserId] = useState('')
   const [selectedCourses, setSelectedCourses] = useState<PlannerCourse[]>([])
   const [savedTrips, setSavedTrips] = useState<SavedTrip[]>([])
   const [isLoadingTrips, setIsLoadingTrips] = useState(false)
@@ -149,6 +178,9 @@ export default function PlannerPage() {
   }, [numberOfGolfDays])
 
   useEffect(() => {
+    const currentPlannerUserId = getOrCreatePlannerUserId()
+    setPlannerUserId(currentPlannerUserId)
+
     async function loadExistingTrip(existingTripId: string) {
       setIsLoadingTrip(true)
       setTripError('')
@@ -170,7 +202,7 @@ export default function PlannerPage() {
 
         setTripId(trip.trip_id)
         setTripName(trip.trip_name || '')
-        setBaseInput(trip.base_location || '')
+        setBaseInput(getShortPlaceName(trip.base_location || ''))
         setMonth(trip.month_of_travel || 'April')
         setGolfIrelandMember(trip.golf_ireland_member || 'No')
         setNumberOfGolfers(trip.number_of_golfers || 4)
@@ -178,7 +210,7 @@ export default function PlannerPage() {
         setSelectedCourses(courses)
 
         setGeocodedBase({
-          label: trip.base_location || '',
+          label: getShortPlaceName(trip.base_location || ''),
           latitude: trip.base_latitude || 0,
           longitude: trip.base_longitude || 0,
         })
@@ -201,7 +233,7 @@ export default function PlannerPage() {
       setIsLoadingTrips(true)
 
       try {
-        const response = await fetch('/api/trips/list')
+        const response = await fetch(`/api/trips/list?plannerUserId=${currentPlannerUserId}`)
         const data = await response.json()
 
         if (response.ok && Array.isArray(data.trips)) {
@@ -249,6 +281,9 @@ export default function PlannerPage() {
     setTripError('')
     setIsCreatingTrip(true)
 
+    const currentPlannerUserId = plannerUserId || getOrCreatePlannerUserId()
+    setPlannerUserId(currentPlannerUserId)
+
     try {
       const geocodeResponse = await fetch(
         `/api/geocode?place=${encodeURIComponent(
@@ -267,7 +302,7 @@ export default function PlannerPage() {
       }
 
       const confirmedBase = {
-        label: geocodeData.label || baseInput.trim(),
+        label: getShortPlaceName(geocodeData.label || baseInput.trim()),
         latitude: geocodeData.latitude,
         longitude: geocodeData.longitude,
       }
@@ -278,6 +313,7 @@ export default function PlannerPage() {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
+          planner_user_id: currentPlannerUserId,
           trip_name: tripName.trim(),
           base_location: confirmedBase.label,
           base_latitude: confirmedBase.latitude,
@@ -463,7 +499,7 @@ export default function PlannerPage() {
                             </div>
 
                             <p className="mt-1 text-sm text-slate-600">
-                              {[savedTrip.base_location, savedTrip.month_of_travel]
+                              {[getShortPlaceName(savedTrip.base_location), savedTrip.month_of_travel]
                                 .filter(Boolean)
                                 .join(' · ')}
                             </p>
