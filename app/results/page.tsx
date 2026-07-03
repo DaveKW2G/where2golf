@@ -129,7 +129,9 @@ export default async function ResultsPage({ searchParams }: ResultsPageProps) {
     )
 
   const backHref = isPlannerMode
-    ? "/ireland/planner"
+    ? params.tripId
+      ? `/ireland/planner?tripId=${params.tripId}`
+      : "/ireland/planner"
     : params.source === "home"
     ? "/"
     : hasIrelandAdvancedFilters
@@ -270,41 +272,61 @@ export default async function ResultsPage({ searchParams }: ResultsPageProps) {
       : ""
 
   return (
-    <main className="min-h-screen bg-stone-100">
-      <section className="bg-emerald-900 px-5 py-6 text-white">
-        <div className="mx-auto max-w-[480px] flex justify-between">
-          <Link href={backHref}>← Back</Link>
-          <div>{sortedCourses.length} found</div>
+    <main className="min-h-screen bg-stone-100 pb-24">
+      <section className="bg-gradient-to-b from-emerald-950 via-emerald-900 to-emerald-800 px-5 py-7 text-white">
+        <div className="mx-auto flex max-w-[1180px] items-center justify-between gap-4">
+          <Link href={backHref} className="text-sm font-semibold text-white no-underline">
+            ← Back
+          </Link>
+          <div className="rounded-full bg-white/10 px-3 py-1 text-sm font-semibold text-white ring-1 ring-white/15">
+            {sortedCourses.length} found
+          </div>
         </div>
 
-        <div className="mx-auto max-w-[480px] mt-4">
-          <h1 className="text-xl font-bold">
-            {titleCountry
+        <div className="mx-auto mt-5 max-w-[1180px]">
+          {isPlannerMode && (
+            <div className="mb-3 inline-flex rounded-full bg-emerald-100 px-3 py-1 text-xs font-bold uppercase tracking-wide text-emerald-900">
+              Trip Planner Mode
+            </div>
+          )}
+
+          <h1 className="text-[28px] font-bold leading-tight md:text-[40px]">
+            {isPlannerMode
+              ? "Choose courses for your trip"
+              : titleCountry
               ? `Golf Courses in ${titleCountry}`
               : "Golf Courses"}
           </h1>
+
+          <p className="mt-3 max-w-[680px] text-sm leading-6 text-white/80 md:text-base">
+            {isPlannerMode
+              ? "Add courses to your saved itinerary, then return to the planner to assign them to days and check access."
+              : "Browse guest-friendly golf courses by location, access, price and distance."}
+          </p>
         </div>
       </section>
 
-      <div className="mx-auto max-w-[480px] px-5 py-6">
+      <div className="mx-auto max-w-[1180px] px-5 py-7">
         {error && <p>Error loading courses</p>}
 
-        {sortedCourses.map((course: any) => (
-          <CourseCard
-            key={course.id}
-            {...course}
-            userLat={userLat}
-            userLng={userLng}
-            searchParams={{ ...params, country: selectedCountry || undefined }}
-          />
-        ))}
+        <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+          {sortedCourses.map((course: any) => (
+            <CourseCard
+              key={course.id}
+              {...course}
+              userLat={userLat}
+              userLng={userLng}
+              searchParams={{ ...params, country: selectedCountry || undefined }}
+            />
+          ))}
+        </div>
       </div>
 
       {!isPlannerMode && (
-        <div className="fixed bottom-6 left-0 right-0 flex justify-center">
+        <div className="fixed bottom-6 left-0 right-0 flex justify-center px-5">
           <Link
             href={mapHref}
-            className="bg-emerald-700 text-white px-6 py-3 rounded-full"
+            className="rounded-full bg-emerald-700 px-6 py-3 font-semibold text-white shadow-lg no-underline"
           >
             View Map
           </Link>
@@ -312,10 +334,10 @@ export default async function ResultsPage({ searchParams }: ResultsPageProps) {
       )}
 
       {isPlannerMode && (
-        <div className="fixed bottom-6 left-0 right-0 flex justify-center">
+        <div className="fixed bottom-6 left-0 right-0 flex justify-center px-5">
           <Link
             href={params.tripId ? `/ireland/planner?tripId=${params.tripId}` : '/ireland/planner'}
-            className="bg-emerald-700 text-white px-6 py-3 rounded-full"
+            className="rounded-full bg-emerald-700 px-6 py-3 font-semibold text-white shadow-lg no-underline"
           >
             Back to Planner
           </Link>

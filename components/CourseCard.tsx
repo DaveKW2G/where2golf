@@ -137,6 +137,7 @@ export default function CourseCard({
   const [isAddedToPlanner, setIsAddedToPlanner] = useState(false)
   const [isSavingToPlanner, setIsSavingToPlanner] = useState(false)
   const [plannerSaveError, setPlannerSaveError] = useState('')
+  const [hasActiveTrip, setHasActiveTrip] = useState(false)
 
   const params = new URLSearchParams()
 
@@ -196,17 +197,18 @@ export default function CourseCard({
   )
 
   useEffect(() => {
-    if (!isPlannerMode) return
-
     try {
+      const storedTripId = window.localStorage.getItem(plannerTripIdKey)
       const existing = window.localStorage.getItem(plannerCoursesKey)
       const courses = existing ? (JSON.parse(existing) as PlannerCourse[]) : []
 
+      setHasActiveTrip(Boolean(urlTripId || storedTripId))
       setIsAddedToPlanner(courses.some((course) => course.id === id))
     } catch {
+      setHasActiveTrip(false)
       setIsAddedToPlanner(false)
     }
-  }, [id, isPlannerMode])
+  }, [id, urlTripId])
 
   async function handleAddToPlanner() {
     if (isSavingToPlanner) return
@@ -251,7 +253,8 @@ export default function CourseCard({
           )
         }
       } else {
-        setPlannerSaveError('Added locally, but no active trip was found.')
+        setPlannerSaveError('Start a trip first to save this course.')
+        setIsAddedToPlanner(false)
       }
     } catch {
       setPlannerSaveError('Could not add this course. Please try again.')
@@ -268,7 +271,7 @@ export default function CourseCard({
           <img
             src={course_image}
             alt={`${course_name} golf course`}
-            className="h-full w-full object-cover"
+            className="h-full w-full object-cover transition duration-300 group-hover:scale-[1.03]"
           />
           <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent" />
         </div>
@@ -351,13 +354,13 @@ export default function CourseCard({
     </>
   )
 
-  if (isPlannerMode) {
-    return (
-      <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
-        <Link href={href} className="block no-underline">
-          {cardContent}
-        </Link>
+  return (
+    <div className="group overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm transition hover:shadow-md">
+      <Link href={href} className="block no-underline">
+        {cardContent}
+      </Link>
 
+      {isPlannerMode ? (
         <div className="border-t border-slate-100 p-4">
           <button
             type="button"
@@ -382,16 +385,56 @@ export default function CourseCard({
             </p>
           )}
         </div>
-      </div>
-    )
-  }
+      ) : isIreland ? (
+        <div className="border-t border-slate-100 p-4">
+          {hasActiveTrip && (
+            <div className="mb-3 rounded-2xl bg-emerald-50 px-3 py-2 text-xs font-semibold text-emerald-800 ring-1 ring-emerald-100">
+              Active golf trip detected
+            </div>
+          )}
 
-  return (
-    <Link
-      href={href}
-      className="block overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm transition hover:shadow-md"
-    >
-      {cardContent}
-    </Link>
+          <div className="grid grid-cols-2 gap-2">
+            <Link
+              href={href}
+              className="rounded-full border border-slate-200 bg-white px-4 py-3 text-center text-sm font-semibold text-slate-700 no-underline"
+            >
+              View Course
+            </Link>
+
+            {hasActiveTrip ? (
+              <button
+                type="button"
+                onClick={handleAddToPlanner}
+                disabled={isSavingToPlanner}
+                className={`rounded-full px-4 py-3 text-sm font-semibold disabled:opacity-75 ${
+                  isAddedToPlanner
+                    ? 'bg-emerald-100 text-emerald-800'
+                    : 'bg-emerald-800 text-white'
+                }`}
+              >
+                {isSavingToPlanner
+                  ? 'Adding...'
+                  : isAddedToPlanner
+                  ? 'Added'
+                  : 'Add to Trip'}
+              </button>
+            ) : (
+              <Link
+                href="/ireland/planner"
+                className="rounded-full bg-emerald-800 px-4 py-3 text-center text-sm font-semibold text-white no-underline"
+              >
+                Plan Trip
+              </Link>
+            )}
+          </div>
+
+          {plannerSaveError && (
+            <p className="mt-2 text-center text-xs text-red-600">
+              {plannerSaveError}
+            </p>
+          )}
+        </div>
+      ) : null}
+    </div>
   )
 }
