@@ -175,6 +175,65 @@ function getAssignedCourse(
   )
 }
 
+
+function getAccessValidation(course: PlannerCourse, dayType: DayType) {
+  const access = course.independent_guest_days?.trim()
+
+  if (!access) {
+    return {
+      isValid: false,
+      message: 'Check visitor access',
+    }
+  }
+
+  if (access === 'Everyday') {
+    return {
+      isValid: true,
+      message: 'Access matches day',
+    }
+  }
+
+  if (dayType === 'Weekday' && access === 'Weekdays') {
+    return {
+      isValid: true,
+      message: 'Access matches day',
+    }
+  }
+
+  if (dayType === 'Weekend' && access === 'Weekend') {
+    return {
+      isValid: true,
+      message: 'Access matches day',
+    }
+  }
+
+  if (access === 'Weekdays') {
+    return {
+      isValid: false,
+      message: 'Weekday guests only',
+    }
+  }
+
+  if (access === 'Weekend') {
+    return {
+      isValid: false,
+      message: 'Weekend guests only',
+    }
+  }
+
+  if (access === 'Limited Access' || access === 'Limited') {
+    return {
+      isValid: false,
+      message: 'Check limited visitor access',
+    }
+  }
+
+  return {
+    isValid: false,
+    message: 'Check visitor access',
+  }
+}
+
 export default function PlannerPage() {
   const [step, setStep] = useState<PlannerStep>('setup')
 
@@ -867,45 +926,129 @@ export default function PlannerPage() {
               </h2>
 
               <p className="mt-2 text-sm leading-6 text-slate-600">
-                Your trip is set up for {numberOfGolfDays} golf day
-                {numberOfGolfDays === 1 ? '' : 's'}. Choose courses first, then
-                organise them into specific days and tee time slots later.
+                Assign selected courses to each day and slot. We will flag any
+                possible access issues based on whether the day is a weekday or
+                weekend.
               </p>
 
-              <div className="mt-5 grid gap-3">
-                {tripDays.map((day) => (
-                  <div
-                    key={day.dayNumber}
-                    className="flex items-center justify-between rounded-2xl bg-stone-50 p-4 ring-1 ring-slate-200"
-                  >
-                    <div>
-                      <div className="text-sm font-semibold text-slate-900">
-                        Day {day.dayNumber}
+              <div className="mt-5 grid gap-4">
+                {tripDays.map((day) => {
+                  const morningCourse = getAssignedCourse(
+                    selectedCourses,
+                    day.dayNumber,
+                    'Morning'
+                  )
+                  const afternoonCourse = getAssignedCourse(
+                    selectedCourses,
+                    day.dayNumber,
+                    'Afternoon'
+                  )
+
+                  return (
+                    <div
+                      key={day.dayNumber}
+                      className="rounded-3xl border border-slate-200 bg-stone-50 p-4"
+                    >
+                      <div className="flex items-start justify-between gap-3">
+                        <div>
+                          <div className="text-[17px] font-semibold text-slate-900">
+                            Day {day.dayNumber}
+                          </div>
+
+                          <p className="mt-1 text-sm text-slate-600">
+                            Morning and afternoon planning slots
+                          </p>
+                        </div>
+
+                        <div className="flex gap-2">
+                          {(['Weekday', 'Weekend'] as const).map((option) => (
+                            <button
+                              key={option}
+                              type="button"
+                              onClick={() => updateTripDay(day.dayNumber, option)}
+                              className={`rounded-full px-3 py-2 text-xs font-semibold ${
+                                day.dayType === option
+                                  ? 'bg-emerald-800 text-white'
+                                  : 'border border-slate-200 bg-white text-slate-700'
+                              }`}
+                            >
+                              {option}
+                            </button>
+                          ))}
+                        </div>
                       </div>
 
-                      <p className="mt-1 text-sm text-slate-600">
-                        Morning / Afternoon slots available later
-                      </p>
-                    </div>
+                      <div className="mt-4 grid gap-3">
+                        {(['Morning', 'Afternoon'] as const).map((slot) => {
+                          const assignedCourse =
+                            slot === 'Morning' ? morningCourse : afternoonCourse
+                          const validation = assignedCourse
+                            ? getAccessValidation(assignedCourse, day.dayType)
+                            : null
 
-                    <div className="flex gap-2">
-                      {(['Weekday', 'Weekend'] as const).map((option) => (
-                        <button
-                          key={option}
-                          type="button"
-                          onClick={() => updateTripDay(day.dayNumber, option)}
-                          className={`rounded-full px-3 py-2 text-xs font-semibold ${
-                            day.dayType === option
-                              ? 'bg-emerald-800 text-white'
-                              : 'border border-slate-200 bg-white text-slate-700'
-                          }`}
-                        >
-                          {option}
-                        </button>
-                      ))}
+                          return (
+                            <div
+                              key={`${day.dayNumber}-${slot}`}
+                              className="rounded-2xl bg-white p-4 ring-1 ring-slate-200"
+                            >
+                              <div className="text-xs font-semibold uppercase tracking-wide text-slate-500">
+                                {slot}
+                              </div>
+
+                              {assignedCourse ? (
+                                <div className="mt-2">
+                                  <div className="flex items-start justify-between gap-3">
+                                    <div className="min-w-0">
+                                      <div className="text-sm font-semibold text-slate-900">
+                                        {assignedCourse.course_name}
+                                      </div>
+
+                                      <p className="mt-1 text-sm text-slate-600">
+                                        {[
+                                          assignedCourse.course_type,
+                                          assignedCourse.region,
+                                          assignedCourse.price_range,
+                                        ]
+                                          .filter(Boolean)
+                                          .join(' · ')}
+                                      </p>
+                                    </div>
+
+                                    <span
+                                      className={`shrink-0 rounded-full px-2.5 py-1 text-xs font-semibold ${
+                                        validation?.isValid
+                                          ? 'bg-emerald-100 text-emerald-800'
+                                          : 'bg-amber-100 text-amber-800'
+                                      }`}
+                                    >
+                                      {validation?.isValid ? '✓' : '⚠'}
+                                    </span>
+                                  </div>
+
+                                  {validation && (
+                                    <p
+                                      className={`mt-2 text-xs font-semibold ${
+                                        validation.isValid
+                                          ? 'text-emerald-700'
+                                          : 'text-amber-700'
+                                      }`}
+                                    >
+                                      {validation.message}
+                                    </p>
+                                  )}
+                                </div>
+                              ) : (
+                                <p className="mt-2 text-sm text-slate-500">
+                                  Not assigned
+                                </p>
+                              )}
+                            </div>
+                          )
+                        })}
+                      </div>
                     </div>
-                  </div>
-                ))}
+                  )
+                })}
               </div>
 
               <Link
@@ -992,64 +1135,6 @@ export default function PlannerPage() {
                 </div>
               )}
             </div>
-
-            {selectedCourses.length > 0 && (
-              <div className="rounded-3xl bg-white p-5 shadow-sm ring-1 ring-slate-200/70">
-                <h2 className="text-[18px] font-semibold text-slate-900">
-                  Trip Itinerary
-                </h2>
-
-                <p className="mt-2 text-sm leading-6 text-slate-600">
-                  Assign courses to a day and time slot to start building your trip itinerary.
-                </p>
-
-                <div className="mt-5 grid gap-4">
-                  {tripDays.map((day) => {
-                    const morningCourse = getAssignedCourse(
-                      selectedCourses,
-                      day.dayNumber,
-                      'Morning'
-                    )
-                    const afternoonCourse = getAssignedCourse(
-                      selectedCourses,
-                      day.dayNumber,
-                      'Afternoon'
-                    )
-
-                    return (
-                      <div
-                        key={day.dayNumber}
-                        className="rounded-3xl border border-slate-200 bg-stone-50 p-4"
-                      >
-                        <div className="text-[17px] font-semibold text-slate-900">
-                          Day {day.dayNumber}
-                        </div>
-
-                        <div className="mt-3 grid gap-3">
-                          <div className="rounded-2xl bg-white p-4 ring-1 ring-slate-200">
-                            <div className="text-xs font-semibold uppercase tracking-wide text-slate-500">
-                              Morning
-                            </div>
-                            <div className="mt-1 text-sm font-semibold text-slate-900">
-                              {morningCourse?.course_name || 'Not assigned'}
-                            </div>
-                          </div>
-
-                          <div className="rounded-2xl bg-white p-4 ring-1 ring-slate-200">
-                            <div className="text-xs font-semibold uppercase tracking-wide text-slate-500">
-                              Afternoon
-                            </div>
-                            <div className="mt-1 text-sm font-semibold text-slate-900">
-                              {afternoonCourse?.course_name || 'Not assigned'}
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    )
-                  })}
-                </div>
-              </div>
-            )}
 
             {selectedCourses.length > 0 && (
               <div className="rounded-3xl bg-white p-5 shadow-sm ring-1 ring-slate-200/70">
