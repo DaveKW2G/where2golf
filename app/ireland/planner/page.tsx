@@ -114,6 +114,40 @@ function getPriceGuide(courses: PlannerCourse[]) {
   return prices.join(' / ')
 }
 
+function getGreenFeeRange(priceRange?: string) {
+  const cleanPrice = priceRange?.trim()
+
+  if (cleanPrice === '€') return { low: 0, high: 100 }
+  if (cleanPrice === '€€') return { low: 101, high: 200 }
+  if (cleanPrice === '€€€') return { low: 201, high: 300 }
+  if (cleanPrice === '€€€€') return { low: 300, high: 450 }
+
+  return null
+}
+
+function formatEuroAmount(amount: number) {
+  return `€${Math.round(amount).toLocaleString('en-IE')}`
+}
+
+function getGreenFeeEstimate(courses: PlannerCourse[], numberOfGolfers: number) {
+  const courseRanges = courses
+    .map((course) => getGreenFeeRange(course.price_range))
+    .filter((range): range is { low: number; high: number } => Boolean(range))
+
+  if (courseRanges.length === 0) return null
+
+  const perGolferLow = courseRanges.reduce((sum, range) => sum + range.low, 0)
+  const perGolferHigh = courseRanges.reduce((sum, range) => sum + range.high, 0)
+
+  return {
+    pricedCourses: courseRanges.length,
+    perGolferLow,
+    perGolferHigh,
+    groupLow: perGolferLow * numberOfGolfers,
+    groupHigh: perGolferHigh * numberOfGolfers,
+  }
+}
+
 function generatePlannerUserId() {
   return `GPG-USER-${Math.random().toString(36).substring(2, 10).toUpperCase()}`
 }
@@ -267,6 +301,7 @@ export default function PlannerPage() {
   const averageDistance = getAverageDistance(selectedCourses)
   const courseMix = getCourseMix(selectedCourses)
   const priceGuide = getPriceGuide(selectedCourses)
+  const greenFeeEstimate = getGreenFeeEstimate(selectedCourses, numberOfGolfers)
 
   useEffect(() => {
     setTripDays((currentDays) => createTripDays(numberOfGolfDays, currentDays))
@@ -1245,6 +1280,49 @@ export default function PlannerPage() {
                 <div className="mt-1 text-[18px] font-bold text-slate-900">
                   {courseMix}
                 </div>
+              </div>
+
+              <div className="mt-3 rounded-2xl bg-emerald-50 p-4 ring-1 ring-emerald-100">
+                <div className="text-[13px] font-semibold text-emerald-800">
+                  Indicative green fee guide
+                </div>
+
+                {greenFeeEstimate ? (
+                  <div className="mt-2 grid gap-2">
+                    <div>
+                      <div className="text-xs font-semibold uppercase tracking-wide text-emerald-700/80">
+                        Per golfer
+                      </div>
+                      <div className="mt-1 text-[22px] font-bold text-slate-900">
+                        {formatEuroAmount(greenFeeEstimate.perGolferLow)} - {formatEuroAmount(greenFeeEstimate.perGolferHigh)}
+                      </div>
+                    </div>
+
+                    <div className="border-t border-emerald-100 pt-2">
+                      <div className="text-xs font-semibold uppercase tracking-wide text-emerald-700/80">
+                        Group guide ({numberOfGolfers} golfers)
+                      </div>
+                      <div className="mt-1 text-[18px] font-bold text-slate-900">
+                        {formatEuroAmount(greenFeeEstimate.groupLow)} - {formatEuroAmount(greenFeeEstimate.groupHigh)}
+                      </div>
+                    </div>
+
+                    <p className="text-xs leading-5 text-slate-600">
+                      Guide only. Actual green fees can vary by weekday/weekend, season, tee time and booking conditions.
+                    </p>
+
+                    {greenFeeEstimate.pricedCourses < selectedCourses.length && (
+                      <p className="text-xs leading-5 text-slate-600">
+                        Guide excludes {selectedCourses.length - greenFeeEstimate.pricedCourses} course
+                        {selectedCourses.length - greenFeeEstimate.pricedCourses === 1 ? '' : 's'} without a price band.
+                      </p>
+                    )}
+                  </div>
+                ) : (
+                  <p className="mt-2 text-sm leading-6 text-slate-600">
+                    Add courses with price bands to estimate green fees.
+                  </p>
+                )}
               </div>
 
               {tripError && (
