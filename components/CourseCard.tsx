@@ -117,6 +117,10 @@ function shouldShowIrelandHandicap(maxHandicap?: number) {
   return maxHandicap > 0 && maxHandicap < 54
 }
 
+function isValidTripId(value: string | null) {
+  return Boolean(value && value !== 'undefined' && value !== 'null')
+}
+
 export default function CourseCard({
   id,
   country,
@@ -153,8 +157,15 @@ export default function CourseCard({
     })
   }
 
-  const queryString = params.toString()
-  const href = queryString ? `/courses/${id}?${queryString}` : `/courses/${id}`
+  const returnParams = new URLSearchParams(params)
+  const resultsQueryString = params.toString()
+
+  if (resultsQueryString && !returnParams.get('returnTo')) {
+    returnParams.set('returnTo', `/results?${resultsQueryString}`)
+  }
+
+  const courseQueryString = returnParams.toString()
+  const href = courseQueryString ? `/courses/${id}?${courseQueryString}` : `/courses/${id}`
 
   const countryValue = getCountryFromParams(country, searchParams)
   const isIreland = countryValue === 'ireland'
@@ -199,10 +210,11 @@ export default function CourseCard({
   useEffect(() => {
     try {
       const storedTripId = window.localStorage.getItem(plannerTripIdKey)
+      const activeTripId = urlTripId || storedTripId
       const existing = window.localStorage.getItem(plannerCoursesKey)
       const courses = existing ? (JSON.parse(existing) as PlannerCourse[]) : []
 
-      setHasActiveTrip(Boolean(urlTripId || storedTripId))
+      setHasActiveTrip(isValidTripId(activeTripId))
       setIsAddedToPlanner(courses.some((course) => course.id === id))
     } catch {
       setHasActiveTrip(false)
@@ -217,45 +229,49 @@ export default function CourseCard({
     setIsSavingToPlanner(true)
 
     try {
-      const existing = window.localStorage.getItem(plannerCoursesKey)
-      const courses = existing ? (JSON.parse(existing) as PlannerCourse[]) : []
-
-      const filteredCourses = courses.filter((course) => course.id !== id)
-      const nextCourses = [...filteredCourses, plannerCourse]
-
-      window.localStorage.setItem(plannerCoursesKey, JSON.stringify(nextCourses))
-      setIsAddedToPlanner(true)
-
-      window.dispatchEvent(new Event('guestplaygolf-planner-courses-updated'))
-
       const storedTripId = window.localStorage.getItem(plannerTripIdKey)
       const activeTripId = urlTripId || storedTripId
 
-      if (activeTripId) {
-        const response = await fetch('/api/trips/add-course', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            trip_id: activeTripId,
-            course: plannerCourse,
-          }),
-        })
-
-        const responseData = await response.json()
-
-        if (!response.ok) {
-          setPlannerSaveError(
-            responseData.details ||
-              responseData.error ||
-              'Added locally, but not synced to trip yet.'
-          )
-        }
-      } else {
+      if (!isValidTripId(activeTripId)) {
         setPlannerSaveError('Start a trip first to save this course.')
         setIsAddedToPlanner(false)
+        setHasActiveTrip(false)
+        return
       }
+
+      window.localStorage.setItem(plannerTripIdKey, activeTripId!)
+      setHasActiveTrip(true)
+
+      const response = await fetch('/api/trips/add-course', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          trip_id: activeTripId,
+          course: plannerCourse,
+        }),
+      })
+
+      const responseData = await response.json()
+
+      if (!response.ok) {
+        setPlannerSaveError(
+          responseData.details ||
+            responseData.error ||
+            'Course was not synced to your trip.'
+        )
+        setIsAddedToPlanner(false)
+        return
+      }
+
+      const syncedCourses = Array.isArray(responseData.selected_courses)
+        ? responseData.selected_courses
+        : []
+
+      window.localStorage.setItem(plannerCoursesKey, JSON.stringify(syncedCourses))
+      setIsAddedToPlanner(syncedCourses.some((course: PlannerCourse) => course.id === id))
+      window.dispatchEvent(new Event('guestplaygolf-planner-courses-updated'))
     } catch {
       setPlannerSaveError('Could not add this course. Please try again.')
       setIsAddedToPlanner(false)
