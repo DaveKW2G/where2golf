@@ -45,6 +45,16 @@ type SavedTrip = {
   created_at?: string;
 };
 
+type VoteSummary = Record<
+  number,
+  {
+    must_play: number;
+    happy_to_play: number;
+    not_for_me: number;
+    score: number;
+  }
+>;
+
 const quickBases = [
   "Dublin",
   "Cork",
@@ -318,6 +328,22 @@ export default function PlannerPage() {
   const courseMix = getCourseMix(selectedCourses);
   const greenFeeEstimate = getGreenFeeEstimate(selectedCourses);
 
+  async function loadVoteTotals(activeTripId: string) {
+    try {
+      const response = await fetch(
+        `/api/trips/vote?tripId=${encodeURIComponent(activeTripId)}`,
+        { cache: "no-store" },
+      );
+      const data = await response.json();
+
+      if (response.ok && data.summary) {
+        setVoteSummary(data.summary);
+      }
+    } catch {
+      setVoteSummary({});
+    }
+  }
+
   useEffect(() => {
     setTripDays((currentDays) => createTripDays(numberOfGolfDays, currentDays));
   }, [numberOfGolfDays]);
@@ -356,6 +382,7 @@ export default function PlannerPage() {
         setNumberOfGolfers(trip.number_of_golfers || 4);
         setNumberOfGolfDays(trip.number_of_golf_days || 3);
         setSelectedCourses(courses);
+        await loadVoteTotals(trip.trip_id);
 
         setGeocodedBase({
           label: getShortPlaceName(trip.base_location || ""),
