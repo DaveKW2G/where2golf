@@ -143,6 +143,45 @@ export default function IrelandPage() {
 
       <section className="mx-auto max-w-[480px] px-5 py-6">
         <IrelandPageClient />
+<div className="mt-6 rounded-2xl bg-gradient-to-br from-emerald-950 via-emerald-900 to-emerald-800 p-5 text-white shadow-sm">
+  <div className="text-[12px] font-semibold uppercase tracking-[0.18em] text-emerald-100/80">
+    New
+  </div>
+
+  <h2 className="mt-2 text-[22px] font-bold">
+    Plan Your Irish Golf Trip
+  </h2>
+
+  <p className="mt-3 text-sm leading-6 text-white/85">
+    Choose a base, compare nearby courses, build a day-by-day itinerary,
+    estimate green fees and share your trip with your golf group.
+  </p>
+
+  <div className="mt-4 flex flex-wrap gap-2">
+    <div className="rounded-full bg-white/10 px-3 py-1 text-xs font-semibold">
+      Course Comparison
+    </div>
+
+    <div className="rounded-full bg-white/10 px-3 py-1 text-xs font-semibold">
+      Group Voting
+    </div>
+
+    <div className="rounded-full bg-white/10 px-3 py-1 text-xs font-semibold">
+      Trip Sharing
+    </div>
+
+    <div className="rounded-full bg-white/10 px-3 py-1 text-xs font-semibold">
+      Green Fee Guide
+    </div>
+  </div>
+
+  <Link
+    href="/ireland/planner"
+    className="mt-5 inline-block rounded-full bg-white px-5 py-3 text-sm font-semibold text-emerald-900 no-underline"
+  >
+    Start Planning
+  </Link>
+</div>
 
         <div className="mt-6 rounded-2xl bg-white p-5 shadow-sm ring-1 ring-slate-200/70">
           <h2 className="text-[18px] font-semibold text-slate-900">
