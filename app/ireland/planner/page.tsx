@@ -156,6 +156,23 @@ function getOrCreatePlannerUserId() {
   return newUserId;
 }
 
+function generateParticipantId() {
+  return `GPG-P-${Math.random().toString(36).substring(2, 10).toUpperCase()}`;
+}
+
+function getOrCreateParticipantId() {
+  const existingId = window.localStorage.getItem(
+    "guestplaygolf_participant_id",
+  );
+
+  if (existingId) return existingId;
+
+  const newId = generateParticipantId();
+  window.localStorage.setItem("guestplaygolf_participant_id", newId);
+
+  return newId;
+}
+
 function getShortPlaceName(place?: string) {
   if (!place) return "";
 
@@ -282,6 +299,7 @@ export default function PlannerPage() {
   const [savedTrips, setSavedTrips] = useState<SavedTrip[]>([]);
   const [isLoadingTrips, setIsLoadingTrips] = useState(false);
   const [shareCopied, setShareCopied] = useState(false);
+  const [, setParticipantId] = useState("");
 
   const [tripName, setTripName] = useState("");
   const [month, setMonth] = useState("April");
@@ -307,6 +325,9 @@ export default function PlannerPage() {
   useEffect(() => {
     const currentPlannerUserId = getOrCreatePlannerUserId();
     setPlannerUserId(currentPlannerUserId);
+
+    const currentParticipantId = getOrCreateParticipantId();
+    setParticipantId(currentParticipantId);
 
     async function loadExistingTrip(existingTripId: string) {
       setIsLoadingTrip(true);
