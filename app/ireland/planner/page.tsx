@@ -309,10 +309,9 @@ export default function PlannerPage() {
   const [savedTrips, setSavedTrips] = useState<SavedTrip[]>([]);
   const [isLoadingTrips, setIsLoadingTrips] = useState(false);
   const [shareCopied, setShareCopied] = useState(false);
-const [participantId, setParticipantId] = useState("");
-const [voteSummary, setVoteSummary] = useState<Record<number, any>>({});
-const [isSubmittingVote, setIsSubmittingVote] = useState<number | null>(null);
-  const [, setParticipantId] = useState("");
+  const [participantId, setParticipantId] = useState("");
+  const [voteSummary, setVoteSummary] = useState<VoteSummary>({});
+  const [isSubmittingVote, setIsSubmittingVote] = useState<number | null>(null);
 
   const [tripName, setTripName] = useState("");
   const [month, setMonth] = useState("April");
@@ -332,15 +331,16 @@ const [isSubmittingVote, setIsSubmittingVote] = useState<number | null>(null);
   const greenFeeEstimate = getGreenFeeEstimate(selectedCourses);
 
   async function loadVoteTotals(activeTripId: string) {
+    if (!activeTripId) return;
+
     try {
-      const response = await fetch(
-        `/api/trips/vote?tripId=${encodeURIComponent(activeTripId)}`,
-        { cache: "no-store" },
-      );
+      const response = await fetch(`/api/trips/vote?tripId=${activeTripId}`);
       const data = await response.json();
 
       if (response.ok && data.summary) {
         setVoteSummary(data.summary);
+      } else {
+        setVoteSummary({});
       }
     } catch {
       setVoteSummary({});
@@ -385,7 +385,6 @@ const [isSubmittingVote, setIsSubmittingVote] = useState<number | null>(null);
         setNumberOfGolfers(trip.number_of_golfers || 4);
         setNumberOfGolfDays(trip.number_of_golf_days || 3);
         setSelectedCourses(courses);
-        await loadVoteTotals(trip.trip_id);
 
         setGeocodedBase({
           label: getShortPlaceName(trip.base_location || ""),
@@ -398,6 +397,8 @@ const [isSubmittingVote, setIsSubmittingVote] = useState<number | null>(null);
           "guestplaygolf_planner_courses",
           JSON.stringify(courses),
         );
+
+        await loadVoteTotals(trip.trip_id);
 
         setStep("planner");
       } catch {
@@ -516,6 +517,7 @@ const [isSubmittingVote, setIsSubmittingVote] = useState<number | null>(null);
       setGeocodedBase(confirmedBase);
       setTripId(tripData.trip_id);
       setSelectedCourses([]);
+      setVoteSummary({});
 
       window.localStorage.setItem("guestplaygolf_trip_id", tripData.trip_id);
       window.localStorage.setItem("guestplaygolf_planner_courses", "[]");
