@@ -309,6 +309,9 @@ export default function PlannerPage() {
   const [savedTrips, setSavedTrips] = useState<SavedTrip[]>([]);
   const [isLoadingTrips, setIsLoadingTrips] = useState(false);
   const [shareCopied, setShareCopied] = useState(false);
+const [participantId, setParticipantId] = useState("");
+const [voteSummary, setVoteSummary] = useState<Record<number, any>>({});
+const [isSubmittingVote, setIsSubmittingVote] = useState<number | null>(null);
   const [, setParticipantId] = useState("");
 
   const [tripName, setTripName] = useState("");
