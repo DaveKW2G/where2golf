@@ -307,9 +307,37 @@ export default async function ResultsPage({ searchParams }: ResultsPageProps) {
       </section>
 
       <div className="mx-auto max-w-[1180px] px-5 py-7">
-        {error && <p>Error loading courses</p>}
+  {error && <p>Error loading courses</p>}
 
-        <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+  {!isPlannerMode && selectedCountry === "ireland" && (
+    <div className="mb-6 rounded-3xl bg-gradient-to-r from-emerald-950 via-emerald-900 to-emerald-800 p-5 text-white shadow-sm">
+      <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+        <div>
+          <div className="text-[12px] font-semibold uppercase tracking-[0.18em] text-emerald-100/80">
+            Golf Trip Planner
+          </div>
+
+          <h2 className="mt-2 text-xl font-bold">
+            Planning a golf trip?
+          </h2>
+
+          <p className="mt-2 max-w-[700px] text-sm leading-6 text-white/85">
+            Compare nearby courses, build a day-by-day itinerary, vote with your
+            golf group and share your plans.
+          </p>
+        </div>
+
+        <Link
+          href="/ireland/planner"
+          className="inline-flex items-center justify-center rounded-full bg-white px-5 py-3 font-semibold text-emerald-900 no-underline"
+        >
+          Start Planning
+        </Link>
+      </div>
+    </div>
+  )}
+
+  <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
           {sortedCourses.map((course: any) => (
             <CourseCard
               key={course.id}
