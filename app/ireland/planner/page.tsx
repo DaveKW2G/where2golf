@@ -720,7 +720,7 @@ export default function PlannerPage() {
         </div>
       </section>
 
-      <section className="mx-auto max-w-[1120px] px-5 py-6 text-left">
+      <section className="mx-auto max-w-[1120px] px-4 py-5 text-left sm:px-5 sm:py-6">
         {step === "setup" && (
           <div className="mx-auto max-w-[480px]">
             <div className="mb-6 rounded-3xl bg-white p-5 shadow-sm ring-1 ring-slate-200/70">
@@ -762,7 +762,7 @@ export default function PlannerPage() {
                         key={savedTrip.trip_id}
                         className="rounded-2xl bg-stone-50 p-4 ring-1 ring-slate-200"
                       >
-                        <div className="flex items-start justify-between gap-3">
+                        <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
                           <div>
                             <div className="text-sm font-semibold text-slate-900">
                               {savedTrip.trip_name || "Untitled trip"}
@@ -1000,10 +1000,10 @@ export default function PlannerPage() {
         )}
 
         {step === "planner" && geocodedBase && (
-          <div className="grid gap-6 lg:grid-cols-[minmax(0,1.1fr)_minmax(360px,0.9fr)] lg:items-start">
+          <div className="mx-auto grid max-w-[520px] gap-5 sm:gap-6 lg:max-w-none lg:grid-cols-[minmax(0,1.1fr)_minmax(360px,0.9fr)] lg:items-start">
             <div className="overflow-hidden rounded-3xl bg-white shadow-sm ring-1 ring-slate-200/70 lg:col-span-2">
               <div className="bg-gradient-to-br from-emerald-950 via-emerald-900 to-emerald-800 p-5 text-white">
-                <div className="flex items-start justify-between gap-4">
+                <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
                   <div className="min-w-0">
                     <p className="text-[12px] font-semibold uppercase tracking-[0.22em] text-emerald-100/80">
                       My Trip
@@ -1020,7 +1020,7 @@ export default function PlannerPage() {
                     </div>
                   </div>
 
-                  <div className="flex shrink-0 flex-col gap-2">
+                  <div className="grid grid-cols-2 gap-2 sm:flex sm:shrink-0 sm:flex-col">
                     {tripId && (
                       <button
                         type="button"
@@ -1042,7 +1042,7 @@ export default function PlannerPage() {
                 </div>
               </div>
 
-              <div className="flex items-center justify-between gap-3 px-5 py-3 text-xs text-slate-500">
+              <div className="flex flex-col gap-1 px-5 py-3 text-xs text-slate-500 sm:flex-row sm:items-center sm:justify-between sm:gap-3">
                 <span>Golf Ireland: {golfIrelandMember}</span>
                 {tripId && <span>Trip ID: {tripId}</span>}
               </div>
@@ -1090,7 +1090,7 @@ export default function PlannerPage() {
                       key={day.dayNumber}
                       className="rounded-3xl border border-slate-200 bg-stone-50 p-4"
                     >
-                      <div className="flex items-start justify-between gap-3">
+                      <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
                         <div>
                           <div className="text-[18px] font-semibold text-slate-900">
                             Day {day.dayNumber}
@@ -1147,7 +1147,7 @@ export default function PlannerPage() {
 
                             return (
                               <div className="rounded-2xl bg-white p-4 ring-1 ring-slate-200">
-                                <div className="flex items-start justify-between gap-3">
+                                <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
                                   <div className="min-w-0">
                                     <div className="text-[17px] font-bold text-slate-900">
                                       {assignedCourse.course_name}
@@ -1208,7 +1208,7 @@ export default function PlannerPage() {
 
                                 {assignedCourse && validation ? (
                                   <div className="mt-2">
-                                    <div className="flex items-start justify-between gap-3">
+                                    <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
                                       <div className="min-w-0">
                                         <div className="text-[16px] font-bold text-slate-900">
                                           {assignedCourse.course_name}
@@ -1283,7 +1283,7 @@ export default function PlannerPage() {
                       key={course.id}
                       className="rounded-2xl bg-stone-50 p-4 ring-1 ring-slate-200"
                     >
-                      <div className="flex items-start justify-between gap-3">
+                      <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
                         <div className="min-w-0 flex-1">
                           <div className="text-sm font-semibold text-slate-900">
                             {course.course_name}
@@ -1342,7 +1342,7 @@ export default function PlannerPage() {
                           type="button"
                           onClick={() => handleRemoveCourse(course.id)}
                           disabled={isRemovingCourse === course.id}
-                          className="rounded-full border border-red-200 bg-white px-3 py-1.5 text-xs font-semibold text-red-700 disabled:opacity-50"
+                          className="self-start rounded-full border border-red-200 bg-white px-3 py-1.5 text-xs font-semibold text-red-700 disabled:opacity-50 sm:self-auto"
                         >
                           {isRemovingCourse === course.id
                             ? "Removing..."
@@ -1357,7 +1357,7 @@ export default function PlannerPage() {
 
             {selectedCourses.length > 0 && (
               <div className="rounded-3xl bg-white p-5 shadow-sm ring-1 ring-slate-200/70 lg:col-span-2">
-                <div className="flex items-start justify-between gap-3">
+                <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
                   <div>
                     <p className="text-[12px] font-semibold uppercase tracking-[0.18em] text-emerald-800">
                       Course shortlist
@@ -1447,7 +1447,7 @@ export default function PlannerPage() {
                 </h2>
               </div>
 
-              <div className="mt-4 grid grid-cols-3 gap-2">
+              <div className="mt-4 grid grid-cols-1 gap-2 sm:grid-cols-3">
                 <div className="rounded-2xl bg-stone-50 p-3 text-center ring-1 ring-slate-200">
                   <div className="text-[20px] font-bold text-slate-900">
                     {selectedCourses.length}
