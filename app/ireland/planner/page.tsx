@@ -700,7 +700,7 @@ export default function PlannerPage() {
   return (
     <main className="min-h-screen bg-stone-100 text-slate-800">
       <section className="relative overflow-hidden bg-gradient-to-b from-emerald-950 via-emerald-900 to-emerald-800 px-5 pt-8 pb-10 text-white">
-        <div className="relative z-10 mx-auto max-w-[1120px] text-left">
+        <div className="relative z-10 mx-auto max-w-[480px] text-left lg:max-w-[1120px]">
           <div className="text-[15px] font-semibold uppercase tracking-[0.28em] text-white/85">
             GuestPlayGolf
           </div>
@@ -720,7 +720,7 @@ export default function PlannerPage() {
         </div>
       </section>
 
-      <section className="mx-auto max-w-[1120px] px-4 py-5 text-left sm:px-5 sm:py-6">
+      <section className="mx-auto max-w-[480px] px-5 py-6 text-left lg:max-w-[1120px]">
         {step === "setup" && (
           <div className="mx-auto max-w-[480px]">
             <div className="mb-6 rounded-3xl bg-white p-5 shadow-sm ring-1 ring-slate-200/70">
@@ -1000,7 +1000,7 @@ export default function PlannerPage() {
         )}
 
         {step === "planner" && geocodedBase && (
-          <div className="mx-auto grid max-w-[520px] gap-5 sm:gap-6 lg:max-w-none lg:grid-cols-[minmax(0,1.1fr)_minmax(360px,0.9fr)] lg:items-start">
+          <div className="grid gap-6 lg:grid-cols-[minmax(0,1.1fr)_minmax(360px,0.9fr)] lg:items-start">
             <div className="overflow-hidden rounded-3xl bg-white shadow-sm ring-1 ring-slate-200/70 lg:col-span-2">
               <div className="bg-gradient-to-br from-emerald-950 via-emerald-900 to-emerald-800 p-5 text-white">
                 <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
@@ -1020,7 +1020,7 @@ export default function PlannerPage() {
                     </div>
                   </div>
 
-                  <div className="grid grid-cols-2 gap-2 sm:flex sm:shrink-0 sm:flex-col">
+                  <div className="flex shrink-0 gap-2 sm:flex-col">
                     {tripId && (
                       <button
                         type="button"
@@ -1049,7 +1049,7 @@ export default function PlannerPage() {
             </div>
 
             <div className="rounded-3xl bg-white p-5 shadow-sm ring-1 ring-slate-200/70">
-              <div className="flex items-start justify-between gap-3">
+              <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
                 <div>
                   <p className="text-[12px] font-semibold uppercase tracking-[0.18em] text-emerald-800">
                     Itinerary builder
@@ -1105,7 +1105,7 @@ export default function PlannerPage() {
                           </p>
                         </div>
 
-                        <div className="flex gap-2">
+                        <div className="flex flex-wrap gap-2">
                           {(["Weekday", "Weekend"] as const).map((option) => (
                             <button
                               key={option}
@@ -1342,7 +1342,7 @@ export default function PlannerPage() {
                           type="button"
                           onClick={() => handleRemoveCourse(course.id)}
                           disabled={isRemovingCourse === course.id}
-                          className="self-start rounded-full border border-red-200 bg-white px-3 py-1.5 text-xs font-semibold text-red-700 disabled:opacity-50 sm:self-auto"
+                          className="self-start rounded-full border border-red-200 bg-white px-3 py-1.5 text-xs font-semibold text-red-700 disabled:opacity-50"
                         >
                           {isRemovingCourse === course.id
                             ? "Removing..."
