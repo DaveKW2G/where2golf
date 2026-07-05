@@ -7,21 +7,29 @@ export async function GET(request: Request) {
     const { searchParams } = new URL(request.url)
 
     const tripId = searchParams.get('tripId')
+    const tripCode = searchParams.get('tripCode')?.trim().toUpperCase()
 
-    if (!tripId) {
+    if (!tripId && !tripCode) {
       return NextResponse.json(
-        { error: 'Trip ID is required' },
+        { error: 'Trip ID or trip code is required' },
         { status: 400 }
       )
     }
 
-    const { data, error } = await supabase
+    let query = supabase
       .from('trips')
       .select(
-        'trip_id, trip_name, base_location, base_latitude, base_longitude, month_of_travel, golf_ireland_member, number_of_golfers, number_of_golf_days, selected_courses, itinerary'
+        'trip_id, trip_code, trip_name, base_location, base_latitude, base_longitude, month_of_travel, golf_ireland_member, number_of_golfers, number_of_golf_days, selected_courses, itinerary'
       )
-      .eq('trip_id', tripId)
       .limit(1)
+
+    if (tripCode) {
+      query = query.eq('trip_code', tripCode)
+    } else if (tripId) {
+      query = query.eq('trip_id', tripId)
+    }
+
+    const { data, error } = await query
 
     if (error) {
       return NextResponse.json(
