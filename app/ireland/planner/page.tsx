@@ -1421,7 +1421,10 @@ export default function PlannerPage() {
                               </div>
 
                               <div className="text-xs font-semibold text-slate-500">
-                                Score {getCourseVoteSummary(voteSummary, course.id).score}
+                                {(() => {
+                                  const summary = getCourseVoteSummary(voteSummary, course.id);
+                                  return `${summary.must_play + summary.happy_to_play + summary.not_for_me} votes`;
+                                })()}
                               </div>
                             </div>
 

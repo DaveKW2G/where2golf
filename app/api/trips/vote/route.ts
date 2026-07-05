@@ -40,7 +40,6 @@ function summariseVotes(votes: { course_id: number; vote: string }[]) {
 
     if (voteRow.vote === 'not_for_me') {
       summary[courseId].not_for_me += 1
-      summary[courseId].score -= 1
     }
   })
 
@@ -137,7 +136,10 @@ export async function POST(request: Request) {
 
     if (readError) {
       return NextResponse.json(
-        { error: 'Vote saved, but unable to reload totals', details: readError.message },
+        {
+          error: 'Vote saved, but unable to reload totals',
+          details: readError.message,
+        },
         { status: 500 }
       )
     }
