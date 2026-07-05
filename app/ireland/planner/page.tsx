@@ -845,8 +845,9 @@ export default function PlannerPage() {
 
       <section className="mx-auto w-full max-w-[480px] overflow-x-hidden px-4 py-6 text-left lg:max-w-[1120px] lg:px-5">
         {step === "setup" && (
-          <div className="mx-auto max-w-[480px]">
-            <div className="mb-6 rounded-3xl bg-white p-5 shadow-sm ring-1 ring-slate-200/70">
+          <div className="mx-auto max-w-[1120px]">
+            <div className="grid gap-6 lg:grid-cols-2">
+            <div className="rounded-3xl bg-white p-5 shadow-sm ring-1 ring-slate-200/70">
               <div className="flex items-center justify-between gap-3">
                 <div>
                   <h2 className="text-[21px] font-semibold text-slate-900">
@@ -927,6 +928,9 @@ export default function PlannerPage() {
               )}
             </div>
 
+            </div>
+
+            <div>
             <div className="mb-6 rounded-3xl bg-white p-5 shadow-sm ring-1 ring-slate-200/70">
               <h2 className="text-[19px] font-semibold text-slate-900">
                 Have a trip code?
@@ -958,6 +962,9 @@ export default function PlannerPage() {
                 </button>
               </div>
             </div>
+
+            </div>
+          </div>
 
             <div className="min-w-0 max-w-full rounded-3xl bg-white p-5 shadow-sm ring-1 ring-slate-200/70">
               <h2 className="text-[21px] font-semibold text-slate-900">
