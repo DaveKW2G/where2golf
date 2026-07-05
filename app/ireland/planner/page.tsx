@@ -6,6 +6,7 @@ import { useEffect, useMemo, useState } from "react";
 type GolfIrelandMember = "Yes" | "No" | "Not sure";
 type DayType = "Weekday" | "Weekend";
 type PlannerStep = "setup" | "planner";
+type VoteValue = "must_play" | "happy_to_play" | "not_for_me";
 
 type TripDay = {
   dayNumber: number;
@@ -79,6 +80,12 @@ const months = [
   "October",
   "November",
   "December",
+];
+
+const voteOptions: { value: VoteValue; emoji: string; label: string }[] = [
+  { value: "must_play", emoji: "🔥", label: "Must Play" },
+  { value: "happy_to_play", emoji: "👍", label: "Happy To Play" },
+  { value: "not_for_me", emoji: "👎", label: "Not For Me" },
 ];
 
 function createTripDays(numberOfGolfDays: number, existingDays: TripDay[]) {
@@ -290,6 +297,17 @@ function getAccessValidation(course: PlannerCourse, dayType: DayType) {
   };
 }
 
+function getCourseVoteSummary(voteSummary: VoteSummary, courseId: number) {
+  return (
+    voteSummary[courseId] || {
+      must_play: 0,
+      happy_to_play: 0,
+      not_for_me: 0,
+      score: 0,
+    }
+  );
+}
+
 export default function PlannerPage() {
   const [step, setStep] = useState<PlannerStep>("setup");
 
@@ -311,6 +329,7 @@ export default function PlannerPage() {
   const [shareCopied, setShareCopied] = useState(false);
   const [participantId, setParticipantId] = useState("");
   const [voteSummary, setVoteSummary] = useState<VoteSummary>({});
+  const [selectedVotes, setSelectedVotes] = useState<Record<number, VoteValue>>({});
   const [isSubmittingVote, setIsSubmittingVote] = useState<number | null>(null);
 
   const [tripName, setTripName] = useState("");
@@ -399,6 +418,15 @@ export default function PlannerPage() {
         );
 
         await loadVoteTotals(trip.trip_id);
+
+        try {
+          const storedVotes = window.localStorage.getItem(
+            `guestplaygolf_trip_votes_${trip.trip_id}`,
+          );
+          setSelectedVotes(storedVotes ? JSON.parse(storedVotes) : {});
+        } catch {
+          setSelectedVotes({});
+        }
 
         setStep("planner");
       } catch {
@@ -518,6 +546,7 @@ export default function PlannerPage() {
       setTripId(tripData.trip_id);
       setSelectedCourses([]);
       setVoteSummary({});
+      setSelectedVotes({});
 
       window.localStorage.setItem("guestplaygolf_trip_id", tripData.trip_id);
       window.localStorage.setItem("guestplaygolf_planner_courses", "[]");
@@ -654,6 +683,54 @@ export default function PlannerPage() {
       setTripError(
         "We could not copy the link. Please copy it from your browser address bar.",
       );
+    }
+  }
+
+  async function handleSubmitVote(courseId: number, vote: VoteValue) {
+    if (!tripId || !participantId || isSubmittingVote) return;
+
+    setTripError("");
+    setIsSubmittingVote(courseId);
+
+    try {
+      const response = await fetch("/api/trips/vote", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          trip_id: tripId,
+          course_id: courseId,
+          participant_id: participantId,
+          vote,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        setTripError(data.error || "We could not save your vote.");
+        return;
+      }
+
+      if (data.summary) {
+        setVoteSummary(data.summary);
+      }
+
+      const nextSelectedVotes = {
+        ...selectedVotes,
+        [courseId]: vote,
+      };
+
+      setSelectedVotes(nextSelectedVotes);
+      window.localStorage.setItem(
+        `guestplaygolf_trip_votes_${tripId}`,
+        JSON.stringify(nextSelectedVotes),
+      );
+    } catch {
+      setTripError("Something went wrong saving your vote.");
+    } finally {
+      setIsSubmittingVote(null);
     }
   }
 
@@ -1335,6 +1412,60 @@ export default function PlannerPage() {
                                 ),
                               )}
                             </select>
+                          </div>
+
+                          <div className="mt-4 rounded-2xl bg-white p-3 ring-1 ring-slate-200">
+                            <div className="flex items-center justify-between gap-3">
+                              <div className="text-xs font-semibold uppercase tracking-wide text-slate-500">
+                                Group vote
+                              </div>
+
+                              <div className="text-xs font-semibold text-slate-500">
+                                Score {getCourseVoteSummary(voteSummary, course.id).score}
+                              </div>
+                            </div>
+
+                            <div className="mt-3 grid gap-2 sm:grid-cols-3">
+                              {voteOptions.map((option) => {
+                                const isSelected =
+                                  selectedVotes[course.id] === option.value;
+
+                                return (
+                                  <button
+                                    key={option.value}
+                                    type="button"
+                                    onClick={() =>
+                                      handleSubmitVote(course.id, option.value)
+                                    }
+                                    disabled={isSubmittingVote === course.id}
+                                    className={`rounded-2xl px-3 py-2.5 text-left text-xs font-semibold transition disabled:opacity-60 ${
+                                      isSelected
+                                        ? "bg-emerald-800 text-white shadow-sm"
+                                        : "bg-stone-50 text-slate-700 ring-1 ring-slate-200"
+                                    }`}
+                                  >
+                                    <span className="block text-base leading-none">
+                                      {option.emoji}
+                                    </span>
+                                    <span className="mt-1 block">
+                                      {option.label}
+                                    </span>
+                                  </button>
+                                );
+                              })}
+                            </div>
+
+                            <div className="mt-3 flex flex-wrap gap-2 text-xs font-semibold text-slate-600">
+                              <span className="rounded-full bg-stone-50 px-3 py-1 ring-1 ring-slate-200">
+                                🔥 {getCourseVoteSummary(voteSummary, course.id).must_play}
+                              </span>
+                              <span className="rounded-full bg-stone-50 px-3 py-1 ring-1 ring-slate-200">
+                                👍 {getCourseVoteSummary(voteSummary, course.id).happy_to_play}
+                              </span>
+                              <span className="rounded-full bg-stone-50 px-3 py-1 ring-1 ring-slate-200">
+                                👎 {getCourseVoteSummary(voteSummary, course.id).not_for_me}
+                              </span>
+                            </div>
                           </div>
                         </div>
 
