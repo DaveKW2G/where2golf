@@ -1824,6 +1824,48 @@ export default function PlannerPage() {
             </div>
           </div>
         )}
+
+        <div className="mt-8 rounded-3xl bg-white p-5 shadow-sm ring-1 ring-slate-200/70 lg:p-8">
+          <h2 className="text-[24px] font-semibold text-slate-900">
+            Ireland Golf Trip Planner
+          </h2>
+
+          <p className="mt-4 text-sm leading-7 text-slate-600">
+            Planning a golf trip to Ireland can be challenging, particularly
+            when comparing courses across different regions. The GuestPlayGolf
+            Ireland Golf Trip Planner helps golfers build a personalised
+            itinerary based on where they are staying, the number of golf days
+            available and the type of courses they want to play.
+          </p>
+
+          <p className="mt-4 text-sm leading-7 text-slate-600">
+            Start by choosing a base location such as Dublin, Cork, Killarney,
+            Lahinch, Shannon, Galway or Belfast. GuestPlayGolf then helps you
+            compare nearby courses, estimate travel distances and organise your
+            trip day by day.
+          </p>
+
+          <p className="mt-4 text-sm leading-7 text-slate-600">
+            The planner allows golf groups to shortlist courses, compare course
+            types, estimate green fees and create a shared itinerary. Each
+            course can be assigned to a specific day, making it easy to
+            visualise your trip before booking accommodation or tee times.
+          </p>
+
+          <p className="mt-4 text-sm leading-7 text-slate-600">
+            Golf groups can also share trips with friends and vote on
+            shortlisted courses. This makes it easier to agree on which courses
+            should be included in the final itinerary while keeping all trip
+            information in one place.
+          </p>
+
+          <p className="mt-4 text-sm leading-7 text-slate-600">
+            Whether you are planning a links golf trip along Ireland's west
+            coast, a golf weekend near Dublin or a multi-day golf holiday across
+            several regions, the GuestPlayGolf Trip Planner provides a simple
+            way to organise and compare your options.
+          </p>
+        </div>
       </section>
     </main>
   );
