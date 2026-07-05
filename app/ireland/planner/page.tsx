@@ -698,7 +698,7 @@ export default function PlannerPage() {
   }
 
   return (
-    <main className="min-h-screen bg-stone-100 text-slate-800">
+    <main className="min-h-screen overflow-x-hidden bg-stone-100 text-slate-800">
       <section className="relative overflow-hidden bg-gradient-to-b from-emerald-950 via-emerald-900 to-emerald-800 px-5 pt-8 pb-10 text-white">
         <div className="relative z-10 mx-auto max-w-[480px] text-left lg:max-w-[1120px]">
           <div className="text-[15px] font-semibold uppercase tracking-[0.28em] text-white/85">
@@ -720,7 +720,7 @@ export default function PlannerPage() {
         </div>
       </section>
 
-      <section className="mx-auto max-w-[480px] px-5 py-6 text-left lg:max-w-[1120px]">
+      <section className="mx-auto w-full max-w-[480px] overflow-x-hidden px-4 py-6 text-left lg:max-w-[1120px] lg:px-5">
         {step === "setup" && (
           <div className="mx-auto max-w-[480px]">
             <div className="mb-6 rounded-3xl bg-white p-5 shadow-sm ring-1 ring-slate-200/70">
@@ -798,7 +798,7 @@ export default function PlannerPage() {
               )}
             </div>
 
-            <div className="rounded-3xl bg-white p-5 shadow-sm ring-1 ring-slate-200/70">
+            <div className="min-w-0 max-w-full rounded-3xl bg-white p-5 shadow-sm ring-1 ring-slate-200/70">
               <h2 className="text-[21px] font-semibold text-slate-900">
                 Tell us about your trip
               </h2>
@@ -1000,8 +1000,8 @@ export default function PlannerPage() {
         )}
 
         {step === "planner" && geocodedBase && (
-          <div className="grid gap-6 lg:grid-cols-[minmax(0,1.1fr)_minmax(360px,0.9fr)] lg:items-start">
-            <div className="overflow-hidden rounded-3xl bg-white shadow-sm ring-1 ring-slate-200/70 lg:col-span-2">
+          <div className="grid w-full min-w-0 max-w-full gap-6 lg:grid-cols-[minmax(0,1.1fr)_minmax(360px,0.9fr)] lg:items-start">
+            <div className="min-w-0 max-w-full overflow-hidden rounded-3xl bg-white shadow-sm ring-1 ring-slate-200/70 lg:col-span-2">
               <div className="bg-gradient-to-br from-emerald-950 via-emerald-900 to-emerald-800 p-5 text-white">
                 <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
                   <div className="min-w-0">
@@ -1048,7 +1048,7 @@ export default function PlannerPage() {
               </div>
             </div>
 
-            <div className="rounded-3xl bg-white p-5 shadow-sm ring-1 ring-slate-200/70">
+            <div className="min-w-0 max-w-full rounded-3xl bg-white p-5 shadow-sm ring-1 ring-slate-200/70">
               <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
                 <div>
                   <p className="text-[12px] font-semibold uppercase tracking-[0.18em] text-emerald-800">
@@ -1267,7 +1267,7 @@ export default function PlannerPage() {
               </Link>
             </div>
 
-            <div className="rounded-3xl bg-white p-5 shadow-sm ring-1 ring-slate-200/70">
+            <div className="min-w-0 max-w-full rounded-3xl bg-white p-5 shadow-sm ring-1 ring-slate-200/70">
               <h2 className="text-[18px] font-semibold text-slate-900">
                 Selected Courses ({selectedCourses.length})
               </h2>
@@ -1356,7 +1356,7 @@ export default function PlannerPage() {
             </div>
 
             {selectedCourses.length > 0 && (
-              <div className="rounded-3xl bg-white p-5 shadow-sm ring-1 ring-slate-200/70 lg:col-span-2">
+              <div className="min-w-0 max-w-full overflow-hidden rounded-3xl bg-white p-5 shadow-sm ring-1 ring-slate-200/70 lg:col-span-2">
                 <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
                   <div>
                     <p className="text-[12px] font-semibold uppercase tracking-[0.18em] text-emerald-800">
@@ -1383,7 +1383,53 @@ export default function PlannerPage() {
                   </div>
                 </div>
 
-                <div className="mt-5 overflow-x-auto rounded-2xl ring-1 ring-slate-200">
+                <div className="mt-5 grid gap-3 md:hidden">
+                  {selectedCourses.map((course) => (
+                    <div
+                      key={course.id}
+                      className="rounded-2xl bg-stone-50 p-4 ring-1 ring-slate-200"
+                    >
+                      <div className="text-sm font-semibold text-slate-900">
+                        {course.course_name}
+                      </div>
+
+                      <div className="mt-3 flex flex-wrap gap-2">
+                        <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-700">
+                          {course.course_type || "—"}
+                        </span>
+                        <span className="rounded-full bg-amber-100 px-3 py-1 text-xs font-bold text-amber-800">
+                          {course.price_range || "—"}
+                        </span>
+                        <span className="rounded-full bg-emerald-50 px-3 py-1 text-xs font-semibold text-emerald-800 ring-1 ring-emerald-100">
+                          {course.independent_guest_days || "—"}
+                        </span>
+                      </div>
+
+                      <div className="mt-3 grid grid-cols-2 gap-2 text-xs text-slate-600">
+                        <div className="rounded-xl bg-white p-3 ring-1 ring-slate-200">
+                          <div className="font-semibold uppercase tracking-wide text-slate-400">
+                            Day
+                          </div>
+                          <div className="mt-1 font-semibold text-slate-800">
+                            {getAssignmentLabel(course)}
+                          </div>
+                        </div>
+                        <div className="rounded-xl bg-white p-3 ring-1 ring-slate-200">
+                          <div className="font-semibold uppercase tracking-wide text-slate-400">
+                            Distance
+                          </div>
+                          <div className="mt-1 font-semibold text-slate-800">
+                            {typeof course.distance === "number"
+                              ? `${course.distance.toFixed(1)} km`
+                              : "—"}
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+
+                <div className="mt-5 hidden overflow-x-auto rounded-2xl ring-1 ring-slate-200 md:block">
                   <table className="w-full min-w-[720px] border-collapse bg-white text-left text-sm">
                     <thead className="bg-stone-50">
                       <tr className="border-b border-slate-200 text-[11px] uppercase tracking-wide text-slate-500">
@@ -1436,7 +1482,7 @@ export default function PlannerPage() {
               </div>
             )}
 
-            <div className="rounded-3xl bg-white p-5 shadow-sm ring-1 ring-slate-200/70">
+            <div className="min-w-0 max-w-full rounded-3xl bg-white p-5 shadow-sm ring-1 ring-slate-200/70">
               <div>
                 <p className="text-[12px] font-semibold uppercase tracking-[0.18em] text-emerald-800">
                   Overview
@@ -1534,7 +1580,7 @@ export default function PlannerPage() {
               )}
             </div>
 
-            <div className="rounded-3xl bg-white p-5 shadow-sm ring-1 ring-slate-200/70">
+            <div className="min-w-0 max-w-full rounded-3xl bg-white p-5 shadow-sm ring-1 ring-slate-200/70">
               <p className="text-[12px] font-semibold uppercase tracking-[0.18em] text-emerald-800">
                 Coming soon
               </p>
