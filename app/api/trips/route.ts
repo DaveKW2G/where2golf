@@ -6,6 +6,11 @@ function generateTripId() {
   return `GPG-${randomPart}`
 }
 
+function generateTripCode() {
+  const randomPart = Math.random().toString(36).substring(2, 8).toUpperCase()
+  return randomPart
+}
+
 export async function GET() {
   return NextResponse.json({
     status: 'Trip API is working',
@@ -18,9 +23,11 @@ export async function POST(request: Request) {
     const body = await request.json()
 
     const tripId = generateTripId()
+    const tripCode = generateTripCode()
 
     const { error } = await supabase.from('trips').insert({
       trip_id: tripId,
+      trip_code: tripCode,
       planner_user_id: body.planner_user_id,
       trip_name: body.trip_name,
       base_location: body.base_location,
@@ -41,6 +48,7 @@ export async function POST(request: Request) {
 
     return NextResponse.json({
       trip_id: tripId,
+      trip_code: tripCode,
     })
   } catch {
     return NextResponse.json(
@@ -65,7 +73,7 @@ export async function PATCH(request: Request) {
         selected_courses: body.selected_courses || [],
       })
       .eq('trip_id', body.trip_id)
-      .select('trip_id, selected_courses')
+      .select('trip_id, trip_code, selected_courses')
 
     if (error) {
       return NextResponse.json(
@@ -78,6 +86,7 @@ export async function PATCH(request: Request) {
       success: true,
       updated_rows: data?.length || 0,
       trip_id: body.trip_id,
+      trip_code: data?.[0]?.trip_code || null,
       selected_courses: data?.[0]?.selected_courses || [],
     })
   } catch {
