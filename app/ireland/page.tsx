@@ -103,7 +103,7 @@ export default function IrelandPage() {
         <div className="absolute inset-0 bg-black/40" />
         <div className="absolute inset-0 bg-gradient-to-b from-emerald-950/90 via-emerald-900/80 to-emerald-800/90" />
 
-        <div className="relative z-10 mx-auto max-w-[480px]">
+        <div className="relative z-10 mx-auto max-w-4xl">
           <div className="flex items-center justify-between">
             <Link href="/" className="text-white no-underline">
               ← Back
@@ -141,7 +141,7 @@ export default function IrelandPage() {
         </div>
       </section>
 
-      <section className="mx-auto max-w-[480px] px-5 py-6">
+      <section className="mx-auto max-w-4xl px-5 py-6">
         <IrelandPageClient />
 <div className="mt-6 rounded-2xl bg-gradient-to-br from-emerald-950 via-emerald-900 to-emerald-800 p-5 text-white shadow-sm">
   <div className="text-[12px] font-semibold uppercase tracking-[0.18em] text-emerald-100/80">
