@@ -37,6 +37,7 @@ type PlannerCourse = {
 
 type SavedTrip = {
   trip_id: string;
+  trip_code?: string;
   trip_name?: string;
   base_location?: string;
   month_of_travel?: string;
@@ -322,6 +323,9 @@ export default function PlannerPage() {
   const [baseError, setBaseError] = useState("");
   const [tripError, setTripError] = useState("");
   const [tripId, setTripId] = useState("");
+  const [tripCode, setTripCode] = useState("");
+  const [openTripCode, setOpenTripCode] = useState("");
+  const [isOpeningTripCode, setIsOpeningTripCode] = useState(false);
   const [plannerUserId, setPlannerUserId] = useState("");
   const [selectedCourses, setSelectedCourses] = useState<PlannerCourse[]>([]);
   const [savedTrips, setSavedTrips] = useState<SavedTrip[]>([]);
@@ -377,12 +381,22 @@ export default function PlannerPage() {
     const currentParticipantId = getOrCreateParticipantId();
     setParticipantId(currentParticipantId);
 
-    async function loadExistingTrip(existingTripId: string) {
+    async function loadExistingTrip({
+      existingTripId,
+      existingTripCode,
+    }: {
+      existingTripId?: string;
+      existingTripCode?: string;
+    }) {
       setIsLoadingTrip(true);
       setTripError("");
 
       try {
-        const response = await fetch(`/api/trips/get?tripId=${existingTripId}`);
+        const query = existingTripCode
+          ? `tripCode=${encodeURIComponent(existingTripCode.trim().toUpperCase())}`
+          : `tripId=${encodeURIComponent(existingTripId || "")}`;
+
+        const response = await fetch(`/api/trips/get?${query}`);
         const data = await response.json();
 
         if (!response.ok || !data.trip) {
@@ -397,6 +411,7 @@ export default function PlannerPage() {
           : [];
 
         setTripId(trip.trip_id);
+        setTripCode(trip.trip_code || "");
         setTripName(trip.trip_name || "");
         setBaseInput(getShortPlaceName(trip.base_location || ""));
         setMonth(trip.month_of_travel || "April");
@@ -457,9 +472,12 @@ export default function PlannerPage() {
 
     const params = new URLSearchParams(window.location.search);
     const urlTripId = params.get("tripId");
+    const urlTripCode = params.get("tripCode");
 
     if (urlTripId) {
-      loadExistingTrip(urlTripId);
+      loadExistingTrip({ existingTripId: urlTripId });
+    } else if (urlTripCode) {
+      loadExistingTrip({ existingTripCode: urlTripCode });
     } else {
       loadSavedTrips();
     }
@@ -482,6 +500,33 @@ export default function PlannerPage() {
     numberOfGolfDays,
     isCreatingTrip,
   ]);
+
+  async function handleOpenTripByCode() {
+    const cleanCode = openTripCode.trim().toUpperCase();
+
+    if (!cleanCode || isOpeningTripCode) return;
+
+    setTripError("");
+    setIsOpeningTripCode(true);
+
+    try {
+      const response = await fetch(
+        `/api/trips/get?tripCode=${encodeURIComponent(cleanCode)}`,
+      );
+      const data = await response.json();
+
+      if (!response.ok || !data.trip?.trip_id) {
+        setTripError("We could not find a trip with that code.");
+        return;
+      }
+
+      window.location.href = `/ireland/planner?tripId=${data.trip.trip_id}`;
+    } catch {
+      setTripError("Something went wrong opening this trip.");
+    } finally {
+      setIsOpeningTripCode(false);
+    }
+  }
 
   async function handleStartPlanning() {
     if (!isReadyToStart) return;
@@ -544,6 +589,7 @@ export default function PlannerPage() {
 
       setGeocodedBase(confirmedBase);
       setTripId(tripData.trip_id);
+      setTripCode(tripData.trip_code || "");
       setSelectedCourses([]);
       setVoteSummary({});
       setSelectedVotes({});
@@ -859,6 +905,12 @@ export default function PlannerPage() {
                               · {savedTrip.number_of_golf_days || 0} golf day
                               {savedTrip.number_of_golf_days === 1 ? "" : "s"}
                             </p>
+
+                            {savedTrip.trip_code && (
+                              <p className="mt-1 text-xs font-semibold uppercase tracking-wide text-emerald-700">
+                                Trip Code: {savedTrip.trip_code}
+                              </p>
+                            )}
                           </div>
 
                           <Link
@@ -873,6 +925,38 @@ export default function PlannerPage() {
                   })}
                 </div>
               )}
+            </div>
+
+            <div className="mb-6 rounded-3xl bg-white p-5 shadow-sm ring-1 ring-slate-200/70">
+              <h2 className="text-[19px] font-semibold text-slate-900">
+                Have a trip code?
+              </h2>
+
+              <p className="mt-2 text-sm leading-6 text-slate-600">
+                Enter a shared trip code to open a trip, even if it is not saved
+                on this device.
+              </p>
+
+              <div className="mt-4 grid gap-3">
+                <input
+                  value={openTripCode}
+                  onChange={(event) => {
+                    setOpenTripCode(event.target.value.toUpperCase());
+                    setTripError("");
+                  }}
+                  placeholder="Example: ABC123"
+                  className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm font-semibold uppercase tracking-wide text-slate-900 outline-none placeholder:normal-case placeholder:font-normal placeholder:tracking-normal placeholder:text-slate-400 focus:border-emerald-700"
+                />
+
+                <button
+                  type="button"
+                  onClick={handleOpenTripByCode}
+                  disabled={!openTripCode.trim() || isOpeningTripCode}
+                  className="rounded-full bg-emerald-800 px-5 py-3 text-sm font-semibold text-white disabled:opacity-50"
+                >
+                  {isOpeningTripCode ? "Opening trip..." : "Open Trip"}
+                </button>
+              </div>
             </div>
 
             <div className="min-w-0 max-w-full rounded-3xl bg-white p-5 shadow-sm ring-1 ring-slate-200/70">
@@ -1094,6 +1178,7 @@ export default function PlannerPage() {
                       <div>📍 {baseInput}</div>
                       <div>📅 {month}</div>
                       <div>👥 {numberOfGolfers} golfers</div>
+                      {tripCode && <div>🔑 Trip Code: {tripCode}</div>}
                     </div>
                   </div>
 
@@ -1121,7 +1206,11 @@ export default function PlannerPage() {
 
               <div className="flex flex-col gap-1 px-5 py-3 text-xs text-slate-500 sm:flex-row sm:items-center sm:justify-between sm:gap-3">
                 <span>Golf Ireland: {golfIrelandMember}</span>
-                {tripId && <span>Trip ID: {tripId}</span>}
+                {tripCode && (
+                  <span className="font-semibold uppercase tracking-wide text-emerald-800">
+                    Trip Code: {tripCode}
+                  </span>
+                )}
               </div>
             </div>
 
