@@ -928,8 +928,6 @@ export default function PlannerPage() {
               )}
             </div>
 
-            </div>
-
             <div>
             <div className="mb-6 rounded-3xl bg-white p-5 shadow-sm ring-1 ring-slate-200/70">
               <h2 className="text-[19px] font-semibold text-slate-900">
