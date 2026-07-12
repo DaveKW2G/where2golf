@@ -51,7 +51,7 @@ const irelandGolfHubs = [
     title: "Golf Near Dublin",
     href: "/golf-near-dublin",
     description:
-      "Explore visitor-friendly golf within 100 km of Dublin and find more courses for your itinerary.",
+      "Compare visitor-friendly golf within 100 km of Dublin and find more courses for your itinerary.",
     lat: 53.3498,
     lng: -6.2603,
     radiusKm: 100,
@@ -60,7 +60,7 @@ const irelandGolfHubs = [
     title: "Golf Near Cork",
     href: "/golf-near-cork",
     description:
-      "Explore visitor-friendly golf around Cork and the south coast for your golf trip.",
+      "Compare visitor-friendly golf around Cork and the south coast for your golf trip.",
     lat: 51.8985,
     lng: -8.4756,
     radiusKm: 70,
@@ -69,7 +69,7 @@ const irelandGolfHubs = [
     title: "Golf Near Galway",
     href: "/golf-near-galway",
     description:
-      "Explore visitor-friendly golf around Galway and the west of Ireland for your itinerary.",
+      "Compare visitor-friendly golf around Galway and the west of Ireland for your itinerary.",
     lat: 53.2707,
     lng: -9.0568,
     radiusKm: 75,
@@ -78,7 +78,7 @@ const irelandGolfHubs = [
     title: "Golf Near Belfast",
     href: "/golf-near-belfast",
     description:
-      "Explore visitor-friendly golf around Belfast and Northern Ireland for your golf trip.",
+      "Compare visitor-friendly golf around Belfast and Northern Ireland for your golf trip.",
     lat: 54.5973,
     lng: -5.9301,
     radiusKm: 100,
@@ -87,7 +87,7 @@ const irelandGolfHubs = [
     title: "Golf Near Adare Manor",
     href: "/golf-near-adare-manor",
     description:
-      "Explore visitor-friendly golf around Adare Manor and the Ryder Cup region.",
+      "Compare visitor-friendly golf around Adare Manor and the Ryder Cup region.",
     lat: 52.5619,
     lng: -8.7957,
     radiusKm: 100,
@@ -140,7 +140,7 @@ export async function generateMetadata({
       metadataBase: new URL(siteUrl),
       title: "Golf Course | GuestPlayGolf",
       description:
-        "Find golf courses for independent guests with GuestPlayGolf.",
+        "Find golf courses for independent guests on GuestPlayGolf.",
       robots: {
         index: false,
         follow: false,
@@ -154,11 +154,11 @@ export async function generateMetadata({
   const canonicalUrl = `${siteUrl}/courses/${data.id}`;
 
   const title = isIreland
-    ? `${data.course_name} | Visitor Info & Golf Trip Planner`
+    ? `${data.course_name} | Visitor Info & Trip Planner`
     : `${data.course_name} | Golf in ${data.town}, ${regionName}`;
 
   const description = isIreland
-    ? `Explore ${data.course_name} in ${data.town}, Ireland. Check visitor access, course details and add it to your free golf trip itinerary to plan, share and vote with your group.`
+    ? `Explore ${data.course_name} in ${data.town}, ${regionName}. Check visitor access and course information, then add it to your free Irish golf trip planner to plan, share and vote.`
     : `Play ${data.course_name} in ${data.town}, ${regionName}, ${country}. Check guest access, handicap information, season and course details on GuestPlayGolf.`;
 
   const openGraphDescription = isIreland
@@ -174,7 +174,7 @@ export async function generateMetadata({
     },
     openGraph: {
       title: isIreland
-        ? `${data.course_name} | Free Golf Trip Planning`
+        ? `${data.course_name} | GuestPlayGolf Trip Planner`
         : `${data.course_name} | GuestPlayGolf`,
       description: openGraphDescription,
       url: canonicalUrl,
@@ -303,7 +303,7 @@ function getNearbyIrelandGuideLinks(course: Course): NearbyGuideLink[] {
       title: "Best Links Golf Near Dublin",
       href: "/links-golf-near-dublin",
       description:
-        "Compare classic links courses near Dublin and add your preferred options to a golf trip itinerary.",
+        "Compare classic links courses near Dublin and add your preferred options to your itinerary.",
     });
   }
 
@@ -484,7 +484,7 @@ export default async function CoursePage({
     image: course.course_image || undefined,
     telephone: course.phone_number || undefined,
     description: isIreland
-      ? `Visitor information for ${course.course_name} and free golf trip planning tools from GuestPlayGolf.`
+      ? `Visitor information for ${course.course_name} and free Irish golf trip planning tools from GuestPlayGolf.`
       : `Guest golf information for ${course.course_name} on GuestPlayGolf.`,
     address: {
       "@type": "PostalAddress",
@@ -617,6 +617,7 @@ export default async function CoursePage({
           {isIreland ? (
             <>
               <DetailRow label="Holes" value={`${course.holes} holes`} />
+
               <DetailRow
                 label="Golf Ireland Discount"
                 value={golfIrelandDiscountText}
@@ -632,80 +633,18 @@ export default async function CoursePage({
 
         {isIreland && (
           <section className="border-t border-slate-200 px-5 py-5">
-            <div className="rounded-[24px] bg-emerald-50 px-5 py-5 ring-1 ring-emerald-100">
-              <div className="flex flex-wrap items-center gap-2">
-                <span className="rounded-full bg-white px-3 py-1 text-[11px] font-bold uppercase tracking-wide text-emerald-800 ring-1 ring-emerald-200">
-                  Free online tool
-                </span>
-
-                <span className="text-[12px] font-semibold text-emerald-800">
-                  No travel agent required
-                </span>
-              </div>
-
-              <h2 className="mt-4 text-[19px] font-bold leading-6 text-slate-900">
-                Include {course.course_name} in your Irish golf trip
+            <div className="rounded-2xl bg-emerald-50 px-4 py-4 ring-1 ring-emerald-100">
+              <h2 className="text-[17px] font-semibold text-slate-900">
+                Planning a golf trip?
               </h2>
 
-              <p className="mt-3 text-[14px] leading-6 text-slate-700">
-                Add this course to a day-by-day itinerary, explore other golf
-                nearby and organise your trip in one place with GuestPlayGolf.
+              <p className="mt-2 text-sm leading-6 text-slate-700">
+                GuestPlayGolf is a free online golf trip planning platform. Add{" "}
+                <strong>{course.course_name}</strong> to your itinerary, compare
+                nearby courses, share your trip and vote with your group.
               </p>
 
-              <div className="mt-4 grid gap-3">
-                <div className="flex gap-3">
-                  <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-white text-xs font-bold text-emerald-800 ring-1 ring-emerald-200">
-                    1
-                  </span>
-
-                  <div>
-                    <p className="text-sm font-semibold text-slate-900">
-                      Plan your itinerary
-                    </p>
-
-                    <p className="mt-1 text-sm leading-5 text-slate-600">
-                      Add courses to each golf day and build your trip around
-                      the places you want to play.
-                    </p>
-                  </div>
-                </div>
-
-                <div className="flex gap-3">
-                  <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-white text-xs font-bold text-emerald-800 ring-1 ring-emerald-200">
-                    2
-                  </span>
-
-                  <div>
-                    <p className="text-sm font-semibold text-slate-900">
-                      Share it with your group
-                    </p>
-
-                    <p className="mt-1 text-sm leading-5 text-slate-600">
-                      Send the trip to your golf partners so everyone can see
-                      the proposed itinerary.
-                    </p>
-                  </div>
-                </div>
-
-                <div className="flex gap-3">
-                  <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-white text-xs font-bold text-emerald-800 ring-1 ring-emerald-200">
-                    3
-                  </span>
-
-                  <div>
-                    <p className="text-sm font-semibold text-slate-900">
-                      Vote on where to play
-                    </p>
-
-                    <p className="mt-1 text-sm leading-5 text-slate-600">
-                      Let the group vote on course options and shape the final
-                      golf trip together.
-                    </p>
-                  </div>
-                </div>
-              </div>
-
-              <p className="mt-5 text-center text-[13px] font-bold uppercase tracking-[0.14em] text-emerald-800">
+              <p className="mt-3 text-[13px] font-bold tracking-wide text-emerald-800">
                 Plan. Share. Vote. Golf.
               </p>
             </div>
@@ -734,11 +673,7 @@ export default async function CoursePage({
 
         {course.notes && (
           <div className="border-t border-slate-200 px-5 py-5">
-            <h2 className="text-[17px] font-semibold text-slate-900">
-              Visitor information
-            </h2>
-
-            <p className="mt-3 whitespace-pre-line text-[15px] leading-7 text-slate-600">
+            <p className="whitespace-pre-line text-[15px] leading-7 text-slate-600">
               {course.notes}
             </p>
           </div>
@@ -753,7 +688,7 @@ export default async function CoursePage({
 
               <p className="mt-2 text-sm leading-6 text-slate-600">
                 Explore nearby golf guides, compare visitor-friendly courses
-                and add more options to your GuestPlayGolf itinerary.
+                and add more options to your itinerary.
               </p>
 
               <div className="mt-4 grid gap-3">
