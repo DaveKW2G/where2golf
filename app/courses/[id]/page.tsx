@@ -48,6 +48,8 @@ type NearbyCourse = {
   price_range?: string | null;
   course_type?: string | null;
   course_image?: string | null;
+  handicap_required?: boolean | null;
+  max_handicap?: number | null;
   latitude: number;
   longitude: number;
   distanceKm: number;
@@ -106,6 +108,63 @@ const irelandGolfHubs = [
     lat: 52.5619,
     lng: -8.7957,
     radiusKm: 100,
+  },
+];
+
+const switzerlandGolfHubs = [
+  {
+    title: "Golf Near Zurich",
+    href: "/golf-near-zurich",
+    description:
+      "Compare guest-friendly golf around Zurich, Zug, Aargau and Schwyz.",
+    lat: 47.3769,
+    lng: 8.5417,
+    radiusKm: 85,
+  },
+  {
+    title: "Golf Near Lucerne",
+    href: "/golf-near-lucerne",
+    description:
+      "Explore golf around Lucerne and central Switzerland for independent guests.",
+    lat: 47.0502,
+    lng: 8.3093,
+    radiusKm: 75,
+  },
+  {
+    title: "Golf Near Basel",
+    href: "/golf-near-basel",
+    description:
+      "Compare golf courses around Basel and north-western Switzerland.",
+    lat: 47.5596,
+    lng: 7.5886,
+    radiusKm: 80,
+  },
+  {
+    title: "Golf Near Geneva",
+    href: "/golf-near-geneva",
+    description:
+      "Explore guest golf around Geneva and the western end of Lake Geneva.",
+    lat: 46.2044,
+    lng: 6.1432,
+    radiusKm: 75,
+  },
+  {
+    title: "Golf Near Lausanne",
+    href: "/golf-near-lausanne",
+    description:
+      "Compare golf around Lausanne, Vaud and the Lake Geneva region.",
+    lat: 46.5197,
+    lng: 6.6323,
+    radiusKm: 75,
+  },
+  {
+    title: "Golf in the Swiss Alps",
+    href: "/golf-in-the-swiss-alps",
+    description:
+      "Discover alpine golf courses, mountain settings and shorter Swiss golf seasons.",
+    lat: 46.8182,
+    lng: 8.2275,
+    radiusKm: 135,
   },
 ];
 
@@ -170,15 +229,15 @@ export async function generateMetadata({
 
   const title = isIreland
     ? `${data.course_name} | Visitor Info & Trip Planner`
-    : `${data.course_name} | Golf in ${data.town}, ${regionName}`;
+    : `${data.course_name} | Guest Golf in ${data.town}`;
 
   const description = isIreland
     ? `Explore ${data.course_name} in ${data.town}, ${regionName}. Check visitor access and course information, then add it to your free Irish golf trip planner to plan, share and vote.`
-    : `Play ${data.course_name} in ${data.town}, ${regionName}, ${country}. Check guest access, handicap information, season and course details on GuestPlayGolf.`;
+    : `Explore ${data.course_name} in ${data.town}, ${regionName}. Check guest access, handicap requirements, season and nearby Swiss golf courses on GuestPlayGolf.`;
 
   const openGraphDescription = isIreland
     ? `Visitor information for ${data.course_name}. Add the course to a free Irish golf trip itinerary, share your plan and vote with your group.`
-    : `Golf course information for guests in ${data.town}, ${regionName}, ${country}.`;
+    : `Guest access, handicap information and nearby golf courses for ${data.course_name} in ${data.town}, Switzerland.`;
 
   return {
     metadataBase: new URL(siteUrl),
@@ -337,6 +396,46 @@ function getNearbyIrelandGuideLinks(course: Course): NearbyGuideLink[] {
   return nearbyLinks;
 }
 
+function getNearbySwitzerlandGuideLinks(course: Course): NearbyGuideLink[] {
+  if (course.latitude == null || course.longitude == null) {
+    return [];
+  }
+
+  return switzerlandGolfHubs
+    .map((hub) => {
+      const distanceKm = getDistanceKm(
+        hub.lat,
+        hub.lng,
+        course.latitude as number,
+        course.longitude as number,
+      );
+
+      if (distanceKm > hub.radiusKm) {
+        return null;
+      }
+
+      return {
+        title: hub.title,
+        href: hub.href,
+        description: hub.description,
+        distanceKm,
+      };
+    })
+    .filter(
+      (
+        link,
+      ): link is NearbyGuideLink & {
+        distanceKm: number;
+      } => Boolean(link),
+    )
+    .sort((a, b) => a.distanceKm - b.distanceKm)
+    .map(({ title, href, description }) => ({
+      title,
+      href,
+      description,
+    }));
+}
+
 function getWebsiteUrl(website?: string | null) {
   if (!website) return null;
 
@@ -385,6 +484,18 @@ function getAccessLabel(access: string, country: string) {
   }
 
   return `Guests ${cleanAccess}`;
+}
+
+function getNearbyCourseHandicapLabel(course: NearbyCourse) {
+  if (course.max_handicap != null) {
+    return `HCP ${course.max_handicap}`;
+  }
+
+  if (course.handicap_required) {
+    return "HCP required";
+  }
+
+  return "HCP not specified";
 }
 
 function shouldShowIrelandHandicap(maxHandicap?: number | null) {
@@ -454,23 +565,36 @@ export default async function CoursePage({
     ? getNearbyIrelandGuideLinks(course)
     : [];
 
+  const nearbySwitzerlandGuideLinks = !isIreland
+    ? getNearbySwitzerlandGuideLinks(course)
+    : [];
+
+  const nearbyGuideLinks = isIreland
+    ? nearbyIrelandGuideLinks
+    : nearbySwitzerlandGuideLinks;
+
   let nearbyCourses: NearbyCourse[] = [];
 
-  if (
-    isIreland &&
-    course.latitude != null &&
-    course.longitude != null
-  ) {
-    const { data: nearbyCourseData } = await supabase
+  if (course.latitude != null && course.longitude != null) {
+    let nearbyCourseQuery = supabase
       .from("courses")
       .select(
-        "id, course_name, town, region, holes, independent_guest_days, price_range, course_type, course_image, latitude, longitude",
+        "id, course_name, country, town, region, holes, independent_guest_days, price_range, course_type, course_image, handicap_required, max_handicap, latitude, longitude",
       )
-      .eq("country", "Ireland")
       .neq("id", course.id)
       .not("latitude", "is", null)
       .not("longitude", "is", null)
       .limit(300);
+
+    if (isIreland) {
+      nearbyCourseQuery = nearbyCourseQuery.eq("country", "Ireland");
+    } else {
+      nearbyCourseQuery = nearbyCourseQuery.or(
+        "country.eq.Switzerland,country.is.null",
+      );
+    }
+
+    const { data: nearbyCourseData } = await nearbyCourseQuery;
 
     nearbyCourses = (nearbyCourseData || [])
       .map((nearbyCourse) => {
@@ -564,7 +688,7 @@ export default async function CoursePage({
     telephone: course.phone_number || undefined,
     description: isIreland
       ? `Visitor information for ${course.course_name} and free Irish golf trip planning tools from GuestPlayGolf.`
-      : `Guest golf information for ${course.course_name} on GuestPlayGolf.`,
+      : `Guest access, handicap information and nearby Swiss golf courses for ${course.course_name} on GuestPlayGolf.`,
     address: {
       "@type": "PostalAddress",
       streetAddress: course.full_address || undefined,
@@ -749,9 +873,9 @@ export default async function CoursePage({
             </div>
 
             <div className="grid min-w-0 lg:col-span-2 lg:grid-cols-[minmax(0,1fr)_360px] lg:items-start">
-              {isIreland && (
-                <aside className="order-1 border-b border-slate-200 px-5 py-5 lg:col-start-2 lg:row-start-1 lg:border-b-0 lg:border-l lg:px-6 lg:py-6">
-                  <div className="lg:sticky lg:top-6">
+              <aside className="order-1 border-b border-slate-200 px-5 py-5 lg:col-start-2 lg:row-start-1 lg:border-b-0 lg:border-l lg:px-6 lg:py-6">
+                <div className="lg:sticky lg:top-6">
+                  {isIreland ? (
                     <CourseAddToTripButton
                       course={{
                         id: course.id,
@@ -770,55 +894,88 @@ export default async function CoursePage({
                         max_handicap: course.max_handicap || undefined,
                       }}
                     />
+                  ) : (
+                    <div className="rounded-3xl bg-emerald-50 p-5 ring-1 ring-emerald-100">
+                      <p className="text-[12px] font-semibold uppercase tracking-[0.18em] text-emerald-800">
+                        Independent guest golf
+                      </p>
 
-                    {nearbyIrelandGuideLinks.length > 0 && (
-                      <div className="mt-5 hidden rounded-3xl bg-white p-5 ring-1 ring-slate-200 lg:block">
-                        <h2 className="text-[17px] font-semibold text-slate-900">
-                          Explore nearby golf guides
-                        </h2>
+                      <h2 className="mt-2 text-[19px] font-bold text-slate-900">
+                        Compare golf near {course.town}
+                      </h2>
 
-                        <p className="mt-2 text-sm leading-6 text-slate-600">
-                          Compare broader golf areas and continue building your
-                          itinerary.
-                        </p>
+                      <p className="mt-3 text-sm leading-6 text-slate-700">
+                        Review nearby Swiss courses, guest access and handicap
+                        requirements before deciding where to play.
+                      </p>
 
-                        <div className="mt-4 grid gap-3">
-                          {nearbyIrelandGuideLinks.map((link) => (
-                            <Link
-                              key={link.href}
-                              href={link.href}
-                              className="block rounded-2xl bg-slate-50 px-4 py-4 no-underline ring-1 ring-slate-200 transition hover:bg-slate-100"
-                            >
-                              <div className="text-sm font-semibold text-slate-900">
-                                {link.title} →
-                              </div>
+                      <Link
+                        href={`/filters?country=Switzerland&where=${encodeURIComponent(
+                          course.town,
+                        )}`}
+                        className="mt-5 block rounded-full bg-emerald-800 px-5 py-3 text-center text-sm font-semibold text-white no-underline"
+                      >
+                        Search Swiss Golf Courses
+                      </Link>
+                    </div>
+                  )}
 
-                              <p className="mt-1 text-sm leading-5 text-slate-600">
-                                {link.description}
-                              </p>
-                            </Link>
-                          ))}
-                        </div>
+                  {nearbyGuideLinks.length > 0 && (
+                    <div className="mt-5 hidden rounded-3xl bg-white p-5 ring-1 ring-slate-200 lg:block">
+                      <h2 className="text-[17px] font-semibold text-slate-900">
+                        Explore nearby golf guides
+                      </h2>
 
-                        <Link
-                          href="/ireland"
-                          className="mt-4 inline-block text-sm font-medium text-emerald-700 no-underline"
-                        >
-                          Plan your golf trip across Ireland →
-                        </Link>
+                      <p className="mt-2 text-sm leading-6 text-slate-600">
+                        {isIreland
+                          ? "Compare broader golf areas and continue building your itinerary."
+                          : "Compare practical Swiss golf bases and discover more courses for independent guests."}
+                      </p>
+
+                      <div className="mt-4 grid gap-3">
+                        {nearbyGuideLinks.map((link) => (
+                          <Link
+                            key={link.href}
+                            href={link.href}
+                            className="block rounded-2xl bg-slate-50 px-4 py-4 no-underline ring-1 ring-slate-200 transition hover:bg-slate-100"
+                          >
+                            <div className="text-sm font-semibold text-slate-900">
+                              {link.title} →
+                            </div>
+
+                            <p className="mt-1 text-sm leading-5 text-slate-600">
+                              {link.description}
+                            </p>
+                          </Link>
+                        ))}
                       </div>
-                    )}
-                  </div>
-                </aside>
-              )}
+                    </div>
+                  )}
 
-              <div
-                className={`order-2 min-w-0 ${
-                  isIreland
-                    ? "lg:col-start-1 lg:row-start-1"
-                    : "lg:col-span-2"
-                }`}
-              >
+                  <div className="mt-5 hidden rounded-3xl bg-white p-5 ring-1 ring-slate-200 lg:block">
+                    <h2 className="text-[17px] font-semibold text-slate-900">
+                      {isIreland
+                        ? "Explore golf across Ireland"
+                        : `Golf in ${regionName}`}
+                    </h2>
+
+                    <p className="mt-2 text-sm leading-6 text-slate-600">
+                      {isIreland
+                        ? "Browse more Irish courses, regional guides and trip-planning tools."
+                        : `Browse more golf courses and guest information across ${regionName}.`}
+                    </p>
+
+                    <Link
+                      href={regionHref}
+                      className="mt-4 inline-block text-sm font-semibold text-emerald-700 no-underline"
+                    >
+                      {regionLinkText} →
+                    </Link>
+                  </div>
+                </div>
+              </aside>
+
+              <div className="order-2 min-w-0 lg:col-start-1 lg:row-start-1">
                 {course.notes && (
                   <section className="border-b border-slate-200 px-5 py-5 lg:px-8 lg:py-7">
                     <p className="text-[12px] font-semibold uppercase tracking-[0.18em] text-emerald-800">
@@ -826,7 +983,9 @@ export default async function CoursePage({
                     </p>
 
                     <h2 className="mt-1 text-[21px] font-semibold text-slate-900">
-                      Visitor information
+                      {isIreland
+                        ? "Visitor information"
+                        : "Independent guest information"}
                     </h2>
 
                     <p className="mt-4 whitespace-pre-line text-[15px] leading-7 text-slate-600">
@@ -835,10 +994,10 @@ export default async function CoursePage({
                   </section>
                 )}
 
-                {isIreland && nearbyCourses.length > 0 && (
+                {nearbyCourses.length > 0 && (
                   <section className="border-b border-slate-200 px-5 py-5 lg:px-8 lg:py-7">
                     <p className="text-[12px] font-semibold uppercase tracking-[0.18em] text-emerald-800">
-                      Continue planning
+                      {isIreland ? "Continue planning" : "Keep exploring"}
                     </p>
 
                     <h2 className="mt-1 text-[21px] font-semibold text-slate-900">
@@ -846,8 +1005,9 @@ export default async function CoursePage({
                     </h2>
 
                     <p className="mt-2 text-sm leading-6 text-slate-600">
-                      Compare nearby courses and add more options to your golf
-                      trip itinerary.
+                      {isIreland
+                        ? "Compare nearby courses and add more options to your golf trip itinerary."
+                        : "Compare nearby Swiss courses, guest access and handicap requirements before choosing where to play."}
                     </p>
 
                     <div className="mt-5 grid gap-4 sm:grid-cols-2">
@@ -882,24 +1042,49 @@ export default async function CoursePage({
                             </p>
 
                             <div className="mt-3 flex flex-wrap gap-1.5">
-                              {nearbyCourse.course_type && (
-                                <span className="rounded-full bg-white px-2 py-1 text-[10px] font-semibold text-slate-700 ring-1 ring-slate-200">
-                                  {nearbyCourse.course_type}
-                                </span>
-                              )}
+                              {isIreland ? (
+                                <>
+                                  {nearbyCourse.course_type && (
+                                    <span className="rounded-full bg-white px-2 py-1 text-[10px] font-semibold text-slate-700 ring-1 ring-slate-200">
+                                      {nearbyCourse.course_type}
+                                    </span>
+                                  )}
 
-                              {nearbyCourse.price_range && (
-                                <span className="rounded-full bg-yellow-100 px-2 py-1 text-[10px] font-bold text-yellow-800">
-                                  {nearbyCourse.price_range}
-                                </span>
-                              )}
+                                  {nearbyCourse.price_range && (
+                                    <span className="rounded-full bg-yellow-100 px-2 py-1 text-[10px] font-bold text-yellow-800">
+                                      {nearbyCourse.price_range}
+                                    </span>
+                                  )}
 
-                              <span className="rounded-full bg-emerald-100 px-2 py-1 text-[10px] font-medium text-emerald-800">
-                                {getAccessLabel(
-                                  nearbyCourse.independent_guest_days,
-                                  "Ireland",
-                                )}
-                              </span>
+                                  <span className="rounded-full bg-emerald-100 px-2 py-1 text-[10px] font-medium text-emerald-800">
+                                    {getAccessLabel(
+                                      nearbyCourse.independent_guest_days,
+                                      "Ireland",
+                                    )}
+                                  </span>
+                                </>
+                              ) : (
+                                <>
+                                  <span className="rounded-full bg-emerald-100 px-2 py-1 text-[10px] font-medium text-emerald-800">
+                                    {getAccessLabel(
+                                      nearbyCourse.independent_guest_days,
+                                      "Switzerland",
+                                    )}
+                                  </span>
+
+                                  <span className="rounded-full bg-amber-100 px-2 py-1 text-[10px] font-medium text-amber-800">
+                                    {getNearbyCourseHandicapLabel(
+                                      nearbyCourse,
+                                    )}
+                                  </span>
+
+                                  {nearbyCourse.holes != null && (
+                                    <span className="rounded-full bg-white px-2 py-1 text-[10px] font-semibold text-slate-700 ring-1 ring-slate-200">
+                                      {nearbyCourse.holes} holes
+                                    </span>
+                                  )}
+                                </>
+                              )}
                             </div>
 
                             <p className="mt-4 text-sm font-semibold text-emerald-700">
@@ -912,7 +1097,7 @@ export default async function CoursePage({
                   </section>
                 )}
 
-                {isIreland && nearbyIrelandGuideLinks.length > 0 && (
+                {nearbyGuideLinks.length > 0 && (
                   <section className="border-b border-slate-200 px-5 py-5 lg:hidden">
                     <p className="text-[12px] font-semibold uppercase tracking-[0.18em] text-emerald-800">
                       Keep exploring
@@ -923,12 +1108,13 @@ export default async function CoursePage({
                     </h2>
 
                     <p className="mt-2 text-sm leading-6 text-slate-600">
-                      Compare broader golf areas and continue building your
-                      itinerary.
+                      {isIreland
+                        ? "Compare broader golf areas and continue building your itinerary."
+                        : "Compare nearby Swiss golf hubs and discover more courses for independent guests."}
                     </p>
 
                     <div className="mt-4 grid gap-3">
-                      {nearbyIrelandGuideLinks.map((link) => (
+                      {nearbyGuideLinks.map((link) => (
                         <Link
                           key={link.href}
                           href={link.href}
@@ -944,38 +1130,21 @@ export default async function CoursePage({
                         </Link>
                       ))}
                     </div>
-
-                    <Link
-                      href="/ireland"
-                      className="mt-4 inline-block text-sm font-medium text-emerald-700 no-underline"
-                    >
-                      Plan your golf trip across Ireland →
-                    </Link>
                   </section>
                 )}
 
-                {!isIreland && (
-                  <section className="px-5 py-5 lg:px-8 lg:py-7">
-                    <Link
-                      href={regionHref}
-                      className="text-sm font-medium text-emerald-700 no-underline"
-                    >
-                      {regionLinkText} →
-                    </Link>
-                  </section>
-                )}
+                <section className="px-5 py-5 lg:hidden">
+                  <p className="text-[12px] font-semibold uppercase tracking-[0.18em] text-emerald-800">
+                    {isIreland ? "Across Ireland" : regionName}
+                  </p>
 
-                {isIreland &&
-                  nearbyIrelandGuideLinks.length === 0 && (
-                    <section className="px-5 py-5 lg:px-8 lg:py-7">
-                      <Link
-                        href="/ireland"
-                        className="text-sm font-medium text-emerald-700 no-underline"
-                      >
-                        Explore more golf in Ireland →
-                      </Link>
-                    </section>
-                  )}
+                  <Link
+                    href={regionHref}
+                    className="mt-2 inline-block text-sm font-semibold text-emerald-700 no-underline"
+                  >
+                    {regionLinkText} →
+                  </Link>
+                </section>
               </div>
             </div>
           </div>
