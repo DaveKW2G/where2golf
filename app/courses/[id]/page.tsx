@@ -38,6 +38,21 @@ type Course = {
   longitude?: number | null;
 };
 
+type NearbyCourse = {
+  id: number;
+  course_name: string;
+  town: string;
+  region: string;
+  holes?: number | null;
+  independent_guest_days: string;
+  price_range?: string | null;
+  course_type?: string | null;
+  course_image?: string | null;
+  latitude: number;
+  longitude: number;
+  distanceKm: number;
+};
+
 type NearbyGuideLink = {
   title: string;
   href: string;
@@ -426,6 +441,52 @@ export default async function CoursePage({
     ? getNearbyIrelandGuideLinks(course)
     : [];
 
+  let nearbyCourses: NearbyCourse[] = [];
+
+  if (
+    isIreland &&
+    course.latitude != null &&
+    course.longitude != null
+  ) {
+    const { data: nearbyCourseData } = await supabase
+      .from("courses")
+      .select(
+        "id, course_name, town, region, holes, independent_guest_days, price_range, course_type, course_image, latitude, longitude",
+      )
+      .eq("country", "Ireland")
+      .neq("id", course.id)
+      .not("latitude", "is", null)
+      .not("longitude", "is", null)
+      .limit(200);
+
+    nearbyCourses = (nearbyCourseData || [])
+      .map((nearbyCourse) => {
+        const latitude = Number(nearbyCourse.latitude);
+        const longitude = Number(nearbyCourse.longitude);
+
+        if (Number.isNaN(latitude) || Number.isNaN(longitude)) {
+          return null;
+        }
+
+        return {
+          ...nearbyCourse,
+          latitude,
+          longitude,
+          distanceKm: getDistanceKm(
+            course.latitude as number,
+            course.longitude as number,
+            latitude,
+            longitude,
+          ),
+        } as NearbyCourse;
+      })
+      .filter((nearbyCourse): nearbyCourse is NearbyCourse =>
+        Boolean(nearbyCourse),
+      )
+      .sort((a, b) => a.distanceKm - b.distanceKm)
+      .slice(0, 4);
+  }
+
   const latParam = getSingleParam(resolvedSearchParams.lat);
   const lngParam = getSingleParam(resolvedSearchParams.lng);
 
@@ -661,16 +722,87 @@ export default async function CoursePage({
           </div>
         )}
 
+        {isIreland && nearbyCourses.length > 0 && (
+          <section className="border-t border-slate-200 px-5 py-5">
+            <h2 className="text-[17px] font-semibold text-slate-900">
+              Golf courses near {course.course_name}
+            </h2>
+
+            <p className="mt-2 text-sm leading-6 text-slate-600">
+              Compare nearby courses and add more options to your golf trip
+              itinerary.
+            </p>
+
+            <div className="mt-4 grid gap-3">
+              {nearbyCourses.map((nearbyCourse) => (
+                <Link
+                  key={nearbyCourse.id}
+                  href={`/courses/${nearbyCourse.id}`}
+                  className="overflow-hidden rounded-2xl bg-slate-50 no-underline ring-1 ring-slate-200"
+                >
+                  <div className="flex">
+                    <div className="h-28 w-28 shrink-0 bg-slate-200">
+                      {nearbyCourse.course_image ? (
+                        <img
+                          src={nearbyCourse.course_image}
+                          alt={`${nearbyCourse.course_name} golf course`}
+                          className="h-full w-full object-cover"
+                        />
+                      ) : (
+                        <div className="flex h-full w-full items-center justify-center px-3 text-center text-xs text-slate-500">
+                          No image
+                        </div>
+                      )}
+                    </div>
+
+                    <div className="min-w-0 flex-1 px-4 py-3">
+                      <h3 className="text-sm font-semibold leading-5 text-slate-900">
+                        {nearbyCourse.course_name}
+                      </h3>
+
+                      <p className="mt-1 text-xs text-slate-500">
+                        {nearbyCourse.town} ·{" "}
+                        {nearbyCourse.distanceKm.toFixed(1)} km away
+                      </p>
+
+                      <div className="mt-2 flex flex-wrap gap-1.5">
+                        {nearbyCourse.course_type && (
+                          <span className="rounded-full bg-white px-2 py-1 text-[10px] font-semibold text-slate-700 ring-1 ring-slate-200">
+                            {nearbyCourse.course_type}
+                          </span>
+                        )}
+
+                        {nearbyCourse.price_range && (
+                          <span className="rounded-full bg-yellow-100 px-2 py-1 text-[10px] font-bold text-yellow-800">
+                            {nearbyCourse.price_range}
+                          </span>
+                        )}
+
+                        <span className="rounded-full bg-emerald-100 px-2 py-1 text-[10px] font-medium text-emerald-800">
+                          {getAccessLabel(
+                            nearbyCourse.independent_guest_days,
+                            "Ireland",
+                          )}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                </Link>
+              ))}
+            </div>
+          </section>
+        )}
+
         <div className="border-t border-slate-200 px-5 py-5">
           {isIreland && nearbyIrelandGuideLinks.length > 0 ? (
             <>
               <h2 className="text-[17px] font-semibold text-slate-900">
-                Find more courses for your golf trip
+                Explore nearby golf guides
               </h2>
 
               <p className="mt-2 text-sm leading-6 text-slate-600">
-                Explore nearby golf guides, compare visitor-friendly courses
-                and add more options to your itinerary.
+                Browse broader golf areas, compare more visitor-friendly
+                courses and continue building your itinerary.
               </p>
 
               <div className="mt-4 grid gap-3">
