@@ -53,6 +53,7 @@ export default function CourseAddToTripButton({
     try {
       const existing = window.localStorage.getItem(plannerCoursesKey);
       const courses = existing ? (JSON.parse(existing) as PlannerCourse[]) : [];
+
       setIsAddedToPlanner(
         courses.some((existingCourse) => existingCourse.id === course.id),
       );
@@ -111,18 +112,22 @@ export default function CourseAddToTripButton({
 
   return (
     <div className="rounded-3xl bg-emerald-50 p-4 ring-1 ring-emerald-100">
-      <div className="flex items-start justify-between gap-4">
-        <div>
-          <h2 className="text-[17px] font-semibold text-slate-900">
-            Planning a golf trip?
-          </h2>
+      <h2 className="text-[17px] font-semibold text-slate-900">
+        Planning a golf trip?
+      </h2>
 
-          <p className="mt-1 text-sm leading-6 text-slate-600">
-            Add this course to your saved trip and compare it with the rest of
-            your itinerary.
-          </p>
-        </div>
-      </div>
+      <p className="mt-2 text-sm leading-6 text-slate-600">
+        GuestPlayGolf is a free online golf trip planning platform. Add{" "}
+        <strong className="font-semibold text-slate-800">
+          {course.course_name}
+        </strong>{" "}
+        to your itinerary, compare nearby courses, share your trip and vote
+        with your group.
+      </p>
+
+      <p className="mt-3 text-[13px] font-bold tracking-wide text-emerald-800">
+        Plan. Share. Vote. Golf.
+      </p>
 
       <button
         type="button"
@@ -140,7 +145,7 @@ export default function CourseAddToTripButton({
             ? "Added to Golf Trip"
             : activeTripId
               ? "Add to Golf Trip"
-              : "Start Planner"}
+              : "Start Free Planner"}
       </button>
 
       {message && (
