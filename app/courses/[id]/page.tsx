@@ -632,43 +632,25 @@ export default async function CoursePage({
         </div>
 
         {isIreland && (
-          <section className="border-t border-slate-200 px-5 py-5">
-            <div className="rounded-2xl bg-emerald-50 px-4 py-4 ring-1 ring-emerald-100">
-              <h2 className="text-[17px] font-semibold text-slate-900">
-                Planning a golf trip?
-              </h2>
-
-              <p className="mt-2 text-sm leading-6 text-slate-700">
-                GuestPlayGolf is a free online golf trip planning platform. Add{" "}
-                <strong>{course.course_name}</strong> to your itinerary, compare
-                nearby courses, share your trip and vote with your group.
-              </p>
-
-              <p className="mt-3 text-[13px] font-bold tracking-wide text-emerald-800">
-                Plan. Share. Vote. Golf.
-              </p>
-            </div>
-
-            <div className="mt-4">
-              <CourseAddToTripButton
-                course={{
-                  id: course.id,
-                  course_name: course.course_name,
-                  town: course.town,
-                  region: course.region,
-                  holes: course.holes,
-                  independent_guest_days: course.independent_guest_days,
-                  price_range: course.price_range || undefined,
-                  course_type: course.course_type || undefined,
-                  course_image: course.course_image || undefined,
-                  distance: distanceKmForPlanner,
-                  latitude: course.latitude || undefined,
-                  longitude: course.longitude || undefined,
-                  max_handicap: course.max_handicap || undefined,
-                }}
-              />
-            </div>
-          </section>
+          <div className="border-t border-slate-200 px-5 py-5">
+            <CourseAddToTripButton
+              course={{
+                id: course.id,
+                course_name: course.course_name,
+                town: course.town,
+                region: course.region,
+                holes: course.holes,
+                independent_guest_days: course.independent_guest_days,
+                price_range: course.price_range || undefined,
+                course_type: course.course_type || undefined,
+                course_image: course.course_image || undefined,
+                distance: distanceKmForPlanner,
+                latitude: course.latitude || undefined,
+                longitude: course.longitude || undefined,
+                max_handicap: course.max_handicap || undefined,
+              }}
+            />
+          </div>
         )}
 
         {course.notes && (
