@@ -772,7 +772,7 @@ export default async function CoursePage({
                     />
 
                     {nearbyIrelandGuideLinks.length > 0 && (
-                      <div className="mt-5 rounded-3xl bg-white p-5 ring-1 ring-slate-200">
+                      <div className="mt-5 hidden rounded-3xl bg-white p-5 ring-1 ring-slate-200 lg:block">
                         <h2 className="text-[17px] font-semibold text-slate-900">
                           Explore nearby golf guides
                         </h2>
@@ -909,6 +909,48 @@ export default async function CoursePage({
                         </Link>
                       ))}
                     </div>
+                  </section>
+                )}
+
+                {isIreland && nearbyIrelandGuideLinks.length > 0 && (
+                  <section className="border-b border-slate-200 px-5 py-5 lg:hidden">
+                    <p className="text-[12px] font-semibold uppercase tracking-[0.18em] text-emerald-800">
+                      Keep exploring
+                    </p>
+
+                    <h2 className="mt-1 text-[21px] font-semibold text-slate-900">
+                      Explore nearby golf guides
+                    </h2>
+
+                    <p className="mt-2 text-sm leading-6 text-slate-600">
+                      Compare broader golf areas and continue building your
+                      itinerary.
+                    </p>
+
+                    <div className="mt-4 grid gap-3">
+                      {nearbyIrelandGuideLinks.map((link) => (
+                        <Link
+                          key={link.href}
+                          href={link.href}
+                          className="block rounded-2xl bg-slate-50 px-4 py-4 no-underline ring-1 ring-slate-200"
+                        >
+                          <div className="text-sm font-semibold text-slate-900">
+                            {link.title} →
+                          </div>
+
+                          <p className="mt-1 text-sm leading-5 text-slate-600">
+                            {link.description}
+                          </p>
+                        </Link>
+                      ))}
+                    </div>
+
+                    <Link
+                      href="/ireland"
+                      className="mt-4 inline-block text-sm font-medium text-emerald-700 no-underline"
+                    >
+                      Plan your golf trip across Ireland →
+                    </Link>
                   </section>
                 )}
 
