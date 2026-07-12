@@ -207,12 +207,18 @@ export async function generateMetadata({
   };
 }
 
-function DetailRow({ label, value }: { label: string; value?: string }) {
+function DetailRow({
+  label,
+  value,
+}: {
+  label: string;
+  value?: string;
+}) {
   return (
-    <div className="flex items-center justify-between border-b border-slate-200 px-5 py-4 last:border-b-0">
+    <div className="flex items-center justify-between gap-4 border-b border-slate-200 px-5 py-4 last:border-b-0">
       <span className="text-sm text-slate-500">{label}</span>
 
-      <span className="text-sm font-semibold text-slate-900">
+      <span className="text-right text-sm font-semibold text-slate-900">
         {value || "—"}
       </span>
     </div>
@@ -255,6 +261,7 @@ function buildFallbackHref(
   }
 
   const queryString = params.toString();
+
   return queryString ? `/results?${queryString}` : defaultHref;
 }
 
@@ -262,7 +269,12 @@ function toRad(value: number) {
   return (value * Math.PI) / 180;
 }
 
-function getDistanceKm(lat1: number, lng1: number, lat2: number, lng2: number) {
+function getDistanceKm(
+  lat1: number,
+  lng1: number,
+  lat2: number,
+  lng2: number,
+) {
   const earthRadiusKm = 6371;
 
   const dLat = toRad(lat2 - lat1);
@@ -329,6 +341,7 @@ function getWebsiteUrl(website?: string | null) {
   if (!website) return null;
 
   const trimmed = website.trim();
+
   if (!trimmed) return null;
 
   if (/^https?:\/\//i.test(trimmed)) {
@@ -405,7 +418,7 @@ export default async function CoursePage({
 
     return (
       <main className="min-h-screen bg-stone-100 px-4 py-6">
-        <div className="mx-auto max-w-[480px] rounded-[28px] bg-white p-6 shadow-sm">
+        <div className="mx-auto max-w-[480px] rounded-[28px] bg-white p-6 shadow-sm lg:max-w-[1120px]">
           <BackButton
             fallbackHref={fallbackHref}
             className="inline-block text-slate-700"
@@ -457,7 +470,7 @@ export default async function CoursePage({
       .neq("id", course.id)
       .not("latitude", "is", null)
       .not("longitude", "is", null)
-      .limit(200);
+      .limit(300);
 
     nearbyCourses = (nearbyCourseData || [])
       .map((nearbyCourse) => {
@@ -521,7 +534,8 @@ export default async function CoursePage({
     `${course.course_name}, ${course.town}, ${course.region}, ${country}`,
   );
 
-  const directionsUrl = `https://www.google.com/maps/search/?api=1&query=${directionsQuery}`;
+  const directionsUrl =
+    `https://www.google.com/maps/search/?api=1&query=${directionsQuery}`;
 
   const handicapText =
     course.max_handicap != null
@@ -530,10 +544,14 @@ export default async function CoursePage({
         ? "Handicap Required"
         : "Handicap Not Specified";
 
-  const accessLabel = getAccessLabel(course.independent_guest_days, country);
+  const accessLabel = getAccessLabel(
+    course.independent_guest_days,
+    country,
+  );
 
   const golfIrelandDiscountText =
-    course.golf_ireland_discount && course.golf_ireland_discount.trim() !== ""
+    course.golf_ireland_discount &&
+    course.golf_ireland_discount.trim() !== ""
       ? course.golf_ireland_discount
       : "Not specified";
 
@@ -565,7 +583,7 @@ export default async function CoursePage({
   };
 
   return (
-    <main className="min-h-screen bg-stone-100 px-4 py-4 pb-28">
+    <main className="min-h-screen bg-stone-100 px-4 py-4 pb-28 lg:px-5 lg:py-6">
       <Script id="course-structured-data" type="application/ld+json">
         {JSON.stringify(structuredData)}
       </Script>
@@ -590,255 +608,336 @@ export default async function CoursePage({
         `}
       </Script>
 
-      <div className="mx-auto max-w-[480px] overflow-hidden rounded-[30px] bg-white shadow-sm">
-        <div className="relative h-60 w-full overflow-hidden bg-slate-200">
-          {course.course_image ? (
-            <img
-              src={course.course_image}
-              alt={`${course.course_name} golf course in ${course.town}`}
-              className="h-full w-full object-cover"
-            />
-          ) : (
-            <div className="flex h-full w-full items-center justify-center text-[15px] text-slate-500">
-              No image available
-            </div>
-          )}
-
-          <div className="absolute inset-x-0 top-0 p-4">
-            <BackButton
-              fallbackHref={fallbackHref}
-              className="rounded-full bg-white px-3 py-2 text-[14px] font-medium text-slate-800 shadow-sm"
-            >
-              ← Back
-            </BackButton>
-          </div>
-
-          <div className="absolute bottom-0 h-24 w-full bg-gradient-to-t from-black/40 to-transparent" />
-        </div>
-
-        <div className="space-y-2 px-5 pb-4 pt-5">
-          <h1 className="text-[22px] font-bold text-slate-900">
-            {course.course_name}
-          </h1>
-
-          <p className="text-[14px] text-slate-500">
-            {course.town}, {regionName}
-          </p>
-
-          {distanceBadge && (
-            <p className="text-sm text-slate-600">{distanceBadge}</p>
-          )}
-
-          <div className="flex flex-wrap gap-2 pt-2">
-            {isIreland ? (
-              <>
-                {course.course_type && (
-                  <span className="rounded-full bg-slate-100 px-3 py-1 text-[12px] font-semibold text-slate-700">
-                    {course.course_type}
-                  </span>
-                )}
-
-                {course.price_range && (
-                  <span className="rounded-full bg-yellow-100 px-3 py-1 text-[12px] font-bold text-yellow-800">
-                    {course.price_range}
-                  </span>
-                )}
-
-                <span className="rounded-full bg-emerald-100 px-3 py-1 text-[12px] font-medium text-emerald-800">
-                  {accessLabel}
-                </span>
-
-                {shouldShowIrelandHandicap(course.max_handicap) && (
-                  <span className="rounded-full bg-blue-100 px-3 py-1 text-[12px] font-medium text-blue-800">
-                    Max Handicap {course.max_handicap}
-                  </span>
-                )}
-              </>
-            ) : (
-              <>
-                <span className="rounded-full bg-emerald-100 px-3 py-1 text-[12px] font-medium text-emerald-800">
-                  {accessLabel}
-                </span>
-
-                <span className="rounded-full bg-amber-100 px-3 py-1 text-[12px] font-medium text-amber-800">
-                  {handicapText}
-                </span>
-
-                <span className="rounded-full bg-slate-100 px-3 py-1 text-[12px] font-medium text-slate-700">
-                  {course.holes} Holes
-                </span>
-              </>
-            )}
-          </div>
-        </div>
-
-        <div className="border-t border-slate-200">
-          <DetailRow label="Season" value={course.season} />
-
-          {isIreland ? (
-            <>
-              <DetailRow label="Holes" value={`${course.holes} holes`} />
-
-              <DetailRow
-                label="Golf Ireland Discount"
-                value={golfIrelandDiscountText}
+      <div className="mx-auto max-w-[480px] lg:max-w-[1120px]">
+        <article className="overflow-hidden rounded-[30px] bg-white shadow-sm ring-1 ring-slate-200/60">
+          <div className="relative h-60 w-full overflow-hidden bg-slate-200 sm:h-72 lg:h-[420px]">
+            {course.course_image ? (
+              <img
+                src={course.course_image}
+                alt={`${course.course_name} golf course in ${course.town}`}
+                className="h-full w-full object-cover"
               />
-            </>
-          ) : (
-            <DetailRow
-              label="Price"
-              value={course.price_range || "Not listed"}
-            />
-          )}
-        </div>
+            ) : (
+              <div className="flex h-full w-full items-center justify-center text-[15px] text-slate-500">
+                No image available
+              </div>
+            )}
 
-        {isIreland && (
-          <div className="border-t border-slate-200 px-5 py-5">
-            <CourseAddToTripButton
-              course={{
-                id: course.id,
-                course_name: course.course_name,
-                town: course.town,
-                region: course.region,
-                holes: course.holes,
-                independent_guest_days: course.independent_guest_days,
-                price_range: course.price_range || undefined,
-                course_type: course.course_type || undefined,
-                course_image: course.course_image || undefined,
-                distance: distanceKmForPlanner,
-                latitude: course.latitude || undefined,
-                longitude: course.longitude || undefined,
-                max_handicap: course.max_handicap || undefined,
-              }}
-            />
-          </div>
-        )}
-
-        {course.notes && (
-          <div className="border-t border-slate-200 px-5 py-5">
-            <p className="whitespace-pre-line text-[15px] leading-7 text-slate-600">
-              {course.notes}
-            </p>
-          </div>
-        )}
-
-        {isIreland && nearbyCourses.length > 0 && (
-          <section className="border-t border-slate-200 px-5 py-5">
-            <h2 className="text-[17px] font-semibold text-slate-900">
-              Golf courses near {course.course_name}
-            </h2>
-
-            <p className="mt-2 text-sm leading-6 text-slate-600">
-              Compare nearby courses and add more options to your golf trip
-              itinerary.
-            </p>
-
-            <div className="mt-4 grid gap-3">
-              {nearbyCourses.map((nearbyCourse) => (
-                <Link
-                  key={nearbyCourse.id}
-                  href={`/courses/${nearbyCourse.id}`}
-                  className="overflow-hidden rounded-2xl bg-slate-50 no-underline ring-1 ring-slate-200"
-                >
-                  <div className="flex">
-                    <div className="h-28 w-28 shrink-0 bg-slate-200">
-                      {nearbyCourse.course_image ? (
-                        <img
-                          src={nearbyCourse.course_image}
-                          alt={`${nearbyCourse.course_name} golf course`}
-                          className="h-full w-full object-cover"
-                        />
-                      ) : (
-                        <div className="flex h-full w-full items-center justify-center px-3 text-center text-xs text-slate-500">
-                          No image
-                        </div>
-                      )}
-                    </div>
-
-                    <div className="min-w-0 flex-1 px-4 py-3">
-                      <h3 className="text-sm font-semibold leading-5 text-slate-900">
-                        {nearbyCourse.course_name}
-                      </h3>
-
-                      <p className="mt-1 text-xs text-slate-500">
-                        {nearbyCourse.town} ·{" "}
-                        {nearbyCourse.distanceKm.toFixed(1)} km away
-                      </p>
-
-                      <div className="mt-2 flex flex-wrap gap-1.5">
-                        {nearbyCourse.course_type && (
-                          <span className="rounded-full bg-white px-2 py-1 text-[10px] font-semibold text-slate-700 ring-1 ring-slate-200">
-                            {nearbyCourse.course_type}
-                          </span>
-                        )}
-
-                        {nearbyCourse.price_range && (
-                          <span className="rounded-full bg-yellow-100 px-2 py-1 text-[10px] font-bold text-yellow-800">
-                            {nearbyCourse.price_range}
-                          </span>
-                        )}
-
-                        <span className="rounded-full bg-emerald-100 px-2 py-1 text-[10px] font-medium text-emerald-800">
-                          {getAccessLabel(
-                            nearbyCourse.independent_guest_days,
-                            "Ireland",
-                          )}
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-                </Link>
-              ))}
+            <div className="absolute inset-x-0 top-0 p-4 lg:p-6">
+              <BackButton
+                fallbackHref={fallbackHref}
+                className="rounded-full bg-white px-3 py-2 text-[14px] font-medium text-slate-800 shadow-sm"
+              >
+                ← Back
+              </BackButton>
             </div>
-          </section>
-        )}
 
-        <div className="border-t border-slate-200 px-5 py-5">
-          {isIreland && nearbyIrelandGuideLinks.length > 0 ? (
-            <>
-              <h2 className="text-[17px] font-semibold text-slate-900">
-                Explore nearby golf guides
-              </h2>
+            <div className="absolute inset-x-0 bottom-0 h-40 bg-gradient-to-t from-black/70 via-black/25 to-transparent lg:h-56" />
 
-              <p className="mt-2 text-sm leading-6 text-slate-600">
-                Browse broader golf areas, compare more visitor-friendly
-                courses and continue building your itinerary.
+            <div className="absolute inset-x-0 bottom-0 hidden px-8 pb-8 text-white lg:block">
+              <p className="text-[12px] font-semibold uppercase tracking-[0.18em] text-white/75">
+                {isIreland ? "Irish golf course" : "Swiss golf course"}
               </p>
 
-              <div className="mt-4 grid gap-3">
-                {nearbyIrelandGuideLinks.map((link) => (
-                  <Link
-                    key={link.href}
-                    href={link.href}
-                    className="block rounded-2xl bg-slate-50 px-4 py-4 no-underline ring-1 ring-slate-200"
-                  >
-                    <div className="text-sm font-semibold text-slate-900">
-                      {link.title} →
-                    </div>
+              <h1 className="mt-2 max-w-[760px] text-[38px] font-bold leading-tight">
+                {course.course_name}
+              </h1>
 
-                    <p className="mt-1 text-sm leading-5 text-slate-600">
-                      {link.description}
-                    </p>
-                  </Link>
-                ))}
+              <p className="mt-2 text-[16px] text-white/90">
+                {course.town}, {regionName}
+              </p>
+
+              {distanceBadge && (
+                <p className="mt-2 text-sm font-semibold text-white/90">
+                  {distanceBadge}
+                </p>
+              )}
+            </div>
+          </div>
+
+          <div className="lg:grid lg:grid-cols-[minmax(0,1fr)_360px]">
+            <div className="border-b border-slate-200 px-5 pb-5 pt-5 lg:col-span-2 lg:px-8 lg:py-6">
+              <div className="lg:hidden">
+                <h1 className="text-[22px] font-bold text-slate-900">
+                  {course.course_name}
+                </h1>
+
+                <p className="mt-2 text-[14px] text-slate-500">
+                  {course.town}, {regionName}
+                </p>
+
+                {distanceBadge && (
+                  <p className="mt-2 text-sm text-slate-600">
+                    {distanceBadge}
+                  </p>
+                )}
               </div>
 
-              <Link
-                href="/ireland"
-                className="mt-4 inline-block text-sm font-medium text-emerald-700 no-underline"
+              <div className="flex flex-wrap gap-2 pt-2 lg:pt-0">
+                {isIreland ? (
+                  <>
+                    {course.course_type && (
+                      <span className="rounded-full bg-slate-100 px-3 py-1 text-[12px] font-semibold text-slate-700">
+                        {course.course_type}
+                      </span>
+                    )}
+
+                    {course.price_range && (
+                      <span className="rounded-full bg-yellow-100 px-3 py-1 text-[12px] font-bold text-yellow-800">
+                        {course.price_range}
+                      </span>
+                    )}
+
+                    <span className="rounded-full bg-emerald-100 px-3 py-1 text-[12px] font-medium text-emerald-800">
+                      {accessLabel}
+                    </span>
+
+                    {shouldShowIrelandHandicap(course.max_handicap) && (
+                      <span className="rounded-full bg-blue-100 px-3 py-1 text-[12px] font-medium text-blue-800">
+                        Max Handicap {course.max_handicap}
+                      </span>
+                    )}
+                  </>
+                ) : (
+                  <>
+                    <span className="rounded-full bg-emerald-100 px-3 py-1 text-[12px] font-medium text-emerald-800">
+                      {accessLabel}
+                    </span>
+
+                    <span className="rounded-full bg-amber-100 px-3 py-1 text-[12px] font-medium text-amber-800">
+                      {handicapText}
+                    </span>
+
+                    <span className="rounded-full bg-slate-100 px-3 py-1 text-[12px] font-medium text-slate-700">
+                      {course.holes} Holes
+                    </span>
+                  </>
+                )}
+              </div>
+            </div>
+
+            <div className="border-b border-slate-200 lg:col-span-2">
+              <div className="lg:grid lg:grid-cols-3">
+                <DetailRow label="Season" value={course.season} />
+
+                {isIreland ? (
+                  <>
+                    <DetailRow
+                      label="Holes"
+                      value={`${course.holes} holes`}
+                    />
+
+                    <DetailRow
+                      label="Golf Ireland Discount"
+                      value={golfIrelandDiscountText}
+                    />
+                  </>
+                ) : (
+                  <>
+                    <DetailRow
+                      label="Price"
+                      value={course.price_range || "Not listed"}
+                    />
+
+                    <DetailRow
+                      label="Location"
+                      value={`${course.town}, ${regionName}`}
+                    />
+                  </>
+                )}
+              </div>
+            </div>
+
+            <div className="grid min-w-0 lg:col-span-2 lg:grid-cols-[minmax(0,1fr)_360px] lg:items-start">
+              {isIreland && (
+                <aside className="order-1 border-b border-slate-200 px-5 py-5 lg:col-start-2 lg:row-start-1 lg:border-b-0 lg:border-l lg:px-6 lg:py-6">
+                  <div className="lg:sticky lg:top-6">
+                    <CourseAddToTripButton
+                      course={{
+                        id: course.id,
+                        course_name: course.course_name,
+                        town: course.town,
+                        region: course.region,
+                        holes: course.holes,
+                        independent_guest_days:
+                          course.independent_guest_days,
+                        price_range: course.price_range || undefined,
+                        course_type: course.course_type || undefined,
+                        course_image: course.course_image || undefined,
+                        distance: distanceKmForPlanner,
+                        latitude: course.latitude || undefined,
+                        longitude: course.longitude || undefined,
+                        max_handicap: course.max_handicap || undefined,
+                      }}
+                    />
+
+                    {nearbyIrelandGuideLinks.length > 0 && (
+                      <div className="mt-5 rounded-3xl bg-white p-5 ring-1 ring-slate-200">
+                        <h2 className="text-[17px] font-semibold text-slate-900">
+                          Explore nearby golf guides
+                        </h2>
+
+                        <p className="mt-2 text-sm leading-6 text-slate-600">
+                          Compare broader golf areas and continue building your
+                          itinerary.
+                        </p>
+
+                        <div className="mt-4 grid gap-3">
+                          {nearbyIrelandGuideLinks.map((link) => (
+                            <Link
+                              key={link.href}
+                              href={link.href}
+                              className="block rounded-2xl bg-slate-50 px-4 py-4 no-underline ring-1 ring-slate-200 transition hover:bg-slate-100"
+                            >
+                              <div className="text-sm font-semibold text-slate-900">
+                                {link.title} →
+                              </div>
+
+                              <p className="mt-1 text-sm leading-5 text-slate-600">
+                                {link.description}
+                              </p>
+                            </Link>
+                          ))}
+                        </div>
+
+                        <Link
+                          href="/ireland"
+                          className="mt-4 inline-block text-sm font-medium text-emerald-700 no-underline"
+                        >
+                          Plan your golf trip across Ireland →
+                        </Link>
+                      </div>
+                    )}
+                  </div>
+                </aside>
+              )}
+
+              <div
+                className={`order-2 min-w-0 ${
+                  isIreland
+                    ? "lg:col-start-1 lg:row-start-1"
+                    : "lg:col-span-2"
+                }`}
               >
-                Plan your golf trip across Ireland →
-              </Link>
-            </>
-          ) : (
-            <Link
-              href={regionHref}
-              className="text-sm font-medium text-emerald-700 no-underline"
-            >
-              {regionLinkText} →
-            </Link>
-          )}
-        </div>
+                {course.notes && (
+                  <section className="border-b border-slate-200 px-5 py-5 lg:px-8 lg:py-7">
+                    <p className="text-[12px] font-semibold uppercase tracking-[0.18em] text-emerald-800">
+                      Course overview
+                    </p>
+
+                    <h2 className="mt-1 text-[21px] font-semibold text-slate-900">
+                      Visitor information
+                    </h2>
+
+                    <p className="mt-4 whitespace-pre-line text-[15px] leading-7 text-slate-600">
+                      {course.notes}
+                    </p>
+                  </section>
+                )}
+
+                {isIreland && nearbyCourses.length > 0 && (
+                  <section className="border-b border-slate-200 px-5 py-5 lg:px-8 lg:py-7">
+                    <p className="text-[12px] font-semibold uppercase tracking-[0.18em] text-emerald-800">
+                      Continue planning
+                    </p>
+
+                    <h2 className="mt-1 text-[21px] font-semibold text-slate-900">
+                      Golf courses near {course.course_name}
+                    </h2>
+
+                    <p className="mt-2 text-sm leading-6 text-slate-600">
+                      Compare nearby courses and add more options to your golf
+                      trip itinerary.
+                    </p>
+
+                    <div className="mt-5 grid gap-4 sm:grid-cols-2">
+                      {nearbyCourses.map((nearbyCourse) => (
+                        <Link
+                          key={nearbyCourse.id}
+                          href={`/courses/${nearbyCourse.id}`}
+                          className="group overflow-hidden rounded-3xl bg-slate-50 no-underline ring-1 ring-slate-200 transition hover:-translate-y-0.5 hover:shadow-md"
+                        >
+                          <div className="h-40 w-full bg-slate-200">
+                            {nearbyCourse.course_image ? (
+                              <img
+                                src={nearbyCourse.course_image}
+                                alt={`${nearbyCourse.course_name} golf course`}
+                                className="h-full w-full object-cover transition duration-300 group-hover:scale-[1.02]"
+                              />
+                            ) : (
+                              <div className="flex h-full w-full items-center justify-center px-3 text-center text-xs text-slate-500">
+                                No image
+                              </div>
+                            )}
+                          </div>
+
+                          <div className="p-4">
+                            <h3 className="text-[15px] font-semibold leading-5 text-slate-900">
+                              {nearbyCourse.course_name}
+                            </h3>
+
+                            <p className="mt-1 text-xs text-slate-500">
+                              {nearbyCourse.town} ·{" "}
+                              {nearbyCourse.distanceKm.toFixed(1)} km away
+                            </p>
+
+                            <div className="mt-3 flex flex-wrap gap-1.5">
+                              {nearbyCourse.course_type && (
+                                <span className="rounded-full bg-white px-2 py-1 text-[10px] font-semibold text-slate-700 ring-1 ring-slate-200">
+                                  {nearbyCourse.course_type}
+                                </span>
+                              )}
+
+                              {nearbyCourse.price_range && (
+                                <span className="rounded-full bg-yellow-100 px-2 py-1 text-[10px] font-bold text-yellow-800">
+                                  {nearbyCourse.price_range}
+                                </span>
+                              )}
+
+                              <span className="rounded-full bg-emerald-100 px-2 py-1 text-[10px] font-medium text-emerald-800">
+                                {getAccessLabel(
+                                  nearbyCourse.independent_guest_days,
+                                  "Ireland",
+                                )}
+                              </span>
+                            </div>
+
+                            <p className="mt-4 text-sm font-semibold text-emerald-700">
+                              View course →
+                            </p>
+                          </div>
+                        </Link>
+                      ))}
+                    </div>
+                  </section>
+                )}
+
+                {!isIreland && (
+                  <section className="px-5 py-5 lg:px-8 lg:py-7">
+                    <Link
+                      href={regionHref}
+                      className="text-sm font-medium text-emerald-700 no-underline"
+                    >
+                      {regionLinkText} →
+                    </Link>
+                  </section>
+                )}
+
+                {isIreland &&
+                  nearbyIrelandGuideLinks.length === 0 && (
+                    <section className="px-5 py-5 lg:px-8 lg:py-7">
+                      <Link
+                        href="/ireland"
+                        className="text-sm font-medium text-emerald-700 no-underline"
+                      >
+                        Explore more golf in Ireland →
+                      </Link>
+                    </section>
+                  )}
+              </div>
+            </div>
+          </div>
+        </article>
       </div>
 
       <CourseCTAButtons
