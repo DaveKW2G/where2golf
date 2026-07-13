@@ -67,7 +67,7 @@ function RegionalGolfLinks() {
         courses to your free GuestPlayGolf itinerary.
       </p>
 
-      <div className="mt-4 grid gap-3">
+      <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
         <Link
           href="/golf-near-galway"
           className="rounded-2xl bg-emerald-50 px-4 py-3 text-sm font-semibold text-emerald-900 no-underline ring-1 ring-emerald-100 transition hover:bg-emerald-100"
@@ -189,8 +189,8 @@ export default async function GolfNearCorkPage() {
       </section>
 
       <section className="mx-auto w-full max-w-[480px] px-4 py-6 lg:max-w-[1120px] lg:px-5 lg:py-8">
-        <div className="grid min-w-0 gap-6 lg:grid-cols-[minmax(0,1fr)_360px] lg:items-start">
-          <section className="order-1 min-w-0 rounded-3xl bg-white p-5 shadow-sm ring-1 ring-slate-200/70 lg:col-start-1 lg:p-7">
+        <div className="grid min-w-0 gap-6 lg:grid-cols-[minmax(0,1fr)_360px] lg:items-stretch">
+          <section className="min-w-0 rounded-3xl bg-white p-5 shadow-sm ring-1 ring-slate-200/70 lg:flex lg:h-full lg:flex-col lg:p-7">
             <p className="text-[12px] font-semibold uppercase tracking-[0.18em] text-emerald-800">
               Cork golf guide
             </p>
@@ -254,107 +254,103 @@ export default async function GolfNearCorkPage() {
             </div>
           </section>
 
-          <aside className="order-2 min-w-0 lg:col-start-2 lg:row-span-2 lg:row-start-1">
-            <div className="lg:sticky lg:top-6">
-              <div className="rounded-3xl bg-emerald-50 p-5 shadow-sm ring-1 ring-emerald-100 lg:p-6">
-                <span className="inline-block rounded-full bg-white px-3 py-1 text-[11px] font-bold uppercase tracking-wide text-emerald-800 ring-1 ring-emerald-200">
-                  Free online tool
-                </span>
+          <aside className="min-w-0">
+            <div className="flex h-full flex-col rounded-3xl bg-emerald-50 p-5 shadow-sm ring-1 ring-emerald-100 lg:p-6">
+              <span className="inline-block w-fit rounded-full bg-white px-3 py-1 text-[11px] font-bold uppercase tracking-wide text-emerald-800 ring-1 ring-emerald-200">
+                Free online tool
+              </span>
 
-                <h2 className="mt-4 text-xl font-bold text-slate-900">
-                  Build your Cork golf trip
-                </h2>
+              <h2 className="mt-4 text-xl font-bold text-slate-900">
+                Build your Cork golf trip
+              </h2>
 
-                <p className="mt-3 text-sm leading-6 text-slate-700">
-                  Choose courses, build a day-by-day itinerary and organise
-                  your Cork golf trip in one place. Share the plan and let your
-                  group vote on where to play.
-                </p>
+              <p className="mt-3 text-sm leading-6 text-slate-700">
+                Choose courses, build a day-by-day itinerary and organise your
+                Cork golf trip in one place. Share the plan and let your group
+                vote on where to play.
+              </p>
 
-                <div className="mt-4 grid gap-3">
-                  <div className="flex gap-3">
-                    <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-white text-xs font-bold text-emerald-800 ring-1 ring-emerald-200">
-                      1
-                    </span>
+              <div className="mt-4 grid gap-3">
+                <div className="flex gap-3">
+                  <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-white text-xs font-bold text-emerald-800 ring-1 ring-emerald-200">
+                    1
+                  </span>
 
-                    <p className="pt-1 text-sm text-slate-700">
-                      Add courses to your shortlist.
-                    </p>
-                  </div>
-
-                  <div className="flex gap-3">
-                    <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-white text-xs font-bold text-emerald-800 ring-1 ring-emerald-200">
-                      2
-                    </span>
-
-                    <p className="pt-1 text-sm text-slate-700">
-                      Assign courses to each golf day.
-                    </p>
-                  </div>
-
-                  <div className="flex gap-3">
-                    <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-white text-xs font-bold text-emerald-800 ring-1 ring-emerald-200">
-                      3
-                    </span>
-
-                    <p className="pt-1 text-sm text-slate-700">
-                      Share the trip and vote as a group.
-                    </p>
-                  </div>
+                  <p className="pt-1 text-sm text-slate-700">
+                    Add courses to your shortlist.
+                  </p>
                 </div>
 
+                <div className="flex gap-3">
+                  <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-white text-xs font-bold text-emerald-800 ring-1 ring-emerald-200">
+                    2
+                  </span>
+
+                  <p className="pt-1 text-sm text-slate-700">
+                    Assign courses to each golf day.
+                  </p>
+                </div>
+
+                <div className="flex gap-3">
+                  <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-white text-xs font-bold text-emerald-800 ring-1 ring-emerald-200">
+                    3
+                  </span>
+
+                  <p className="pt-1 text-sm text-slate-700">
+                    Share the trip and vote as a group.
+                  </p>
+                </div>
+              </div>
+
+              <div className="mt-auto pt-5">
                 <Link
                   href="/ireland/planner"
-                  className="mt-5 block w-full rounded-full bg-emerald-800 px-5 py-3 text-center text-sm font-semibold text-white no-underline transition hover:bg-emerald-900"
+                  className="block w-full rounded-full bg-emerald-800 px-5 py-3 text-center text-sm font-semibold text-white no-underline transition hover:bg-emerald-900"
                 >
                   Start Free Golf Trip Planner
                 </Link>
 
                 <p className="mt-3 text-center text-xs leading-5 text-slate-600">
-                  Browse the courses below and add your preferred options as
-                  you go.
+                  Browse the courses below and add your preferred options as you
+                  go.
                 </p>
-              </div>
-
-              <div className="mt-6 hidden rounded-3xl bg-white p-5 shadow-sm ring-1 ring-slate-200/70 lg:block">
-                <RegionalGolfLinks />
               </div>
             </div>
           </aside>
-
-          <section className="order-3 min-w-0 lg:col-start-1">
-            {error && (
-              <div className="mb-6 rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
-                Error loading golf courses near Cork.
-              </div>
-            )}
-
-            {coursesWithDistance.length === 0 ? (
-              <div className="rounded-2xl bg-white p-5 text-sm text-slate-600 shadow-sm ring-1 ring-slate-200/70">
-                No golf courses found within {corkRadiusKm} km of Cork.
-              </div>
-            ) : (
-              <div className="grid gap-4">
-                {coursesWithDistance.map((course) => (
-                  <CourseCard
-                    key={course.id}
-                    {...course}
-                    userLat={corkLat}
-                    userLng={corkLng}
-                    searchParams={{
-                      country: "ireland",
-                      source: "cork",
-                    }}
-                  />
-                ))}
-              </div>
-            )}
-          </section>
-
-          <section className="order-4 rounded-3xl bg-white p-5 shadow-sm ring-1 ring-slate-200/70 lg:hidden">
-            <RegionalGolfLinks />
-          </section>
         </div>
+
+        <section className="mt-6">
+          {error && (
+            <div className="mb-6 rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+              Error loading golf courses near Cork.
+            </div>
+          )}
+
+          {coursesWithDistance.length === 0 ? (
+            <div className="rounded-2xl bg-white p-5 text-sm text-slate-600 shadow-sm ring-1 ring-slate-200/70">
+              No golf courses found within {corkRadiusKm} km of Cork.
+            </div>
+          ) : (
+            <div className="grid gap-4 lg:grid-cols-2">
+              {coursesWithDistance.map((course) => (
+                <CourseCard
+                  key={course.id}
+                  {...course}
+                  userLat={corkLat}
+                  userLng={corkLng}
+                  searchParams={{
+                    country: "ireland",
+                    source: "cork",
+                  }}
+                />
+              ))}
+            </div>
+          )}
+        </section>
+
+        <section className="mt-6 rounded-3xl bg-white p-5 shadow-sm ring-1 ring-slate-200/70 lg:p-6">
+          <RegionalGolfLinks />
+        </section>
       </section>
     </main>
   );
