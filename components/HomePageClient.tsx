@@ -1,95 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
-import { useRouter } from "next/navigation";
 
 export default function HomePageClient() {
-  const [isLocatingToday, setIsLocatingToday] = useState(false);
-  const [isLocatingNearMe, setIsLocatingNearMe] = useState(false);
-  const [playTodayError, setPlayTodayError] = useState("");
-  const [nearMeError, setNearMeError] = useState("");
-  const router = useRouter();
-
-  function getLocationErrorMessage(error: GeolocationPositionError) {
-    switch (error.code) {
-      case error.PERMISSION_DENIED:
-        return "Location access was denied. Please allow location access in your browser settings.";
-      case error.POSITION_UNAVAILABLE:
-        return "Your location is currently unavailable. Please try again.";
-      case error.TIMEOUT:
-        return "Location request timed out. Please try again.";
-      default:
-        return "Unable to access your location.";
-    }
-  }
-
-  function handleNearMe() {
-    if (isLocatingNearMe) return;
-
-    setNearMeError("");
-    setIsLocatingNearMe(true);
-
-    if (!navigator.geolocation) {
-      setNearMeError("Geolocation is not supported on this device.");
-      setIsLocatingNearMe(false);
-      return;
-    }
-
-    navigator.geolocation.getCurrentPosition(
-      (position) => {
-        const lat = position.coords.latitude;
-        const lng = position.coords.longitude;
-
-        setIsLocatingNearMe(false);
-        router.push(`/results?lat=${lat}&lng=${lng}&source=home`);
-      },
-      (error) => {
-        setNearMeError(getLocationErrorMessage(error));
-        setIsLocatingNearMe(false);
-      },
-      {
-        enableHighAccuracy: true,
-        timeout: 10000,
-        maximumAge: 300000,
-      },
-    );
-  }
-
-  function handlePlayToday() {
-    if (isLocatingToday) return;
-
-    setPlayTodayError("");
-    setIsLocatingToday(true);
-
-    if (!navigator.geolocation) {
-      setPlayTodayError("Geolocation is not supported on this device.");
-      setIsLocatingToday(false);
-      return;
-    }
-
-    navigator.geolocation.getCurrentPosition(
-      (position) => {
-        const lat = position.coords.latitude;
-        const lng = position.coords.longitude;
-
-        setIsLocatingToday(false);
-        router.push(
-          `/results?lat=${lat}&lng=${lng}&today=true&radius=50&source=home`,
-        );
-      },
-      (error) => {
-        setPlayTodayError(getLocationErrorMessage(error));
-        setIsLocatingToday(false);
-      },
-      {
-        enableHighAccuracy: true,
-        timeout: 10000,
-        maximumAge: 300000,
-      },
-    );
-  }
-
   return (
     <main className="min-h-screen overflow-x-hidden bg-stone-100 text-slate-800">
       <section className="relative overflow-hidden bg-gradient-to-b from-emerald-950 via-emerald-900 to-emerald-800 px-5 pb-10 pt-6 text-white lg:pb-14 lg:pt-8">
@@ -157,10 +70,10 @@ export default function HomePageClient() {
               </Link>
 
               <Link
-                href="/ireland/planner"
+                href="/about"
                 className="rounded-full bg-emerald-600 px-5 py-3 text-sm font-semibold text-white no-underline transition hover:bg-emerald-500"
               >
-                Free Golf Trip Planner →
+                About GuestPlayGolf →
               </Link>
             </div>
           </div>
@@ -449,74 +362,6 @@ export default function HomePageClient() {
             >
               Learn more about GuestPlayGolf →
             </Link>
-          </div>
-        </section>
-
-        <section className="mt-6 rounded-3xl bg-white p-5 shadow-sm ring-1 ring-slate-200/70 lg:p-7">
-          <h2 className="text-[18px] font-semibold text-slate-900">
-            Quick tools
-          </h2>
-
-          <p className="mt-2 text-sm leading-6 text-slate-600">
-            Already know what you need? Search by filters, nearby courses or
-            where you can play today.
-          </p>
-
-          <div className="mt-4 grid gap-3 lg:grid-cols-3">
-            <Link
-              href="/filters"
-              className="block rounded-2xl border border-slate-200 bg-white px-5 py-5 shadow-sm transition hover:bg-slate-50"
-            >
-              <div className="text-[17px] font-semibold text-slate-900">
-                Advanced Filters
-              </div>
-
-              <p className="mt-1 text-sm text-slate-600">
-                Filter by handicap, price, holes, course type and guest access.
-              </p>
-            </Link>
-
-            <div>
-              <button
-                onClick={handlePlayToday}
-                disabled={isLocatingToday}
-                className="w-full rounded-2xl bg-emerald-800 px-5 py-5 text-left text-white shadow-sm transition hover:bg-emerald-900 disabled:opacity-90"
-              >
-                <div className="text-[17px] font-semibold">
-                  {isLocatingToday
-                    ? "Getting your location..."
-                    : "Play Golf Today"}
-                </div>
-
-                <p className="mt-1 text-sm text-white/85">
-                  Find courses near you that may be available today.
-                </p>
-              </button>
-
-              {playTodayError && (
-                <p className="mt-2 text-sm text-red-600">{playTodayError}</p>
-              )}
-            </div>
-
-            <div>
-              <button
-                onClick={handleNearMe}
-                disabled={isLocatingNearMe}
-                className="w-full rounded-2xl border border-slate-200 bg-white px-5 py-5 text-left shadow-sm transition hover:bg-slate-50 disabled:opacity-90"
-              >
-                <div className="text-[17px] font-semibold text-slate-900">
-                  {isLocatingNearMe ? "Getting your location..." : "Near Me"}
-                </div>
-
-                <p className="mt-1 text-sm text-slate-600">
-                  Browse courses closest to your current location.
-                </p>
-              </button>
-
-              {nearMeError && (
-                <p className="mt-2 text-sm text-red-600">{nearMeError}</p>
-              )}
-            </div>
           </div>
         </section>
       </section>
