@@ -261,7 +261,7 @@ export default async function LinksGolfNearDublinPage() {
             </div>
           </section>
 
-          <aside className="order-2 min-w-0 lg:col-start-2 lg:row-span-2 lg:row-start-1">
+          <aside className="order-2 min-w-0 lg:col-start-2">
             <div className="lg:sticky lg:top-6">
               <div className="rounded-3xl bg-emerald-50 p-5 shadow-sm ring-1 ring-emerald-100 lg:p-6">
                 <span className="inline-block rounded-full bg-white px-3 py-1 text-[11px] font-bold uppercase tracking-wide text-emerald-800 ring-1 ring-emerald-200">
