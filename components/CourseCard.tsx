@@ -40,8 +40,10 @@ type PlannerCourse = {
   max_handicap?: number
 }
 
-const plannerCoursesKey = 'guestplaygolf_planner_courses'
-const plannerTripIdKey = 'guestplaygolf_trip_id'
+const genericPlannerCoursesKey = 'guestplaygolf_planner_courses'
+const genericPlannerTripIdKey = 'guestplaygolf_trip_id'
+const switzerlandPlannerCoursesKey = 'guestplaygolf_switzerland_planner_courses'
+const switzerlandPlannerTripIdKey = 'guestplaygolf_switzerland_trip_id'
 
 function isLikelyOpenToday(guestPlay?: string): boolean {
   const today = new Date()
@@ -70,16 +72,28 @@ function getCountryFromParams(
 ) {
   const paramCountry = getSingleParam(searchParams?.country)
 
-  if (paramCountry) return paramCountry.toLowerCase()
   if (country) return country.toLowerCase()
+  if (paramCountry) return paramCountry.toLowerCase()
 
   return ''
 }
 
+function getPlannerStorageKeys(countryValue: string) {
+  if (countryValue === 'switzerland') {
+    return {
+      coursesKey: switzerlandPlannerCoursesKey,
+      tripIdKey: switzerlandPlannerTripIdKey,
+    }
+  }
+
+  return {
+    coursesKey: genericPlannerCoursesKey,
+    tripIdKey: genericPlannerTripIdKey,
+  }
+}
+
 function getPlannerBasePath(countryValue: string) {
   if (countryValue === 'switzerland') return '/switzerland/planner'
-  if (countryValue === 'ireland') return '/ireland/planner'
-
   return '/ireland/planner'
 }
 
@@ -189,6 +203,7 @@ export default function CourseCard({
   const isIreland = countryValue === 'ireland'
   const isSwitzerland = countryValue === 'switzerland'
   const isPlannerCountry = isIreland || isSwitzerland
+  const plannerStorageKeys = getPlannerStorageKeys(countryValue)
   const isPlannerMode = getSingleParam(searchParams?.planner) === 'true'
   const urlTripId = getSingleParam(searchParams?.tripId)
   const activeTripIdForLink = urlTripId || storedTripIdState
@@ -231,9 +246,9 @@ export default function CourseCard({
 
   useEffect(() => {
     try {
-      const storedTripId = window.localStorage.getItem(plannerTripIdKey)
+      const storedTripId = window.localStorage.getItem(plannerStorageKeys.tripIdKey)
       const activeTripId = urlTripId || storedTripId
-      const existing = window.localStorage.getItem(plannerCoursesKey)
+      const existing = window.localStorage.getItem(plannerStorageKeys.coursesKey)
       const courses = existing ? (JSON.parse(existing) as PlannerCourse[]) : []
 
       setStoredTripIdState(storedTripId)
@@ -253,7 +268,7 @@ export default function CourseCard({
     setIsSavingToPlanner(true)
 
     try {
-      const storedTripId = window.localStorage.getItem(plannerTripIdKey)
+      const storedTripId = window.localStorage.getItem(plannerStorageKeys.tripIdKey)
       const activeTripId = urlTripId || storedTripId
 
       if (!isValidTripId(activeTripId)) {
@@ -263,7 +278,7 @@ export default function CourseCard({
         return
       }
 
-      window.localStorage.setItem(plannerTripIdKey, activeTripId!)
+      window.localStorage.setItem(plannerStorageKeys.tripIdKey, activeTripId!)
       setStoredTripIdState(activeTripId!)
       setHasActiveTrip(true)
 
@@ -294,7 +309,7 @@ export default function CourseCard({
         ? responseData.selected_courses
         : []
 
-      window.localStorage.setItem(plannerCoursesKey, JSON.stringify(syncedCourses))
+      window.localStorage.setItem(plannerStorageKeys.coursesKey, JSON.stringify(syncedCourses))
       setIsAddedToPlanner(syncedCourses.some((course: PlannerCourse) => course.id === id))
       window.dispatchEvent(new Event('guestplaygolf-planner-courses-updated'))
     } catch {

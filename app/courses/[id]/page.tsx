@@ -291,12 +291,64 @@ function getSingleParam(
   return value;
 }
 
+function isValidTripId(value?: string) {
+  return Boolean(value && value !== "undefined" && value !== "null");
+}
+
+function getCountryFromSearchParams(
+  searchParams: {
+    [key: string]: string | string[] | undefined;
+  },
+  defaultHref: string,
+) {
+  const countryParam = getSingleParam(searchParams.country)?.toLowerCase();
+
+  if (countryParam === "switzerland") return "Switzerland";
+  if (countryParam === "ireland") return "Ireland";
+
+  if (defaultHref.startsWith("/switzerland")) return "Switzerland";
+  if (defaultHref.startsWith("/ireland")) return "Ireland";
+
+  return "Switzerland";
+}
+
+function getPlannerHrefFromSearchParams(
+  searchParams: {
+    [key: string]: string | string[] | undefined;
+  },
+  defaultHref: string,
+) {
+  const country = getCountryFromSearchParams(searchParams, defaultHref);
+  const tripId = getSingleParam(searchParams.tripId);
+  const basePath = country === "Ireland" ? "/ireland/planner" : "/switzerland/planner";
+
+  if (isValidTripId(tripId)) {
+    return `${basePath}?tripId=${encodeURIComponent(tripId as string)}`;
+  }
+
+  return basePath;
+}
+
+function isPlannerSearchContext(searchParams: {
+  [key: string]: string | string[] | undefined;
+}) {
+  return (
+    getSingleParam(searchParams.planner) === "true" ||
+    getSingleParam(searchParams.source) === "planner" ||
+    isValidTripId(getSingleParam(searchParams.tripId))
+  );
+}
+
 function buildFallbackHref(
   searchParams: {
     [key: string]: string | string[] | undefined;
   },
   defaultHref: string,
 ) {
+  if (isPlannerSearchContext(searchParams)) {
+    return getPlannerHrefFromSearchParams(searchParams, defaultHref);
+  }
+
   const returnTo = getSingleParam(searchParams.returnTo);
 
   if (returnTo && returnTo.startsWith("/")) {
@@ -552,6 +604,32 @@ export default async function CoursePage({
 
   const countryHref = isIreland ? "/ireland" : "/switzerland";
   const fallbackHref = buildFallbackHref(resolvedSearchParams, countryHref);
+
+  const courseContextParams = new URLSearchParams();
+
+  for (const [key, value] of Object.entries(resolvedSearchParams)) {
+    if (typeof value === "string" && value.trim() !== "") {
+      courseContextParams.set(key, value);
+    } else if (Array.isArray(value)) {
+      value.forEach((item) => {
+        if (item.trim() !== "") {
+          courseContextParams.append(key, item);
+        }
+      });
+    }
+  }
+
+  if (!courseContextParams.get("country")) {
+    courseContextParams.set("country", country);
+  }
+
+  const courseContextQueryString = courseContextParams.toString();
+
+  function getCourseHref(courseId: number) {
+    return courseContextQueryString
+      ? `/courses/${courseId}?${courseContextQueryString}`
+      : `/courses/${courseId}`;
+  }
 
   const regionHref = isIreland
     ? "/ireland"
@@ -1014,7 +1092,7 @@ export default async function CoursePage({
                       {nearbyCourses.map((nearbyCourse) => (
                         <Link
                           key={nearbyCourse.id}
-                          href={`/courses/${nearbyCourse.id}`}
+                          href={getCourseHref(nearbyCourse.id)}
                           className="group overflow-hidden rounded-3xl bg-slate-50 no-underline ring-1 ring-slate-200 transition hover:-translate-y-0.5 hover:shadow-md"
                         >
                           <div className="h-40 w-full bg-slate-200">

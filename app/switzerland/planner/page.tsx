@@ -97,6 +97,12 @@ const ICON_CHECK = "✓";
 const ICON_WARNING = "⚠";
 const SEPARATOR = "\u00B7";
 
+const plannerUserIdKey = "guestplaygolf_switzerland_planner_user_id";
+const participantIdKey = "guestplaygolf_switzerland_participant_id";
+const plannerTripIdKey = "guestplaygolf_switzerland_trip_id";
+const plannerCoursesKey = "guestplaygolf_switzerland_planner_courses";
+const plannerVoteKeyPrefix = "guestplaygolf_switzerland_trip_votes";
+
 function createTripDays(numberOfGolfDays: number, existingDays: TripDay[]) {
   return Array.from({ length: numberOfGolfDays }, (_, index) => {
     const existingDay = existingDays[index];
@@ -168,13 +174,13 @@ function generatePlannerUserId() {
 
 function getOrCreatePlannerUserId() {
   const existingUserId = window.localStorage.getItem(
-    "guestplaygolf_planner_user_id",
+    plannerUserIdKey,
   );
 
   if (existingUserId) return existingUserId;
 
   const newUserId = generatePlannerUserId();
-  window.localStorage.setItem("guestplaygolf_planner_user_id", newUserId);
+  window.localStorage.setItem(plannerUserIdKey, newUserId);
 
   return newUserId;
 }
@@ -185,13 +191,13 @@ function generateParticipantId() {
 
 function getOrCreateParticipantId() {
   const existingId = window.localStorage.getItem(
-    "guestplaygolf_participant_id",
+    participantIdKey,
   );
 
   if (existingId) return existingId;
 
   const newId = generateParticipantId();
-  window.localStorage.setItem("guestplaygolf_participant_id", newId);
+  window.localStorage.setItem(participantIdKey, newId);
 
   return newId;
 }
@@ -431,9 +437,9 @@ export default function SwitzerlandPlannerPage() {
           longitude: trip.base_longitude || 0,
         });
 
-        window.localStorage.setItem("guestplaygolf_trip_id", trip.trip_id);
+        window.localStorage.setItem(plannerTripIdKey, trip.trip_id);
         window.localStorage.setItem(
-          "guestplaygolf_planner_courses",
+          plannerCoursesKey,
           JSON.stringify(courses),
         );
 
@@ -441,7 +447,7 @@ export default function SwitzerlandPlannerPage() {
 
         try {
           const storedVotes = window.localStorage.getItem(
-            `guestplaygolf_trip_votes_${trip.trip_id}`,
+            `${plannerVoteKeyPrefix}_${trip.trip_id}`,
           );
           setSelectedVotes(storedVotes ? JSON.parse(storedVotes) : {});
         } catch {
@@ -599,8 +605,8 @@ export default function SwitzerlandPlannerPage() {
       setVoteSummary({});
       setSelectedVotes({});
 
-      window.localStorage.setItem("guestplaygolf_trip_id", tripData.trip_id);
-      window.localStorage.setItem("guestplaygolf_planner_courses", "[]");
+      window.localStorage.setItem(plannerTripIdKey, tripData.trip_id);
+      window.localStorage.setItem(plannerCoursesKey, "[]");
 
       setStep("planner");
     } catch {
@@ -643,7 +649,7 @@ export default function SwitzerlandPlannerPage() {
 
       setSelectedCourses(updatedCourses);
       window.localStorage.setItem(
-        "guestplaygolf_planner_courses",
+        plannerCoursesKey,
         JSON.stringify(updatedCourses),
       );
     } catch {
@@ -711,7 +717,7 @@ export default function SwitzerlandPlannerPage() {
 
       setSelectedCourses(updatedCourses);
       window.localStorage.setItem(
-        "guestplaygolf_planner_courses",
+        plannerCoursesKey,
         JSON.stringify(updatedCourses),
       );
     } catch {
@@ -775,7 +781,7 @@ export default function SwitzerlandPlannerPage() {
 
       setSelectedVotes(nextSelectedVotes);
       window.localStorage.setItem(
-        `guestplaygolf_trip_votes_${tripId}`,
+        `${plannerVoteKeyPrefix}_${tripId}`,
         JSON.stringify(nextSelectedVotes),
       );
     } catch {
