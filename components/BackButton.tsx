@@ -25,6 +25,63 @@ declare global {
   }
 }
 
+function getSingleParam(searchParams: URLSearchParams, key: string) {
+  const value = searchParams.get(key);
+
+  if (!value || value === "undefined" || value === "null") {
+    return null;
+  }
+
+  return value;
+}
+
+function getCountryFromUrl(url: URL) {
+  const paramCountry = getSingleParam(url.searchParams, "country");
+
+  if (paramCountry) {
+    const cleanCountry = paramCountry.toLowerCase();
+
+    if (cleanCountry === "switzerland") return "switzerland";
+    if (cleanCountry === "ireland") return "ireland";
+  }
+
+  if (url.pathname.startsWith("/switzerland")) return "switzerland";
+  if (url.pathname.startsWith("/ireland")) return "ireland";
+
+  return null;
+}
+
+function getCountryFromHref(href: string) {
+  if (href.startsWith("/switzerland")) return "switzerland";
+  if (href.startsWith("/ireland")) return "ireland";
+
+  try {
+    const parsedUrl = new URL(href, window.location.origin);
+    return getCountryFromUrl(parsedUrl);
+  } catch {
+    return null;
+  }
+}
+
+function getPlannerHref(country: string, tripId?: string | null) {
+  const basePath =
+    country === "switzerland" ? "/switzerland/planner" : "/ireland/planner";
+
+  if (tripId && tripId !== "undefined" && tripId !== "null") {
+    return `${basePath}?tripId=${encodeURIComponent(tripId)}`;
+  }
+
+  return basePath;
+}
+
+function isPlannerContext(url: URL) {
+  const planner = getSingleParam(url.searchParams, "planner");
+  const tripId = getSingleParam(url.searchParams, "tripId");
+  const source = getSingleParam(url.searchParams, "source");
+
+  return planner === "true" || Boolean(tripId) || source === "planner";
+}
+
 export default function BackButton({
   fallbackHref,
   className,
@@ -36,10 +93,6 @@ export default function BackButton({
     const currentOrigin = window.location.origin;
     const navigation = window.navigation;
 
-    /*
-     * The Navigation API can identify the actual previous browser-history
-     * entry, including navigation performed through the Next.js App Router.
-     */
     if (navigation?.currentEntry && navigation.entries) {
       const entries = navigation.entries();
       const currentIndex = navigation.currentEntry.index;
@@ -55,16 +108,11 @@ export default function BackButton({
             return previousUrl;
           }
         } catch {
-          // Ignore an invalid history URL and continue to the fallback checks.
+          // Ignore invalid history URLs.
         }
       }
     }
 
-    /*
-     * Fallback for browsers that do not expose the Navigation API.
-     * This works for traditional page navigation from another page
-     * on GuestPlayGolf.
-     */
     const referrer = document.referrer;
 
     if (referrer) {
@@ -75,7 +123,7 @@ export default function BackButton({
           return referrerUrl;
         }
       } catch {
-        // Ignore an invalid referrer.
+        // Ignore invalid referrer URLs.
       }
     }
 
@@ -83,17 +131,49 @@ export default function BackButton({
   }
 
   function handleClick() {
+    const currentUrl = new URL(window.location.href);
     const previousInternalUrl = getPreviousInternalUrl();
+
+    const currentCountry = getCountryFromUrl(currentUrl);
+    const previousCountry = previousInternalUrl
+      ? getCountryFromUrl(previousInternalUrl)
+      : null;
+    const fallbackCountry = getCountryFromHref(fallbackHref);
+
+    const country = currentCountry || previousCountry || fallbackCountry;
+
+    const currentTripId = getSingleParam(currentUrl.searchParams, "tripId");
+    const previousTripId = previousInternalUrl
+      ? getSingleParam(previousInternalUrl.searchParams, "tripId")
+      : null;
+
+    const tripId = currentTripId || previousTripId;
+
+    const currentIsPlannerContext = isPlannerContext(currentUrl);
+    const previousIsPlannerContext = previousInternalUrl
+      ? isPlannerContext(previousInternalUrl)
+      : false;
+
+    /*
+     * Planner journeys must be country-aware.
+     * This prevents Swiss planner/course flows from falling back into /ireland/planner
+     * because of browser history.
+     */
+    if (
+      country &&
+      (currentIsPlannerContext ||
+        previousIsPlannerContext ||
+        fallbackHref.includes("/planner"))
+    ) {
+      router.push(getPlannerHref(country, tripId));
+      return;
+    }
 
     if (previousInternalUrl) {
       router.back();
       return;
     }
 
-    /*
-     * Direct visits from Google, bookmarks, shared links or external
-     * websites use the page-specific fallback rather than leaving the site.
-     */
     router.push(fallbackHref);
   }
 
