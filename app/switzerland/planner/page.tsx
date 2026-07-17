@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 
+type GolfIrelandMember = "Yes" | "No" | "Not sure";
 type DayType = "Weekday" | "Weekend";
 type PlannerStep = "setup" | "planner";
 type VoteValue = "must_play" | "happy_to_play" | "not_for_me";
@@ -83,9 +84,9 @@ const months = [
 ];
 
 const voteOptions: { value: VoteValue; emoji: string; label: string }[] = [
-  { value: "must_play", emoji: "🔥", label: "Must Play" },
-  { value: "happy_to_play", emoji: "👍", label: "Happy To Play" },
-  { value: "not_for_me", emoji: "👎", label: "Not For Me" },
+  { value: "must_play", emoji: "ðŸ”¥", label: "Must Play" },
+  { value: "happy_to_play", emoji: "ðŸ‘", label: "Happy To Play" },
+  { value: "not_for_me", emoji: "ðŸ‘Ž", label: "Not For Me" },
 ];
 
 function createTripDays(numberOfGolfDays: number, existingDays: TripDay[]) {
@@ -116,7 +117,7 @@ function getCourseMix(courses: PlannerCourse[]) {
     new Set(courses.map((course) => course.course_type).filter(Boolean)),
   );
 
-  if (courseTypes.length === 0) return "—";
+  if (courseTypes.length === 0) return "â€”";
 
   return courseTypes.join(" / ");
 }
@@ -124,20 +125,10 @@ function getCourseMix(courses: PlannerCourse[]) {
 function getGreenFeeRange(priceRange?: string) {
   const cleanPrice = priceRange?.trim();
 
-  if (!cleanPrice) return null;
-
-  if (cleanPrice === "CHF" || cleanPrice === "₣") return { low: 0, high: 100 };
-  if (cleanPrice === "CHFCHF" || cleanPrice === "₣₣")
-    return { low: 101, high: 200 };
-  if (cleanPrice === "CHFCHFCHF" || cleanPrice === "₣₣₣")
-    return { low: 201, high: 300 };
-  if (cleanPrice === "CHFCHFCHFCHF" || cleanPrice === "₣₣₣₣")
-    return { low: 300, high: 450 };
-
-  if (cleanPrice === "€") return { low: 0, high: 100 };
-  if (cleanPrice === "€€") return { low: 101, high: 200 };
-  if (cleanPrice === "€€€") return { low: 201, high: 300 };
-  if (cleanPrice === "€€€€") return { low: 300, high: 450 };
+  if (cleanPrice === "â‚¬") return { low: 0, high: 100 };
+  if (cleanPrice === "â‚¬â‚¬") return { low: 101, high: 200 };
+  if (cleanPrice === "â‚¬â‚¬â‚¬") return { low: 201, high: 300 };
+  if (cleanPrice === "â‚¬â‚¬â‚¬â‚¬") return { low: 300, high: 450 };
 
   return null;
 }
@@ -342,13 +333,13 @@ export default function SwitzerlandPlannerPage() {
   const [shareCopied, setShareCopied] = useState(false);
   const [participantId, setParticipantId] = useState("");
   const [voteSummary, setVoteSummary] = useState<VoteSummary>({});
-  const [selectedVotes, setSelectedVotes] = useState<Record<number, VoteValue>>(
-    {},
-  );
+  const [selectedVotes, setSelectedVotes] = useState<Record<number, VoteValue>>({});
   const [isSubmittingVote, setIsSubmittingVote] = useState<number | null>(null);
 
   const [tripName, setTripName] = useState("");
   const [month, setMonth] = useState("April");
+  const [golfIrelandMember, setGolfIrelandMember] =
+    useState<GolfIrelandMember>("Not sure");
   const [numberOfGolfers, setNumberOfGolfers] = useState(4);
   const [numberOfGolfDays, setNumberOfGolfDays] = useState(3);
 
@@ -424,6 +415,7 @@ export default function SwitzerlandPlannerPage() {
         setTripName(trip.trip_name || "");
         setBaseInput(getShortPlaceName(trip.base_location || ""));
         setMonth(trip.month_of_travel || "April");
+        setGolfIrelandMember("Not sure");
         setNumberOfGolfers(trip.number_of_golfers || 4);
         setNumberOfGolfDays(trip.number_of_golf_days || 3);
         setSelectedCourses(courses);
@@ -581,6 +573,7 @@ export default function SwitzerlandPlannerPage() {
           base_latitude: confirmedBase.latitude,
           base_longitude: confirmedBase.longitude,
           month_of_travel: month,
+          golf_ireland_member: "Not sure",
           number_of_golfers: numberOfGolfers,
           number_of_golf_days: numberOfGolfDays,
         }),
@@ -829,30 +822,24 @@ export default function SwitzerlandPlannerPage() {
 
   return (
     <main className="min-h-screen overflow-x-hidden bg-stone-100 text-slate-800">
-      <section className="relative overflow-hidden bg-gradient-to-b from-emerald-950 via-emerald-900 to-emerald-800 px-5 pb-10 pt-8 text-white">
+      <section className="relative overflow-hidden bg-gradient-to-b from-emerald-950 via-emerald-900 to-emerald-800 px-5 pt-8 pb-10 text-white">
         <div className="relative z-10 mx-auto max-w-[480px] text-left lg:max-w-[1120px]">
-          <Link href="/switzerland" className="text-sm text-white/90 no-underline">
-            ← Switzerland
-          </Link>
-
-          <div className="mt-6">
-            <div className="text-[15px] font-semibold uppercase tracking-[0.28em] text-white/85">
-              GuestPlayGolf
-            </div>
-
-            <p className="mt-2 text-[13px] font-medium uppercase tracking-[0.18em] text-emerald-100/80">
-              Plan. Share. Vote. Golf.
-            </p>
-
-            <h1 className="mt-4 text-[32px] font-bold leading-[1.08] text-white lg:text-[46px]">
-              Free Switzerland Golf Trip Planner
-            </h1>
-
-            <p className="mt-4 max-w-2xl text-[15px] leading-6 text-white/85 lg:text-[17px] lg:leading-7">
-              Build a Swiss golf itinerary, compare courses independent guests
-              can play, share your shortlist and vote together on where to play.
-            </p>
+          <div className="text-[15px] font-semibold uppercase tracking-[0.28em] text-white/85">
+            GuestPlayGolf
           </div>
+
+          <p className="mt-2 text-[13px] font-medium uppercase tracking-[0.18em] text-emerald-100/80">
+            Plan. Share. Vote. Golf.
+          </p>
+
+          <h1 className="mt-4 text-[32px] font-bold leading-[1.08] text-white">
+            Free Switzerland Golf Trip Planner
+          </h1>
+
+          <p className="mt-4 max-w-2xl text-[15px] leading-6 text-white/85">
+            Build a Swiss golf itinerary, compare courses independent guests can play,
+            share your shortlist and vote together on where to play.
+          </p>
         </div>
       </section>
 
@@ -860,137 +847,135 @@ export default function SwitzerlandPlannerPage() {
         {step === "setup" && (
           <div className="mx-auto max-w-[1120px]">
             <div className="grid gap-6 lg:grid-cols-2">
-              <div className="rounded-3xl bg-white p-5 shadow-sm ring-1 ring-slate-200/70">
-                <div className="flex items-center justify-between gap-3">
-                  <div>
-                    <h2 className="text-[21px] font-semibold text-slate-900">
-                      My Trips
-                    </h2>
+            <div className="rounded-3xl bg-white p-5 shadow-sm ring-1 ring-slate-200/70">
+              <div className="flex items-center justify-between gap-3">
+                <div>
+                  <h2 className="text-[21px] font-semibold text-slate-900">
+                    My Switzerland Trips
+                  </h2>
 
-                    <p className="mt-2 text-sm leading-6 text-slate-600">
-                      Open a saved trip or start a new Switzerland golf trip
-                      below.
-                    </p>
-                  </div>
-
-                  {isLoadingTrips && (
-                    <span className="text-xs font-semibold text-slate-500">
-                      Loading...
-                    </span>
-                  )}
+                  <p className="mt-2 text-sm leading-6 text-slate-600">
+                    Open a saved trip or start a new Switzerland golf trip below.
+                  </p>
                 </div>
 
-                {!isLoadingTrips && savedTrips.length === 0 && (
-                  <p className="mt-4 text-sm leading-6 text-slate-600">
-                    No saved trips yet.
-                  </p>
-                )}
-
-                {savedTrips.length > 0 && (
-                  <div className="mt-4 grid gap-3">
-                    {savedTrips.map((savedTrip) => {
-                      const courseCount = Array.isArray(
-                        savedTrip.selected_courses,
-                      )
-                        ? savedTrip.selected_courses.length
-                        : 0;
-
-                      return (
-                        <div
-                          key={savedTrip.trip_id}
-                          className="rounded-2xl bg-stone-50 p-4 ring-1 ring-slate-200"
-                        >
-                          <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
-                            <div>
-                              <div className="text-sm font-semibold text-slate-900">
-                                {savedTrip.trip_name || "Untitled trip"}
-                              </div>
-
-                              <p className="mt-1 text-sm text-slate-600">
-                                {[
-                                  getShortPlaceName(savedTrip.base_location),
-                                  savedTrip.month_of_travel,
-                                ]
-                                  .filter(Boolean)
-                                  .join(" · ")}
-                              </p>
-
-                              <p className="mt-1 text-sm text-slate-500">
-                                {courseCount} course
-                                {courseCount === 1 ? "" : "s"} ·{" "}
-                                {savedTrip.number_of_golf_days || 0} golf day
-                                {savedTrip.number_of_golf_days === 1
-                                  ? ""
-                                  : "s"}
-                              </p>
-
-                              {savedTrip.trip_code && (
-                                <p className="mt-1 text-xs font-semibold uppercase tracking-wide text-emerald-700">
-                                  Trip Code: {savedTrip.trip_code}
-                                </p>
-                              )}
-                            </div>
-
-                            <Link
-                              href={`/switzerland/planner?tripId=${savedTrip.trip_id}`}
-                              className="rounded-full bg-emerald-800 px-4 py-2 text-xs font-semibold text-white no-underline"
-                            >
-                              Open
-                            </Link>
-                          </div>
-                        </div>
-                      );
-                    })}
-                  </div>
+                {isLoadingTrips && (
+                  <span className="text-xs font-semibold text-slate-500">
+                    Loading...
+                  </span>
                 )}
               </div>
 
-              <div className="mb-6 rounded-3xl bg-white p-5 shadow-sm ring-1 ring-slate-200/70 lg:mb-0">
-                <h2 className="text-[19px] font-semibold text-slate-900">
-                  Have a trip code?
-                </h2>
-
-                <p className="mt-2 text-sm leading-6 text-slate-600">
-                  Enter a shared trip code to open a trip, even if it is not
-                  saved on this device.
+              {!isLoadingTrips && savedTrips.length === 0 && (
+                <p className="mt-4 text-sm leading-6 text-slate-600">
+                  No saved trips yet.
                 </p>
+              )}
 
+              {savedTrips.length > 0 && (
                 <div className="mt-4 grid gap-3">
-                  <input
-                    value={openTripCode}
-                    onChange={(event) => {
-                      setOpenTripCode(event.target.value.toUpperCase());
-                      setTripError("");
-                    }}
-                    placeholder="Example: ABC123"
-                    className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm font-semibold uppercase tracking-wide text-slate-900 outline-none placeholder:font-normal placeholder:normal-case placeholder:tracking-normal placeholder:text-slate-400 focus:border-emerald-700"
-                  />
+                  {savedTrips.map((savedTrip) => {
+                    const courseCount = Array.isArray(
+                      savedTrip.selected_courses,
+                    )
+                      ? savedTrip.selected_courses.length
+                      : 0;
 
-                  <button
-                    type="button"
-                    onClick={handleOpenTripByCode}
-                    disabled={!openTripCode.trim() || isOpeningTripCode}
-                    className="rounded-full bg-emerald-800 px-5 py-3 text-sm font-semibold text-white disabled:opacity-50"
-                  >
-                    {isOpeningTripCode ? "Opening trip..." : "Open Trip"}
-                  </button>
+                    return (
+                      <div
+                        key={savedTrip.trip_id}
+                        className="rounded-2xl bg-stone-50 p-4 ring-1 ring-slate-200"
+                      >
+                        <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+                          <div>
+                            <div className="text-sm font-semibold text-slate-900">
+                              {savedTrip.trip_name || "Untitled trip"}
+                            </div>
+
+                            <p className="mt-1 text-sm text-slate-600">
+                              {[
+                                getShortPlaceName(savedTrip.base_location),
+                                savedTrip.month_of_travel,
+                              ]
+                                .filter(Boolean)
+                                .join(" Â· ")}
+                            </p>
+
+                            <p className="mt-1 text-sm text-slate-500">
+                              {courseCount} course{courseCount === 1 ? "" : "s"}{" "}
+                              Â· {savedTrip.number_of_golf_days || 0} golf day
+                              {savedTrip.number_of_golf_days === 1 ? "" : "s"}
+                            </p>
+
+                            {savedTrip.trip_code && (
+                              <p className="mt-1 text-xs font-semibold uppercase tracking-wide text-emerald-700">
+                                Trip Code: {savedTrip.trip_code}
+                              </p>
+                            )}
+                          </div>
+
+                          <Link
+                            href={`/switzerland/planner?tripId=${savedTrip.trip_id}`}
+                            className="rounded-full bg-emerald-800 px-4 py-2 text-xs font-semibold text-white no-underline"
+                          >
+                            Open
+                          </Link>
+                        </div>
+                      </div>
+                    );
+                  })}
                 </div>
+              )}
+            </div>
+
+            <div>
+            <div className="mb-6 rounded-3xl bg-white p-5 shadow-sm ring-1 ring-slate-200/70">
+              <h2 className="text-[19px] font-semibold text-slate-900">
+                Have a trip code?
+              </h2>
+
+              <p className="mt-2 text-sm leading-6 text-slate-600">
+                Enter a shared trip code to open a trip, even if it is not saved
+                on this device.
+              </p>
+
+              <div className="mt-4 grid gap-3">
+                <input
+                  value={openTripCode}
+                  onChange={(event) => {
+                    setOpenTripCode(event.target.value.toUpperCase());
+                    setTripError("");
+                  }}
+                  placeholder="Example: ABC123"
+                  className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm font-semibold uppercase tracking-wide text-slate-900 outline-none placeholder:normal-case placeholder:font-normal placeholder:tracking-normal placeholder:text-slate-400 focus:border-emerald-700"
+                />
+
+                <button
+                  type="button"
+                  onClick={handleOpenTripByCode}
+                  disabled={!openTripCode.trim() || isOpeningTripCode}
+                  className="rounded-full bg-emerald-800 px-5 py-3 text-sm font-semibold text-white disabled:opacity-50"
+                >
+                  {isOpeningTripCode ? "Opening trip..." : "Open Trip"}
+                </button>
               </div>
             </div>
 
-            <div className="mt-6 min-w-0 max-w-full rounded-3xl bg-white p-5 shadow-sm ring-1 ring-slate-200/70 lg:p-7">
+            </div>
+          </div>
+
+            <div className="min-w-0 max-w-full rounded-3xl bg-white p-5 shadow-sm ring-1 ring-slate-200/70">
               <h2 className="text-[21px] font-semibold text-slate-900">
                 Tell us about your Switzerland golf trip
               </h2>
 
               <p className="mt-2 text-sm leading-6 text-slate-600">
-                Your base is the anchor of the trip. We use it to help you find
-                nearby Swiss courses and compare distance, access, handicap
-                requirements and seasonality.
+                Your base is the anchor of the trip. We use it to help you find nearby
+                Swiss courses and compare distance, access, handicap requirements and seasonality.
               </p>
 
-              <div className="mt-5 grid gap-5 lg:grid-cols-2">
-                <div className="lg:col-span-2">
+              <div className="mt-5 grid gap-5">
+                <div>
                   <label className="text-sm font-semibold text-slate-900">
                     Where are you staying?
                   </label>
@@ -1141,16 +1126,14 @@ export default function SwitzerlandPlannerPage() {
                 </div>
 
                 {tripError && (
-                  <p className="text-sm leading-6 text-red-600 lg:col-span-2">
-                    {tripError}
-                  </p>
+                  <p className="text-sm leading-6 text-red-600">{tripError}</p>
                 )}
 
                 <button
                   type="button"
                   disabled={!isReadyToStart}
                   onClick={handleStartPlanning}
-                  className="rounded-full bg-slate-900 px-5 py-4 text-sm font-semibold text-white disabled:opacity-50 lg:col-span-2"
+                  className="rounded-full bg-slate-900 px-5 py-4 text-sm font-semibold text-white disabled:opacity-50"
                 >
                   {isCreatingTrip ? "Creating your trip..." : "Start Planning"}
                 </button>
@@ -1174,10 +1157,10 @@ export default function SwitzerlandPlannerPage() {
                     </h2>
 
                     <div className="mt-4 grid gap-2 text-sm text-white/90">
-                      <div>📍 {baseInput}</div>
-                      <div>📅 {month}</div>
-                      <div>👥 {numberOfGolfers} golfers</div>
-                      {tripCode && <div>🔑 Trip Code: {tripCode}</div>}
+                      <div>ðŸ“ {baseInput}</div>
+                      <div>ðŸ“… {month}</div>
+                      <div>ðŸ‘¥ {numberOfGolfers} golfers</div>
+                      {tripCode && <div>ðŸ”‘ Trip Code: {tripCode}</div>}
                     </div>
                   </div>
 
@@ -1188,7 +1171,7 @@ export default function SwitzerlandPlannerPage() {
                         onClick={handleCopyShareLink}
                         className="rounded-full bg-white px-4 py-2 text-sm font-semibold text-emerald-900 shadow-sm"
                       >
-                        {shareCopied ? "Copied ✓" : "Share"}
+                        {shareCopied ? "Copied âœ“" : "Share"}
                       </button>
                     )}
 
@@ -1225,8 +1208,8 @@ export default function SwitzerlandPlannerPage() {
                   </h2>
 
                   <p className="mt-2 text-sm leading-6 text-slate-600">
-                    Assign courses to each day. We flag possible visitor-access
-                    issues based on weekday or weekend play.
+                    Assign courses to each day. We flag any possible
+                    visitor-access issues based on weekday or weekend play.
                   </p>
                 </div>
               </div>
@@ -1302,32 +1285,19 @@ export default function SwitzerlandPlannerPage() {
                           </div>
                         )}
 
-                        {assignedCourses.length > 0 &&
-                          (["Morning", "Afternoon"] as const).map((slot) => {
-                            const assignedCourse =
-                              slot === "Morning"
-                                ? morningCourse
-                                : afternoonCourse;
-
-                            if (!assignedCourse) return null;
-
+                        {assignedCourses.length === 1 &&
+                          (() => {
+                            const assignedCourse = assignedCourses[0];
                             const validation = getAccessValidation(
                               assignedCourse,
                               day.dayType,
                             );
 
                             return (
-                              <div
-                                key={`${day.dayNumber}-${slot}`}
-                                className="rounded-2xl bg-white p-4 ring-1 ring-slate-200"
-                              >
-                                <div className="text-xs font-semibold uppercase tracking-wide text-slate-500">
-                                  {slot}
-                                </div>
-
-                                <div className="mt-2 flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+                              <div className="rounded-2xl bg-white p-4 ring-1 ring-slate-200">
+                                <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
                                   <div className="min-w-0">
-                                    <div className="text-[16px] font-bold text-slate-900">
+                                    <div className="text-[17px] font-bold text-slate-900">
                                       {assignedCourse.course_name}
                                     </div>
 
@@ -1337,7 +1307,7 @@ export default function SwitzerlandPlannerPage() {
                                         assignedCourse.price_range,
                                       ]
                                         .filter(Boolean)
-                                        .join(" · ")}
+                                        .join(" Â· ")}
                                     </p>
                                   </div>
 
@@ -1348,7 +1318,7 @@ export default function SwitzerlandPlannerPage() {
                                         : "bg-amber-100 text-amber-800"
                                     }`}
                                   >
-                                    {validation.isValid ? "✓" : "⚠"}
+                                    {validation.isValid ? "âœ“" : "âš "}
                                   </span>
                                 </div>
 
@@ -1361,6 +1331,73 @@ export default function SwitzerlandPlannerPage() {
                                 >
                                   {validation.message}
                                 </p>
+                              </div>
+                            );
+                          })()}
+
+                        {assignedCourses.length > 1 &&
+                          (["Morning", "Afternoon"] as const).map((slot) => {
+                            const assignedCourse =
+                              slot === "Morning"
+                                ? morningCourse
+                                : afternoonCourse;
+                            const validation = assignedCourse
+                              ? getAccessValidation(assignedCourse, day.dayType)
+                              : null;
+
+                            return (
+                              <div
+                                key={`${day.dayNumber}-${slot}`}
+                                className="rounded-2xl bg-white p-4 ring-1 ring-slate-200"
+                              >
+                                <div className="text-xs font-semibold uppercase tracking-wide text-slate-500">
+                                  {slot}
+                                </div>
+
+                                {assignedCourse && validation ? (
+                                  <div className="mt-2">
+                                    <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+                                      <div className="min-w-0">
+                                        <div className="text-[16px] font-bold text-slate-900">
+                                          {assignedCourse.course_name}
+                                        </div>
+
+                                        <p className="mt-1 text-sm text-slate-600">
+                                          {[
+                                            assignedCourse.course_type,
+                                            assignedCourse.price_range,
+                                          ]
+                                            .filter(Boolean)
+                                            .join(" Â· ")}
+                                        </p>
+                                      </div>
+
+                                      <span
+                                        className={`shrink-0 rounded-full px-2.5 py-1 text-xs font-semibold ${
+                                          validation.isValid
+                                            ? "bg-emerald-100 text-emerald-800"
+                                            : "bg-amber-100 text-amber-800"
+                                        }`}
+                                      >
+                                        {validation.isValid ? "âœ“" : "âš "}
+                                      </span>
+                                    </div>
+
+                                    <p
+                                      className={`mt-2 text-xs font-semibold ${
+                                        validation.isValid
+                                          ? "text-emerald-700"
+                                          : "text-amber-700"
+                                      }`}
+                                    >
+                                      {validation.message}
+                                    </p>
+                                  </div>
+                                ) : (
+                                  <p className="mt-2 text-sm text-slate-500">
+                                    Not assigned
+                                  </p>
+                                )}
                               </div>
                             );
                           })}
@@ -1401,9 +1438,13 @@ export default function SwitzerlandPlannerPage() {
                           </div>
 
                           <p className="mt-1 text-sm text-slate-600">
-                            {[course.course_type, course.region, course.price_range]
+                            {[
+                              course.course_type,
+                              course.region,
+                              course.price_range,
+                            ]
                               .filter(Boolean)
-                              .join(" · ")}
+                              .join(" Â· ")}
                           </p>
 
                           {typeof course.distance === "number" && (
@@ -1452,15 +1493,8 @@ export default function SwitzerlandPlannerPage() {
 
                               <div className="text-xs font-semibold text-slate-500">
                                 {(() => {
-                                  const summary = getCourseVoteSummary(
-                                    voteSummary,
-                                    course.id,
-                                  );
-                                  return `${
-                                    summary.must_play +
-                                    summary.happy_to_play +
-                                    summary.not_for_me
-                                  } votes`;
+                                  const summary = getCourseVoteSummary(voteSummary, course.id);
+                                  return `${summary.must_play + summary.happy_to_play + summary.not_for_me} votes`;
                                 })()}
                               </div>
                             </div>
@@ -1497,25 +1531,13 @@ export default function SwitzerlandPlannerPage() {
 
                             <div className="mt-3 flex flex-wrap gap-2 text-xs font-semibold text-slate-600">
                               <span className="rounded-full bg-stone-50 px-3 py-1 ring-1 ring-slate-200">
-                                🔥{" "}
-                                {
-                                  getCourseVoteSummary(voteSummary, course.id)
-                                    .must_play
-                                }
+                                ðŸ”¥ {getCourseVoteSummary(voteSummary, course.id).must_play}
                               </span>
                               <span className="rounded-full bg-stone-50 px-3 py-1 ring-1 ring-slate-200">
-                                👍{" "}
-                                {
-                                  getCourseVoteSummary(voteSummary, course.id)
-                                    .happy_to_play
-                                }
+                                ðŸ‘ {getCourseVoteSummary(voteSummary, course.id).happy_to_play}
                               </span>
                               <span className="rounded-full bg-stone-50 px-3 py-1 ring-1 ring-slate-200">
-                                👎{" "}
-                                {
-                                  getCourseVoteSummary(voteSummary, course.id)
-                                    .not_for_me
-                                }
+                                ðŸ‘Ž {getCourseVoteSummary(voteSummary, course.id).not_for_me}
                               </span>
                             </div>
                           </div>
@@ -1551,7 +1573,7 @@ export default function SwitzerlandPlannerPage() {
                     </h2>
 
                     <p className="mt-2 text-sm leading-6 text-slate-600">
-                      Compare your selected courses side by side by type, price,
+                      Compare your selected courses side-by-side by type, price,
                       access, assignment and distance.
                     </p>
                   </div>
@@ -1564,6 +1586,52 @@ export default function SwitzerlandPlannerPage() {
                       Courses
                     </div>
                   </div>
+                </div>
+
+                <div className="mt-5 grid gap-3 md:hidden">
+                  {selectedCourses.map((course) => (
+                    <div
+                      key={course.id}
+                      className="rounded-2xl bg-stone-50 p-4 ring-1 ring-slate-200"
+                    >
+                      <div className="text-sm font-semibold text-slate-900">
+                        {course.course_name}
+                      </div>
+
+                      <div className="mt-3 flex flex-wrap gap-2">
+                        <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-700">
+                          {course.course_type || "â€”"}
+                        </span>
+                        <span className="rounded-full bg-amber-100 px-3 py-1 text-xs font-bold text-amber-800">
+                          {course.price_range || "â€”"}
+                        </span>
+                        <span className="rounded-full bg-emerald-50 px-3 py-1 text-xs font-semibold text-emerald-800 ring-1 ring-emerald-100">
+                          {course.independent_guest_days || "â€”"}
+                        </span>
+                      </div>
+
+                      <div className="mt-3 grid grid-cols-2 gap-2 text-xs text-slate-600">
+                        <div className="rounded-xl bg-white p-3 ring-1 ring-slate-200">
+                          <div className="font-semibold uppercase tracking-wide text-slate-400">
+                            Day
+                          </div>
+                          <div className="mt-1 font-semibold text-slate-800">
+                            {getAssignmentLabel(course)}
+                          </div>
+                        </div>
+                        <div className="rounded-xl bg-white p-3 ring-1 ring-slate-200">
+                          <div className="font-semibold uppercase tracking-wide text-slate-400">
+                            Distance
+                          </div>
+                          <div className="mt-1 font-semibold text-slate-800">
+                            {typeof course.distance === "number"
+                              ? `${course.distance.toFixed(1)} km`
+                              : "â€”"}
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
                 </div>
 
                 <div className="mt-5 hidden overflow-x-auto rounded-2xl ring-1 ring-slate-200 md:block">
@@ -1590,17 +1658,17 @@ export default function SwitzerlandPlannerPage() {
                           </td>
                           <td className="px-4 py-4">
                             <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-700">
-                              {course.course_type || "—"}
+                              {course.course_type || "â€”"}
                             </span>
                           </td>
                           <td className="px-4 py-4">
                             <span className="rounded-full bg-amber-100 px-3 py-1 text-xs font-bold text-amber-800">
-                              {course.price_range || "—"}
+                              {course.price_range || "â€”"}
                             </span>
                           </td>
                           <td className="px-4 py-4">
                             <span className="rounded-full bg-emerald-50 px-3 py-1 text-xs font-semibold text-emerald-800 ring-1 ring-emerald-100">
-                              {course.independent_guest_days || "—"}
+                              {course.independent_guest_days || "â€”"}
                             </span>
                           </td>
                           <td className="px-4 py-4 text-slate-700">
@@ -1609,7 +1677,7 @@ export default function SwitzerlandPlannerPage() {
                           <td className="px-4 py-4 font-semibold text-slate-700">
                             {typeof course.distance === "number"
                               ? `${course.distance.toFixed(1)} km`
-                              : "—"}
+                              : "â€”"}
                           </td>
                         </tr>
                       ))}
@@ -1652,7 +1720,7 @@ export default function SwitzerlandPlannerPage() {
                 <div className="rounded-2xl bg-stone-50 p-3 text-center ring-1 ring-slate-200">
                   <div className="text-[20px] font-bold text-slate-900">
                     {averageDistance === null
-                      ? "—"
+                      ? "â€”"
                       : `${averageDistance.toFixed(1)} km`}
                   </div>
                   <div className="mt-1 text-[11px] font-semibold uppercase tracking-wide text-slate-500">
@@ -1683,7 +1751,7 @@ export default function SwitzerlandPlannerPage() {
                     </div>
 
                     <p className="text-xs leading-5 text-slate-600">
-                      Per golfer guide only. Actual green fees can vary by club,
+                      Per golfer guide only. Actual green fees can vary by
                       weekday/weekend, season, tee time and booking conditions.
                     </p>
 
@@ -1727,9 +1795,7 @@ export default function SwitzerlandPlannerPage() {
               </h2>
 
               <p className="mt-2 text-sm leading-6 text-slate-600">
-                Swiss golf can vary significantly by club. Use the planner to
-                shortlist courses, then check visitor access, handicap
-                requirements and seasonal play before booking.
+                Swiss golf can vary significantly by club. Use the planner to shortlist courses, then check visitor access, handicap requirements and seasonal play before booking.
               </p>
             </div>
           </div>
