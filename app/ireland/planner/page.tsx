@@ -84,9 +84,9 @@ const months = [
 ];
 
 const voteOptions: { value: VoteValue; emoji: string; label: string }[] = [
-  { value: "must_play", emoji: "🔥", label: "Must Play" },
-  { value: "happy_to_play", emoji: "👍", label: "Happy To Play" },
-  { value: "not_for_me", emoji: "👎", label: "Not For Me" },
+  { value: "must_play", emoji: "ðŸ”¥", label: "Must Play" },
+  { value: "happy_to_play", emoji: "ðŸ‘", label: "Happy To Play" },
+  { value: "not_for_me", emoji: "ðŸ‘Ž", label: "Not For Me" },
 ];
 
 function createTripDays(numberOfGolfDays: number, existingDays: TripDay[]) {
@@ -117,7 +117,7 @@ function getCourseMix(courses: PlannerCourse[]) {
     new Set(courses.map((course) => course.course_type).filter(Boolean)),
   );
 
-  if (courseTypes.length === 0) return "—";
+  if (courseTypes.length === 0) return "â€”";
 
   return courseTypes.join(" / ");
 }
@@ -125,16 +125,16 @@ function getCourseMix(courses: PlannerCourse[]) {
 function getGreenFeeRange(priceRange?: string) {
   const cleanPrice = priceRange?.trim();
 
-  if (cleanPrice === "€") return { low: 0, high: 100 };
-  if (cleanPrice === "€€") return { low: 101, high: 200 };
-  if (cleanPrice === "€€€") return { low: 201, high: 300 };
-  if (cleanPrice === "€€€€") return { low: 300, high: 450 };
+  if (cleanPrice === "â‚¬") return { low: 0, high: 100 };
+  if (cleanPrice === "â‚¬â‚¬") return { low: 101, high: 200 };
+  if (cleanPrice === "â‚¬â‚¬â‚¬") return { low: 201, high: 300 };
+  if (cleanPrice === "â‚¬â‚¬â‚¬â‚¬") return { low: 300, high: 450 };
 
   return null;
 }
 
 function formatEuroAmount(amount: number) {
-  return `€${Math.round(amount).toLocaleString("en-IE")}`;
+  return `â‚¬${Math.round(amount).toLocaleString("en-IE")}`;
 }
 
 function getGreenFeeEstimate(courses: PlannerCourse[]) {
@@ -829,16 +829,16 @@ export default function PlannerPage() {
           </div>
 
           <p className="mt-2 text-[13px] font-medium uppercase tracking-[0.18em] text-emerald-100/80">
-            Irish Golf Trip Planner
+            Plan. Share. Vote. Golf.
           </p>
 
           <h1 className="mt-4 text-[32px] font-bold leading-[1.08] text-white">
-            Plan your Irish golf trip
+            Free Irish Golf Trip Planner
           </h1>
 
-          <p className="mt-4 text-[15px] text-white/85">
-            Build a flexible day-by-day golf itinerary around where you are
-            staying.
+          <p className="mt-4 max-w-2xl text-[15px] leading-6 text-white/85">
+            Explore 100+ Irish golf courses, build your day-by-day itinerary,
+            share it with friends and vote together on where to play.
           </p>
         </div>
       </section>
@@ -898,12 +898,12 @@ export default function PlannerPage() {
                                 savedTrip.month_of_travel,
                               ]
                                 .filter(Boolean)
-                                .join(" · ")}
+                                .join(" Â· ")}
                             </p>
 
                             <p className="mt-1 text-sm text-slate-500">
                               {courseCount} course{courseCount === 1 ? "" : "s"}{" "}
-                              · {savedTrip.number_of_golf_days || 0} golf day
+                              Â· {savedTrip.number_of_golf_days || 0} golf day
                               {savedTrip.number_of_golf_days === 1 ? "" : "s"}
                             </p>
 
@@ -1030,7 +1030,7 @@ export default function PlannerPage() {
                       setTripName(event.target.value);
                       setTripError("");
                     }}
-                    placeholder="Example: Dave’s Ireland Golf Trip"
+                    placeholder="Example: Daveâ€™s Ireland Golf Trip"
                     className="mt-2 w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none placeholder:text-slate-400 focus:border-emerald-700"
                   />
                 </div>
@@ -1180,10 +1180,10 @@ export default function PlannerPage() {
                     </h2>
 
                     <div className="mt-4 grid gap-2 text-sm text-white/90">
-                      <div>📍 {baseInput}</div>
-                      <div>📅 {month}</div>
-                      <div>👥 {numberOfGolfers} golfers</div>
-                      {tripCode && <div>🔑 Trip Code: {tripCode}</div>}
+                      <div>ðŸ“ {baseInput}</div>
+                      <div>ðŸ“… {month}</div>
+                      <div>ðŸ‘¥ {numberOfGolfers} golfers</div>
+                      {tripCode && <div>ðŸ”‘ Trip Code: {tripCode}</div>}
                     </div>
                   </div>
 
@@ -1194,7 +1194,7 @@ export default function PlannerPage() {
                         onClick={handleCopyShareLink}
                         className="rounded-full bg-white px-4 py-2 text-sm font-semibold text-emerald-900 shadow-sm"
                       >
-                        {shareCopied ? "Copied ✓" : "Share"}
+                        {shareCopied ? "Copied âœ“" : "Share"}
                       </button>
                     )}
 
@@ -1330,7 +1330,7 @@ export default function PlannerPage() {
                                         assignedCourse.price_range,
                                       ]
                                         .filter(Boolean)
-                                        .join(" · ")}
+                                        .join(" Â· ")}
                                     </p>
                                   </div>
 
@@ -1341,7 +1341,7 @@ export default function PlannerPage() {
                                         : "bg-amber-100 text-amber-800"
                                     }`}
                                   >
-                                    {validation.isValid ? "✓" : "⚠"}
+                                    {validation.isValid ? "âœ“" : "âš "}
                                   </span>
                                 </div>
 
@@ -1391,7 +1391,7 @@ export default function PlannerPage() {
                                             assignedCourse.price_range,
                                           ]
                                             .filter(Boolean)
-                                            .join(" · ")}
+                                            .join(" Â· ")}
                                         </p>
                                       </div>
 
@@ -1402,7 +1402,7 @@ export default function PlannerPage() {
                                             : "bg-amber-100 text-amber-800"
                                         }`}
                                       >
-                                        {validation.isValid ? "✓" : "⚠"}
+                                        {validation.isValid ? "âœ“" : "âš "}
                                       </span>
                                     </div>
 
@@ -1467,7 +1467,7 @@ export default function PlannerPage() {
                               course.price_range,
                             ]
                               .filter(Boolean)
-                              .join(" · ")}
+                              .join(" Â· ")}
                           </p>
 
                           {typeof course.distance === "number" && (
@@ -1554,13 +1554,13 @@ export default function PlannerPage() {
 
                             <div className="mt-3 flex flex-wrap gap-2 text-xs font-semibold text-slate-600">
                               <span className="rounded-full bg-stone-50 px-3 py-1 ring-1 ring-slate-200">
-                                🔥 {getCourseVoteSummary(voteSummary, course.id).must_play}
+                                ðŸ”¥ {getCourseVoteSummary(voteSummary, course.id).must_play}
                               </span>
                               <span className="rounded-full bg-stone-50 px-3 py-1 ring-1 ring-slate-200">
-                                👍 {getCourseVoteSummary(voteSummary, course.id).happy_to_play}
+                                ðŸ‘ {getCourseVoteSummary(voteSummary, course.id).happy_to_play}
                               </span>
                               <span className="rounded-full bg-stone-50 px-3 py-1 ring-1 ring-slate-200">
-                                👎 {getCourseVoteSummary(voteSummary, course.id).not_for_me}
+                                ðŸ‘Ž {getCourseVoteSummary(voteSummary, course.id).not_for_me}
                               </span>
                             </div>
                           </div>
@@ -1623,13 +1623,13 @@ export default function PlannerPage() {
 
                       <div className="mt-3 flex flex-wrap gap-2">
                         <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-700">
-                          {course.course_type || "—"}
+                          {course.course_type || "â€”"}
                         </span>
                         <span className="rounded-full bg-amber-100 px-3 py-1 text-xs font-bold text-amber-800">
-                          {course.price_range || "—"}
+                          {course.price_range || "â€”"}
                         </span>
                         <span className="rounded-full bg-emerald-50 px-3 py-1 text-xs font-semibold text-emerald-800 ring-1 ring-emerald-100">
-                          {course.independent_guest_days || "—"}
+                          {course.independent_guest_days || "â€”"}
                         </span>
                       </div>
 
@@ -1649,7 +1649,7 @@ export default function PlannerPage() {
                           <div className="mt-1 font-semibold text-slate-800">
                             {typeof course.distance === "number"
                               ? `${course.distance.toFixed(1)} km`
-                              : "—"}
+                              : "â€”"}
                           </div>
                         </div>
                       </div>
@@ -1681,17 +1681,17 @@ export default function PlannerPage() {
                           </td>
                           <td className="px-4 py-4">
                             <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-700">
-                              {course.course_type || "—"}
+                              {course.course_type || "â€”"}
                             </span>
                           </td>
                           <td className="px-4 py-4">
                             <span className="rounded-full bg-amber-100 px-3 py-1 text-xs font-bold text-amber-800">
-                              {course.price_range || "—"}
+                              {course.price_range || "â€”"}
                             </span>
                           </td>
                           <td className="px-4 py-4">
                             <span className="rounded-full bg-emerald-50 px-3 py-1 text-xs font-semibold text-emerald-800 ring-1 ring-emerald-100">
-                              {course.independent_guest_days || "—"}
+                              {course.independent_guest_days || "â€”"}
                             </span>
                           </td>
                           <td className="px-4 py-4 text-slate-700">
@@ -1700,7 +1700,7 @@ export default function PlannerPage() {
                           <td className="px-4 py-4 font-semibold text-slate-700">
                             {typeof course.distance === "number"
                               ? `${course.distance.toFixed(1)} km`
-                              : "—"}
+                              : "â€”"}
                           </td>
                         </tr>
                       ))}
@@ -1743,7 +1743,7 @@ export default function PlannerPage() {
                 <div className="rounded-2xl bg-stone-50 p-3 text-center ring-1 ring-slate-200">
                   <div className="text-[20px] font-bold text-slate-900">
                     {averageDistance === null
-                      ? "—"
+                      ? "â€”"
                       : `${averageDistance.toFixed(1)} km`}
                   </div>
                   <div className="mt-1 text-[11px] font-semibold uppercase tracking-wide text-slate-500">
@@ -1831,11 +1831,9 @@ export default function PlannerPage() {
           </h2>
 
           <p className="mt-4 text-sm leading-7 text-slate-600">
-            Planning a golf trip to Ireland can be challenging, particularly
-            when comparing courses across different regions. The GuestPlayGolf
-            Ireland Golf Trip Planner helps golfers build a personalised
-            itinerary based on where they are staying, the number of golf days
-            available and the type of courses they want to play.
+            Plan your Irish golf trip with our free online tool. Explore more
+            than 100 golf courses, build a personalised itinerary, share it
+            with friends and vote together on where to play.
           </p>
 
           <p className="mt-4 text-sm leading-7 text-slate-600">
