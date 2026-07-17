@@ -399,9 +399,15 @@ export default function SwitzerlandPlannerPage() {
           ? normaliseTripCode(existingTripCode)
           : "";
 
-        const query = normalisedExistingTripCode
-          ? `tripCode=${encodeURIComponent(normalisedExistingTripCode)}`
-          : `tripId=${encodeURIComponent(existingTripId || "")}`;
+        const savedTripId = normalisedExistingTripCode
+          ? await getSavedTripIdForCode(normalisedExistingTripCode)
+          : "";
+
+        const resolvedTripId = existingTripId || savedTripId;
+
+        const query = resolvedTripId
+          ? `tripId=${encodeURIComponent(resolvedTripId)}`
+          : `tripCode=${encodeURIComponent(normalisedExistingTripCode)}`;
 
         const response = await fetch(`/api/trips/get?${query}`, {
           cache: "no-store",
@@ -479,11 +485,41 @@ export default function SwitzerlandPlannerPage() {
 
         if (response.ok && Array.isArray(data.trips)) {
           setSavedTrips(data.trips);
+          return data.trips as SavedTrip[];
         }
+
+        setSavedTrips([]);
+        return [];
       } catch {
         setSavedTrips([]);
+        return [];
       } finally {
         setIsLoadingTrips(false);
+      }
+    }
+
+    async function getSavedTripIdForCode(tripCodeToFind: string) {
+      try {
+        const response = await fetch(
+          `/api/trips/list?plannerUserId=${currentPlannerUserId}`,
+          {
+            cache: "no-store",
+          },
+        );
+        const data = await response.json();
+
+        if (!response.ok || !Array.isArray(data.trips)) {
+          return "";
+        }
+
+        const trips = data.trips as SavedTrip[];
+        setSavedTrips(trips);
+
+        const matchingTrip = getSavedTripByCode(tripCodeToFind, trips);
+
+        return matchingTrip?.trip_id || "";
+      } catch {
+        return "";
       }
     }
 
@@ -530,6 +566,20 @@ export default function SwitzerlandPlannerPage() {
     return `GPG-${cleanCode}`;
   }
 
+  function getSavedTripByCode(codeToFind: string, trips: SavedTrip[]) {
+    const normalisedCode = normaliseTripCode(codeToFind);
+
+    if (!normalisedCode) return null;
+
+    return (
+      trips.find((savedTrip) => {
+        if (!savedTrip.trip_code) return false;
+
+        return normaliseTripCode(savedTrip.trip_code) === normalisedCode;
+      }) || null
+    );
+  }
+
   function handleOpenTripByCode() {
     const cleanCode = normaliseTripCode(openTripCode);
 
@@ -538,6 +588,15 @@ export default function SwitzerlandPlannerPage() {
     setTripError("");
     setIsOpeningTripCode(true);
     setOpenTripCode(cleanCode);
+
+    const matchingSavedTrip = getSavedTripByCode(cleanCode, savedTrips);
+
+    if (matchingSavedTrip?.trip_id) {
+      window.location.href = `/switzerland/planner?tripId=${encodeURIComponent(
+        matchingSavedTrip.trip_id,
+      )}`;
+      return;
+    }
 
     window.location.href = `/switzerland/planner?tripCode=${encodeURIComponent(
       cleanCode,
