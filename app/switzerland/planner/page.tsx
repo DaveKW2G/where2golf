@@ -141,19 +141,7 @@ function formatSwissPriceRange(priceRange?: string) {
 
   if (!cleanPrice) return "-";
 
-  const normalisedPrice = cleanPrice
-    .replace(/Â/g, "")
-    .replace(/€/g, "CHF")
-    .replace(/₣/g, "CHF")
-    .replace(/\s+/g, " ")
-    .trim();
-
-  if (normalisedPrice === "CHF 0-100") return "CHF";
-  if (normalisedPrice === "CHF 101-200") return "CHF CHF";
-  if (normalisedPrice === "CHF 201-300") return "CHF CHF CHF";
-  if (normalisedPrice === "CHF 300+") return "CHF CHF CHF CHF";
-
-  return normalisedPrice;
+  return cleanPrice.replace(/Â/g, "").trim();
 }
 
 function getPriceBandSummary(courses: PlannerCourse[]) {
@@ -1760,7 +1748,7 @@ export default function SwitzerlandPlannerPage() {
                   </div>
 
                   <p className="text-xs leading-5 text-slate-600">
-                    Swiss price bands are shown as bands only. Exact green fees
+                    Price bands are shown exactly as stored in Supabase. Exact green fees
                     can vary by club, weekday/weekend, season, tee time and
                     booking conditions.
                   </p>

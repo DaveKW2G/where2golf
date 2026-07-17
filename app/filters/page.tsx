@@ -121,9 +121,7 @@ function FiltersPageContent() {
     )
   }
 
-  const priceOptions = isIreland
-    ? ['€', '€€', '€€€', '€€€€']
-    : ['CHF', 'CHF CHF', 'CHF CHF CHF', 'CHF CHF CHF CHF']
+  const priceOptions = ['€', '€€', '€€€', '€€€€']
 
   return (
     <main className="min-h-screen bg-stone-100">
