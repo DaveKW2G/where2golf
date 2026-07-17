@@ -70,10 +70,27 @@ function getCountryFromParams(
 ) {
   const paramCountry = getSingleParam(searchParams?.country)
 
-  if (country) return country.toLowerCase()
   if (paramCountry) return paramCountry.toLowerCase()
+  if (country) return country.toLowerCase()
 
   return ''
+}
+
+function getPlannerBasePath(countryValue: string) {
+  if (countryValue === 'switzerland') return '/switzerland/planner'
+  if (countryValue === 'ireland') return '/ireland/planner'
+
+  return '/ireland/planner'
+}
+
+function getPlannerHref(countryValue: string, tripId?: string | null) {
+  const basePath = getPlannerBasePath(countryValue)
+
+  if (isValidTripId(tripId || null)) {
+    return `${basePath}?tripId=${encodeURIComponent(tripId!)}`
+  }
+
+  return basePath
 }
 
 function getAccessLabel(access?: string, isIreland?: boolean) {
@@ -142,6 +159,7 @@ export default function CourseCard({
   const [isSavingToPlanner, setIsSavingToPlanner] = useState(false)
   const [plannerSaveError, setPlannerSaveError] = useState('')
   const [hasActiveTrip, setHasActiveTrip] = useState(false)
+  const [storedTripIdState, setStoredTripIdState] = useState<string | null>(null)
 
   const params = new URLSearchParams()
 
@@ -169,8 +187,12 @@ export default function CourseCard({
 
   const countryValue = getCountryFromParams(country, searchParams)
   const isIreland = countryValue === 'ireland'
+  const isSwitzerland = countryValue === 'switzerland'
+  const isPlannerCountry = isIreland || isSwitzerland
   const isPlannerMode = getSingleParam(searchParams?.planner) === 'true'
   const urlTripId = getSingleParam(searchParams?.tripId)
+  const activeTripIdForLink = urlTripId || storedTripIdState
+  const plannerHref = getPlannerHref(countryValue, activeTripIdForLink)
 
   const accessLabel = getAccessLabel(independent_guest_days, isIreland)
 
@@ -214,9 +236,11 @@ export default function CourseCard({
       const existing = window.localStorage.getItem(plannerCoursesKey)
       const courses = existing ? (JSON.parse(existing) as PlannerCourse[]) : []
 
+      setStoredTripIdState(storedTripId)
       setHasActiveTrip(isValidTripId(activeTripId))
       setIsAddedToPlanner(courses.some((course) => course.id === id))
     } catch {
+      setStoredTripIdState(null)
       setHasActiveTrip(false)
       setIsAddedToPlanner(false)
     }
@@ -240,6 +264,7 @@ export default function CourseCard({
       }
 
       window.localStorage.setItem(plannerTripIdKey, activeTripId!)
+      setStoredTripIdState(activeTripId!)
       setHasActiveTrip(true)
 
       const response = await fetch('/api/trips/add-course', {
@@ -395,13 +420,20 @@ export default function CourseCard({
               : 'Add to Trip'}
           </button>
 
+          <Link
+            href={plannerHref}
+            className="mt-2 block rounded-full border border-emerald-200 bg-white px-5 py-3 text-center text-sm font-semibold text-emerald-800 no-underline"
+          >
+            Back to Planner
+          </Link>
+
           {plannerSaveError && (
             <p className="mt-2 text-center text-xs text-red-600">
               {plannerSaveError}
             </p>
           )}
         </div>
-      ) : isIreland ? (
+      ) : isPlannerCountry ? (
         <div className="border-t border-slate-100 p-4">
           {hasActiveTrip && (
             <div className="mb-3 rounded-2xl bg-emerald-50 px-3 py-2 text-xs font-semibold text-emerald-800 ring-1 ring-emerald-100">
@@ -436,7 +468,7 @@ export default function CourseCard({
               </button>
             ) : (
               <Link
-                href="/ireland/planner"
+                href={plannerHref}
                 className="rounded-full bg-emerald-800 px-4 py-3 text-center text-sm font-semibold text-white no-underline"
               >
                 Plan Trip
