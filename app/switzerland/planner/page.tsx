@@ -84,17 +84,17 @@ const months = [
 ];
 
 const voteOptions: { value: VoteValue; emoji: string; label: string }[] = [
-  { value: "must_play", emoji: "\u{1F525}", label: "Must Play" },
-  { value: "happy_to_play", emoji: "\u{1F44D}", label: "Happy To Play" },
-  { value: "not_for_me", emoji: "\u{1F44E}", label: "Not For Me" },
+  { value: "must_play", emoji: "🔥", label: "Must Play" },
+  { value: "happy_to_play", emoji: "👍", label: "Happy To Play" },
+  { value: "not_for_me", emoji: "👎", label: "Not For Me" },
 ];
 
-const ICON_LOCATION = "\u{1F4CD}";
-const ICON_CALENDAR = "\u{1F4C5}";
-const ICON_GOLFERS = "\u{1F465}";
-const ICON_KEY = "\u{1F511}";
-const ICON_CHECK = "\u2713";
-const ICON_WARNING = "\u26A0";
+const ICON_LOCATION = "📍";
+const ICON_CALENDAR = "📅";
+const ICON_GOLFERS = "👥";
+const ICON_KEY = "🔑";
+const ICON_CHECK = "✓";
+const ICON_WARNING = "⚠";
 const SEPARATOR = "\u00B7";
 
 function createTripDays(numberOfGolfDays: number, existingDays: TripDay[]) {
