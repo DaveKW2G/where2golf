@@ -395,11 +395,17 @@ export default function SwitzerlandPlannerPage() {
       setTripError("");
 
       try {
-        const query = existingTripCode
-          ? `tripCode=${encodeURIComponent(existingTripCode.trim().toUpperCase())}`
+        const normalisedExistingTripCode = existingTripCode
+          ? normaliseTripCode(existingTripCode)
+          : "";
+
+        const query = normalisedExistingTripCode
+          ? `tripCode=${encodeURIComponent(normalisedExistingTripCode)}`
           : `tripId=${encodeURIComponent(existingTripId || "")}`;
 
-        const response = await fetch(`/api/trips/get?${query}`);
+        const response = await fetch(`/api/trips/get?${query}`, {
+          cache: "no-store",
+        });
         const data = await response.json();
 
         if (!response.ok || !data.trip) {
@@ -444,6 +450,14 @@ export default function SwitzerlandPlannerPage() {
           setSelectedVotes(storedVotes ? JSON.parse(storedVotes) : {});
         } catch {
           setSelectedVotes({});
+        }
+
+        if (existingTripCode && trip.trip_id) {
+          window.history.replaceState(
+            null,
+            "",
+            `/switzerland/planner?tripId=${encodeURIComponent(trip.trip_id)}`,
+          );
         }
 
         setStep("planner");
@@ -516,7 +530,7 @@ export default function SwitzerlandPlannerPage() {
     return `GPG-${cleanCode}`;
   }
 
-  async function handleOpenTripByCode() {
+  function handleOpenTripByCode() {
     const cleanCode = normaliseTripCode(openTripCode);
 
     if (!cleanCode || isOpeningTripCode) return;
@@ -525,25 +539,9 @@ export default function SwitzerlandPlannerPage() {
     setIsOpeningTripCode(true);
     setOpenTripCode(cleanCode);
 
-    try {
-      const response = await fetch(
-        `/api/trips/get?tripCode=${encodeURIComponent(cleanCode)}`,
-      );
-      const data = await response.json();
-
-      if (!response.ok || !data.trip?.trip_id) {
-        setTripError("We could not load this trip. Check the trip code and try again.");
-        setIsOpeningTripCode(false);
-        return;
-      }
-
-      window.location.assign(
-        `/switzerland/planner?tripId=${encodeURIComponent(data.trip.trip_id)}`,
-      );
-    } catch {
-      setTripError("Something went wrong opening this trip. Please try again.");
-      setIsOpeningTripCode(false);
-    }
+    window.location.href = `/switzerland/planner?tripCode=${encodeURIComponent(
+      cleanCode,
+    )}`;
   }
 
   async function handleStartPlanning() {
