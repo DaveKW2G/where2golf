@@ -504,17 +504,46 @@ export default function SwitzerlandPlannerPage() {
     isCreatingTrip,
   ]);
 
-  function handleOpenTripByCode() {
-    const cleanCode = openTripCode.trim().toUpperCase();
+  function normaliseTripCode(value: string) {
+    const cleanCode = value.trim().toUpperCase().replace(/\s+/g, "");
+
+    if (!cleanCode) return "";
+    if (cleanCode.startsWith("GPG-")) return cleanCode;
+    if (cleanCode.startsWith("GPG")) {
+      return `GPG-${cleanCode.replace(/^GPG-?/, "")}`;
+    }
+
+    return `GPG-${cleanCode}`;
+  }
+
+  async function handleOpenTripByCode() {
+    const cleanCode = normaliseTripCode(openTripCode);
 
     if (!cleanCode || isOpeningTripCode) return;
 
     setTripError("");
     setIsOpeningTripCode(true);
+    setOpenTripCode(cleanCode);
 
-    window.location.assign(
-      `/switzerland/planner?tripCode=${encodeURIComponent(cleanCode)}`,
-    );
+    try {
+      const response = await fetch(
+        `/api/trips/get?tripCode=${encodeURIComponent(cleanCode)}`,
+      );
+      const data = await response.json();
+
+      if (!response.ok || !data.trip?.trip_id) {
+        setTripError("We could not load this trip. Check the trip code and try again.");
+        setIsOpeningTripCode(false);
+        return;
+      }
+
+      window.location.assign(
+        `/switzerland/planner?tripId=${encodeURIComponent(data.trip.trip_id)}`,
+      );
+    } catch {
+      setTripError("Something went wrong opening this trip. Please try again.");
+      setIsOpeningTripCode(false);
+    }
   }
 
   async function handleStartPlanning() {
@@ -925,7 +954,7 @@ export default function SwitzerlandPlannerPage() {
 
               <p className="mt-2 text-sm leading-6 text-slate-600">
                 Enter a shared trip code to open a trip, even if it is not saved
-                on this device.
+                on this device. You can enter it with or without GPG-.
               </p>
 
               <div className="mt-4 grid gap-3">
@@ -935,7 +964,7 @@ export default function SwitzerlandPlannerPage() {
                     setOpenTripCode(event.target.value.toUpperCase());
                     setTripError("");
                   }}
-                  placeholder="Example: ABC123"
+                  placeholder="Example: GPG-ABC123"
                   className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm font-semibold uppercase tracking-wide text-slate-900 outline-none placeholder:normal-case placeholder:font-normal placeholder:tracking-normal placeholder:text-slate-400 focus:border-emerald-700"
                 />
 
