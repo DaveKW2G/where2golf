@@ -84,10 +84,18 @@ const months = [
 ];
 
 const voteOptions: { value: VoteValue; emoji: string; label: string }[] = [
-  { value: "must_play", emoji: "ðŸ”¥", label: "Must Play" },
-  { value: "happy_to_play", emoji: "ðŸ‘", label: "Happy To Play" },
-  { value: "not_for_me", emoji: "ðŸ‘Ž", label: "Not For Me" },
+  { value: "must_play", emoji: "🔥", label: "Must Play" },
+  { value: "happy_to_play", emoji: "👍", label: "Happy To Play" },
+  { value: "not_for_me", emoji: "👎", label: "Not For Me" },
 ];
+
+const ICON_LOCATION = "📍";
+const ICON_CALENDAR = "📅";
+const ICON_GOLFERS = "👥";
+const ICON_KEY = "🔑";
+const ICON_CHECK = "✓";
+const ICON_WARNING = "⚠";
+const SEPARATOR = "\u00B7";
 
 function createTripDays(numberOfGolfDays: number, existingDays: TripDay[]) {
   return Array.from({ length: numberOfGolfDays }, (_, index) => {
@@ -117,24 +125,32 @@ function getCourseMix(courses: PlannerCourse[]) {
     new Set(courses.map((course) => course.course_type).filter(Boolean)),
   );
 
-  if (courseTypes.length === 0) return "â€”";
+  if (courseTypes.length === 0) return "-";
 
   return courseTypes.join(" / ");
 }
 
-function getGreenFeeRange(priceRange?: string) {
-  const cleanPrice = priceRange?.trim();
+function formatPriceBand(priceRange?: string) {
+  const cleanPrice = priceRange?.replace(/Â/g, "").trim();
 
-  if (cleanPrice === "â‚¬") return { low: 0, high: 100 };
-  if (cleanPrice === "â‚¬â‚¬") return { low: 101, high: 200 };
-  if (cleanPrice === "â‚¬â‚¬â‚¬") return { low: 201, high: 300 };
-  if (cleanPrice === "â‚¬â‚¬â‚¬â‚¬") return { low: 300, high: 450 };
+  if (!cleanPrice) return "-";
+
+  return cleanPrice;
+}
+
+function getGreenFeeRange(priceRange?: string) {
+  const cleanPrice = priceRange?.replace(/Â/g, "").trim();
+
+  if (cleanPrice === "€") return { low: 0, high: 100 };
+  if (cleanPrice === "€€") return { low: 101, high: 200 };
+  if (cleanPrice === "€€€") return { low: 201, high: 300 };
+  if (cleanPrice === "€€€€") return { low: 300, high: 450 };
 
   return null;
 }
 
 function formatEuroAmount(amount: number) {
-  return `â‚¬${Math.round(amount).toLocaleString("en-IE")}`;
+  return `€${Math.round(amount).toLocaleString("en-IE")}`;
 }
 
 function getGreenFeeEstimate(courses: PlannerCourse[]) {
@@ -392,20 +408,46 @@ export default function PlannerPage() {
       setTripError("");
 
       try {
-        const query = existingTripCode
-          ? `tripCode=${encodeURIComponent(existingTripCode.trim().toUpperCase())}`
+        const normalisedExistingTripCode = existingTripCode
+          ? normaliseTripCode(existingTripCode)
+          : "";
+
+        const query = normalisedExistingTripCode
+          ? `tripCode=${encodeURIComponent(normalisedExistingTripCode)}`
           : `tripId=${encodeURIComponent(existingTripId || "")}`;
 
-        const response = await fetch(`/api/trips/get?${query}`);
+        const response = await fetch(`/api/trips/get?${query}`, {
+          cache: "no-store",
+        });
         const data = await response.json();
 
-        if (!response.ok || !data.trip) {
+        let loadedTrip = data.trip;
+
+        if ((!response.ok || !loadedTrip) && existingTripId) {
+          const fallbackTripCode = normaliseTripCode(existingTripId);
+
+          if (fallbackTripCode) {
+            const fallbackResponse = await fetch(
+              `/api/trips/get?tripCode=${encodeURIComponent(fallbackTripCode)}`,
+              {
+                cache: "no-store",
+              },
+            );
+            const fallbackData = await fallbackResponse.json();
+
+            if (fallbackResponse.ok && fallbackData.trip) {
+              loadedTrip = fallbackData.trip;
+            }
+          }
+        }
+
+        if (!loadedTrip) {
           setTripError("We could not load this trip.");
           setIsLoadingTrip(false);
           return;
         }
 
-        const trip = data.trip;
+        const trip = loadedTrip;
         const courses = Array.isArray(trip.selected_courses)
           ? trip.selected_courses
           : [];
@@ -441,6 +483,14 @@ export default function PlannerPage() {
           setSelectedVotes(storedVotes ? JSON.parse(storedVotes) : {});
         } catch {
           setSelectedVotes({});
+        }
+
+        if ((existingTripCode || existingTripId) && trip.trip_id) {
+          window.history.replaceState(
+            null,
+            "",
+            `/ireland/planner?tripId=${encodeURIComponent(trip.trip_id)}`,
+          );
         }
 
         setStep("planner");
@@ -501,31 +551,30 @@ export default function PlannerPage() {
     isCreatingTrip,
   ]);
 
-  async function handleOpenTripByCode() {
-    const cleanCode = openTripCode.trim().toUpperCase();
+  function normaliseTripCode(value: string) {
+    const cleanCode = value.trim().toUpperCase().replace(/\s+/g, "");
+
+    if (!cleanCode) return "";
+    if (cleanCode.startsWith("GPG-")) return cleanCode;
+    if (cleanCode.startsWith("GPG")) {
+      return `GPG-${cleanCode.replace(/^GPG-?/, "")}`;
+    }
+
+    return `GPG-${cleanCode}`;
+  }
+
+  function handleOpenTripByCode() {
+    const cleanCode = normaliseTripCode(openTripCode);
 
     if (!cleanCode || isOpeningTripCode) return;
 
     setTripError("");
     setIsOpeningTripCode(true);
+    setOpenTripCode(cleanCode);
 
-    try {
-      const response = await fetch(
-        `/api/trips/get?tripCode=${encodeURIComponent(cleanCode)}`,
-      );
-      const data = await response.json();
-
-      if (!response.ok || !data.trip?.trip_id) {
-        setTripError("We could not find a trip with that code.");
-        return;
-      }
-
-      window.location.href = `/ireland/planner?tripId=${data.trip.trip_id}`;
-    } catch {
-      setTripError("Something went wrong opening this trip.");
-    } finally {
-      setIsOpeningTripCode(false);
-    }
+    window.location.href = `/ireland/planner?tripId=${encodeURIComponent(
+      cleanCode,
+    )}`;
   }
 
   async function handleStartPlanning() {
@@ -898,12 +947,12 @@ export default function PlannerPage() {
                                 savedTrip.month_of_travel,
                               ]
                                 .filter(Boolean)
-                                .join(" Â· ")}
+                                .join(` ${SEPARATOR} `)}
                             </p>
 
                             <p className="mt-1 text-sm text-slate-500">
                               {courseCount} course{courseCount === 1 ? "" : "s"}{" "}
-                              Â· {savedTrip.number_of_golf_days || 0} golf day
+                              · {savedTrip.number_of_golf_days || 0} golf day
                               {savedTrip.number_of_golf_days === 1 ? "" : "s"}
                             </p>
 
@@ -914,12 +963,12 @@ export default function PlannerPage() {
                             )}
                           </div>
 
-                          <Link
+                          <a
                             href={`/ireland/planner?tripId=${savedTrip.trip_id}`}
                             className="rounded-full bg-emerald-800 px-4 py-2 text-xs font-semibold text-white no-underline"
                           >
                             Open
-                          </Link>
+                          </a>
                         </div>
                       </div>
                     );
@@ -936,7 +985,7 @@ export default function PlannerPage() {
 
               <p className="mt-2 text-sm leading-6 text-slate-600">
                 Enter a shared trip code to open a trip, even if it is not saved
-                on this device.
+                on this device. You can enter it with or without GPG-.
               </p>
 
               <div className="mt-4 grid gap-3">
@@ -946,7 +995,7 @@ export default function PlannerPage() {
                     setOpenTripCode(event.target.value.toUpperCase());
                     setTripError("");
                   }}
-                  placeholder="Example: ABC123"
+                  placeholder="Example: GPG-ABC123"
                   className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm font-semibold uppercase tracking-wide text-slate-900 outline-none placeholder:normal-case placeholder:font-normal placeholder:tracking-normal placeholder:text-slate-400 focus:border-emerald-700"
                 />
 
@@ -1030,7 +1079,7 @@ export default function PlannerPage() {
                       setTripName(event.target.value);
                       setTripError("");
                     }}
-                    placeholder="Example: Daveâ€™s Ireland Golf Trip"
+                    placeholder="Example: Dave’s Ireland Golf Trip"
                     className="mt-2 w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none placeholder:text-slate-400 focus:border-emerald-700"
                   />
                 </div>
@@ -1180,10 +1229,10 @@ export default function PlannerPage() {
                     </h2>
 
                     <div className="mt-4 grid gap-2 text-sm text-white/90">
-                      <div>ðŸ“ {baseInput}</div>
-                      <div>ðŸ“… {month}</div>
-                      <div>ðŸ‘¥ {numberOfGolfers} golfers</div>
-                      {tripCode && <div>ðŸ”‘ Trip Code: {tripCode}</div>}
+                      <div>{ICON_LOCATION} {baseInput}</div>
+                      <div>{ICON_CALENDAR} {month}</div>
+                      <div>{ICON_GOLFERS} {numberOfGolfers} golfers</div>
+                      {tripCode && <div>{ICON_KEY} Trip Code: {tripCode}</div>}
                     </div>
                   </div>
 
@@ -1194,7 +1243,7 @@ export default function PlannerPage() {
                         onClick={handleCopyShareLink}
                         className="rounded-full bg-white px-4 py-2 text-sm font-semibold text-emerald-900 shadow-sm"
                       >
-                        {shareCopied ? "Copied âœ“" : "Share"}
+                        {shareCopied ? `Copied ${ICON_CHECK}` : "Share"}
                       </button>
                     )}
 
@@ -1330,7 +1379,7 @@ export default function PlannerPage() {
                                         assignedCourse.price_range,
                                       ]
                                         .filter(Boolean)
-                                        .join(" Â· ")}
+                                        .join(` ${SEPARATOR} `)}
                                     </p>
                                   </div>
 
@@ -1341,7 +1390,7 @@ export default function PlannerPage() {
                                         : "bg-amber-100 text-amber-800"
                                     }`}
                                   >
-                                    {validation.isValid ? "âœ“" : "âš "}
+                                    {validation.isValid ? ICON_CHECK : ICON_WARNING}
                                   </span>
                                 </div>
 
@@ -1391,7 +1440,7 @@ export default function PlannerPage() {
                                             assignedCourse.price_range,
                                           ]
                                             .filter(Boolean)
-                                            .join(" Â· ")}
+                                            .join(` ${SEPARATOR} `)}
                                         </p>
                                       </div>
 
@@ -1402,7 +1451,7 @@ export default function PlannerPage() {
                                             : "bg-amber-100 text-amber-800"
                                         }`}
                                       >
-                                        {validation.isValid ? "âœ“" : "âš "}
+                                        {validation.isValid ? ICON_CHECK : ICON_WARNING}
                                       </span>
                                     </div>
 
@@ -1467,7 +1516,7 @@ export default function PlannerPage() {
                               course.price_range,
                             ]
                               .filter(Boolean)
-                              .join(" Â· ")}
+                              .join(` ${SEPARATOR} `)}
                           </p>
 
                           {typeof course.distance === "number" && (
@@ -1554,13 +1603,13 @@ export default function PlannerPage() {
 
                             <div className="mt-3 flex flex-wrap gap-2 text-xs font-semibold text-slate-600">
                               <span className="rounded-full bg-stone-50 px-3 py-1 ring-1 ring-slate-200">
-                                ðŸ”¥ {getCourseVoteSummary(voteSummary, course.id).must_play}
+                                🔥 {getCourseVoteSummary(voteSummary, course.id).must_play}
                               </span>
                               <span className="rounded-full bg-stone-50 px-3 py-1 ring-1 ring-slate-200">
-                                ðŸ‘ {getCourseVoteSummary(voteSummary, course.id).happy_to_play}
+                                👍 {getCourseVoteSummary(voteSummary, course.id).happy_to_play}
                               </span>
                               <span className="rounded-full bg-stone-50 px-3 py-1 ring-1 ring-slate-200">
-                                ðŸ‘Ž {getCourseVoteSummary(voteSummary, course.id).not_for_me}
+                                👎 {getCourseVoteSummary(voteSummary, course.id).not_for_me}
                               </span>
                             </div>
                           </div>
@@ -1623,13 +1672,13 @@ export default function PlannerPage() {
 
                       <div className="mt-3 flex flex-wrap gap-2">
                         <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-700">
-                          {course.course_type || "â€”"}
+                          {course.course_type || "-"}
                         </span>
                         <span className="rounded-full bg-amber-100 px-3 py-1 text-xs font-bold text-amber-800">
-                          {course.price_range || "â€”"}
+                          {formatPriceBand(course.price_range)}
                         </span>
                         <span className="rounded-full bg-emerald-50 px-3 py-1 text-xs font-semibold text-emerald-800 ring-1 ring-emerald-100">
-                          {course.independent_guest_days || "â€”"}
+                          {course.independent_guest_days || "-"}
                         </span>
                       </div>
 
@@ -1649,7 +1698,7 @@ export default function PlannerPage() {
                           <div className="mt-1 font-semibold text-slate-800">
                             {typeof course.distance === "number"
                               ? `${course.distance.toFixed(1)} km`
-                              : "â€”"}
+                              : "-"}
                           </div>
                         </div>
                       </div>
@@ -1681,17 +1730,17 @@ export default function PlannerPage() {
                           </td>
                           <td className="px-4 py-4">
                             <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-700">
-                              {course.course_type || "â€”"}
+                              {course.course_type || "-"}
                             </span>
                           </td>
                           <td className="px-4 py-4">
                             <span className="rounded-full bg-amber-100 px-3 py-1 text-xs font-bold text-amber-800">
-                              {course.price_range || "â€”"}
+                              {formatPriceBand(course.price_range)}
                             </span>
                           </td>
                           <td className="px-4 py-4">
                             <span className="rounded-full bg-emerald-50 px-3 py-1 text-xs font-semibold text-emerald-800 ring-1 ring-emerald-100">
-                              {course.independent_guest_days || "â€”"}
+                              {course.independent_guest_days || "-"}
                             </span>
                           </td>
                           <td className="px-4 py-4 text-slate-700">
@@ -1700,7 +1749,7 @@ export default function PlannerPage() {
                           <td className="px-4 py-4 font-semibold text-slate-700">
                             {typeof course.distance === "number"
                               ? `${course.distance.toFixed(1)} km`
-                              : "â€”"}
+                              : "-"}
                           </td>
                         </tr>
                       ))}
@@ -1743,7 +1792,7 @@ export default function PlannerPage() {
                 <div className="rounded-2xl bg-stone-50 p-3 text-center ring-1 ring-slate-200">
                   <div className="text-[20px] font-bold text-slate-900">
                     {averageDistance === null
-                      ? "â€”"
+                      ? "-"
                       : `${averageDistance.toFixed(1)} km`}
                   </div>
                   <div className="mt-1 text-[11px] font-semibold uppercase tracking-wide text-slate-500">
