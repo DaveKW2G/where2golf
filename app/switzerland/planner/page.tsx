@@ -84,10 +84,18 @@ const months = [
 ];
 
 const voteOptions: { value: VoteValue; emoji: string; label: string }[] = [
-  { value: "must_play", emoji: "Must", label: "Must Play" },
-  { value: "happy_to_play", emoji: "Like", label: "Happy To Play" },
-  { value: "not_for_me", emoji: "No", label: "Not For Me" },
+  { value: "must_play", emoji: "\u{1F525}", label: "Must Play" },
+  { value: "happy_to_play", emoji: "\u{1F44D}", label: "Happy To Play" },
+  { value: "not_for_me", emoji: "\u{1F44E}", label: "Not For Me" },
 ];
+
+const ICON_LOCATION = "\u{1F4CD}";
+const ICON_CALENDAR = "\u{1F4C5}";
+const ICON_GOLFERS = "\u{1F465}";
+const ICON_KEY = "\u{1F511}";
+const ICON_CHECK = "\u2713";
+const ICON_WARNING = "\u26A0";
+const SEPARATOR = "\u00B7";
 
 function createTripDays(numberOfGolfDays: number, existingDays: TripDay[]) {
   return Array.from({ length: numberOfGolfDays }, (_, index) => {
@@ -125,13 +133,51 @@ function getCourseMix(courses: PlannerCourse[]) {
 function getGreenFeeRange(priceRange?: string) {
   const cleanPrice = priceRange?.trim();
 
-  if (cleanPrice === "\u20ac") return { low: 0, high: 100 };
-  if (cleanPrice === "\u20ac\u20ac") return { low: 101, high: 200 };
-  if (cleanPrice === "\u20ac\u20ac\u20ac") return { low: 201, high: 300 };
-  if (cleanPrice === "\u20ac\u20ac\u20ac\u20ac") return { low: 300, high: 450 };
+  if (!cleanPrice) return null;
+
+  if (cleanPrice === "\u20ac" || cleanPrice === "CHF" || cleanPrice === "CHF 0-100") {
+    return { low: 0, high: 100 };
+  }
+
+  if (
+    cleanPrice === "\u20ac\u20ac" ||
+    cleanPrice === "CHF CHF" ||
+    cleanPrice === "CHF 101-200"
+  ) {
+    return { low: 101, high: 200 };
+  }
+
+  if (
+    cleanPrice === "\u20ac\u20ac\u20ac" ||
+    cleanPrice === "CHF CHF CHF" ||
+    cleanPrice === "CHF 201-300"
+  ) {
+    return { low: 201, high: 300 };
+  }
+
+  if (
+    cleanPrice === "\u20ac\u20ac\u20ac\u20ac" ||
+    cleanPrice === "CHF CHF CHF CHF" ||
+    cleanPrice === "CHF 300+"
+  ) {
+    return { low: 300, high: 450 };
+  }
 
   return null;
 }
+
+function formatSwissPriceRange(priceRange?: string) {
+  const range = getGreenFeeRange(priceRange);
+
+  if (!range) return priceRange || "-";
+
+  if (range.low === 0 && range.high === 100) return "CHF 0-100";
+  if (range.low === 101 && range.high === 200) return "CHF 101-200";
+  if (range.low === 201 && range.high === 300) return "CHF 201-300";
+
+  return "CHF 300+";
+}
+
 
 function formatSwissAmount(amount: number) {
   return `CHF ${Math.round(amount).toLocaleString("en-CH")}`;
@@ -898,7 +944,7 @@ export default function SwitzerlandPlannerPage() {
                                 savedTrip.month_of_travel,
                               ]
                                 .filter(Boolean)
-                                .join(" | ")}
+                                .join(` ${SEPARATOR} `)}
                             </p>
 
                             <p className="mt-1 text-sm text-slate-500">
@@ -1157,10 +1203,10 @@ export default function SwitzerlandPlannerPage() {
                     </h2>
 
                     <div className="mt-4 grid gap-2 text-sm text-white/90">
-                      <div>Base: {baseInput}</div>
-                      <div>Month: {month}</div>
-                      <div>Golfers: {numberOfGolfers} golfers</div>
-                      {tripCode && <div>Trip Code: Trip Code: {tripCode}</div>}
+                      <div>{ICON_LOCATION} {baseInput}</div>
+                      <div>{ICON_CALENDAR} {month}</div>
+                      <div>{ICON_GOLFERS} {numberOfGolfers} golfers</div>
+                      {tripCode && <div>{ICON_KEY} Trip Code: {tripCode}</div>}
                     </div>
                   </div>
 
@@ -1171,7 +1217,7 @@ export default function SwitzerlandPlannerPage() {
                         onClick={handleCopyShareLink}
                         className="rounded-full bg-white px-4 py-2 text-sm font-semibold text-emerald-900 shadow-sm"
                       >
-                        {shareCopied ? "Copied OK" : "Share"}
+                        {shareCopied ? `Copied ${ICON_CHECK}` : "Share"}
                       </button>
                     )}
 
@@ -1304,10 +1350,10 @@ export default function SwitzerlandPlannerPage() {
                                     <p className="mt-1 text-sm text-slate-600">
                                       {[
                                         assignedCourse.course_type,
-                                        assignedCourse.price_range,
+                                        formatSwissPriceRange(assignedCourse.price_range),
                                       ]
                                         .filter(Boolean)
-                                        .join(" | ")}
+                                        .join(` ${SEPARATOR} `)}
                                     </p>
                                   </div>
 
@@ -1318,7 +1364,7 @@ export default function SwitzerlandPlannerPage() {
                                         : "bg-amber-100 text-amber-800"
                                     }`}
                                   >
-                                    {validation.isValid ? "OK" : "Check"}
+                                    {validation.isValid ? ICON_CHECK : ICON_WARNING}
                                   </span>
                                 </div>
 
@@ -1365,10 +1411,10 @@ export default function SwitzerlandPlannerPage() {
                                         <p className="mt-1 text-sm text-slate-600">
                                           {[
                                             assignedCourse.course_type,
-                                            assignedCourse.price_range,
+                                            formatSwissPriceRange(assignedCourse.price_range),
                                           ]
                                             .filter(Boolean)
-                                            .join(" | ")}
+                                            .join(` ${SEPARATOR} `)}
                                         </p>
                                       </div>
 
@@ -1379,7 +1425,7 @@ export default function SwitzerlandPlannerPage() {
                                             : "bg-amber-100 text-amber-800"
                                         }`}
                                       >
-                                        {validation.isValid ? "OK" : "Check"}
+                                        {validation.isValid ? ICON_CHECK : ICON_WARNING}
                                       </span>
                                     </div>
 
@@ -1441,10 +1487,10 @@ export default function SwitzerlandPlannerPage() {
                             {[
                               course.course_type,
                               course.region,
-                              course.price_range,
+                              formatSwissPriceRange(course.price_range),
                             ]
                               .filter(Boolean)
-                              .join(" | ")}
+                              .join(` ${SEPARATOR} `)}
                           </p>
 
                           {typeof course.distance === "number" && (
@@ -1531,13 +1577,13 @@ export default function SwitzerlandPlannerPage() {
 
                             <div className="mt-3 flex flex-wrap gap-2 text-xs font-semibold text-slate-600">
                               <span className="rounded-full bg-stone-50 px-3 py-1 ring-1 ring-slate-200">
-                                Must {getCourseVoteSummary(voteSummary, course.id).must_play}
+                                {voteOptions[0].emoji} {getCourseVoteSummary(voteSummary, course.id).must_play}
                               </span>
                               <span className="rounded-full bg-stone-50 px-3 py-1 ring-1 ring-slate-200">
-                                Like {getCourseVoteSummary(voteSummary, course.id).happy_to_play}
+                                {voteOptions[1].emoji} {getCourseVoteSummary(voteSummary, course.id).happy_to_play}
                               </span>
                               <span className="rounded-full bg-stone-50 px-3 py-1 ring-1 ring-slate-200">
-                                No {getCourseVoteSummary(voteSummary, course.id).not_for_me}
+                                {voteOptions[2].emoji} {getCourseVoteSummary(voteSummary, course.id).not_for_me}
                               </span>
                             </div>
                           </div>
@@ -1603,7 +1649,7 @@ export default function SwitzerlandPlannerPage() {
                           {course.course_type || "-"}
                         </span>
                         <span className="rounded-full bg-amber-100 px-3 py-1 text-xs font-bold text-amber-800">
-                          {course.price_range || "-"}
+                          {formatSwissPriceRange(course.price_range)}
                         </span>
                         <span className="rounded-full bg-emerald-50 px-3 py-1 text-xs font-semibold text-emerald-800 ring-1 ring-emerald-100">
                           {course.independent_guest_days || "-"}
@@ -1663,7 +1709,7 @@ export default function SwitzerlandPlannerPage() {
                           </td>
                           <td className="px-4 py-4">
                             <span className="rounded-full bg-amber-100 px-3 py-1 text-xs font-bold text-amber-800">
-                              {course.price_range || "-"}
+                              {formatSwissPriceRange(course.price_range)}
                             </span>
                           </td>
                           <td className="px-4 py-4">
