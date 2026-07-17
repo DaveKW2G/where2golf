@@ -504,7 +504,7 @@ export default function SwitzerlandPlannerPage() {
     isCreatingTrip,
   ]);
 
-  async function handleOpenTripByCode() {
+  function handleOpenTripByCode() {
     const cleanCode = openTripCode.trim().toUpperCase();
 
     if (!cleanCode || isOpeningTripCode) return;
@@ -512,23 +512,9 @@ export default function SwitzerlandPlannerPage() {
     setTripError("");
     setIsOpeningTripCode(true);
 
-    try {
-      const response = await fetch(
-        `/api/trips/get?tripCode=${encodeURIComponent(cleanCode)}`,
-      );
-      const data = await response.json();
-
-      if (!response.ok || !data.trip?.trip_id) {
-        setTripError("We could not find a trip with that code.");
-        return;
-      }
-
-      window.location.href = `/switzerland/planner?tripId=${data.trip.trip_id}`;
-    } catch {
-      setTripError("Something went wrong opening this trip.");
-    } finally {
-      setIsOpeningTripCode(false);
-    }
+    window.location.assign(
+      `/switzerland/planner?tripCode=${encodeURIComponent(cleanCode)}`,
+    );
   }
 
   async function handleStartPlanning() {
@@ -917,12 +903,12 @@ export default function SwitzerlandPlannerPage() {
                             )}
                           </div>
 
-                          <Link
+                          <a
                             href={`/switzerland/planner?tripId=${savedTrip.trip_id}`}
                             className="rounded-full bg-emerald-800 px-4 py-2 text-xs font-semibold text-white no-underline"
                           >
                             Open
-                          </Link>
+                          </a>
                         </div>
                       </div>
                     );
