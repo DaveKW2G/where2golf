@@ -97,12 +97,56 @@ function normaliseCountry(country?: string) {
   return country.toLowerCase()
 }
 
+function displayCountry(country?: string | null) {
+  if (country === "ireland") return "Ireland"
+  if (country === "switzerland") return "Switzerland"
+  return undefined
+}
+
+function getPlannerBaseHref(country?: string | null) {
+  if (country === "switzerland") return "/switzerland/planner"
+  return "/ireland/planner"
+}
+
+function getPlannerHref(country?: string | null, tripId?: string) {
+  const baseHref = getPlannerBaseHref(country)
+
+  if (tripId && tripId !== "undefined" && tripId !== "null") {
+    return `${baseHref}?tripId=${encodeURIComponent(tripId)}`
+  }
+
+  return baseHref
+}
+
+function buildFiltersHref(params: Awaited<ResultsPageProps["searchParams"]>) {
+  const filterParams = new URLSearchParams()
+
+  if (params.country) filterParams.set("country", params.country)
+  if (params.source) filterParams.set("source", params.source)
+  if (params.planner) filterParams.set("planner", params.planner)
+  if (params.tripId) filterParams.set("tripId", params.tripId)
+  if (params.where) filterParams.set("where", params.where)
+  if (params.radius) filterParams.set("radius", params.radius)
+  if (params.courseType) filterParams.set("courseType", params.courseType)
+  if (params.guestPlay) filterParams.set("guestPlay", params.guestPlay)
+  if (params.holes) filterParams.set("holes", params.holes)
+  if (params.handicap) filterParams.set("handicap", params.handicap)
+  if (params.price) filterParams.set("price", params.price)
+
+  const queryString = filterParams.toString()
+
+  return queryString ? `/filters?${queryString}` : "/filters"
+}
+
 export default async function ResultsPage({ searchParams }: ResultsPageProps) {
   const params = await searchParams
   const supabase = await createClient()
 
   const selectedCountry = normaliseCountry(params.country || params.source)
+  const selectedCountryDisplay = displayCountry(selectedCountry)
   const isPlannerMode = params.source === "planner" || params.planner === "true"
+
+  const plannerHref = getPlannerHref(selectedCountry, params.tripId)
 
   let userLat = params.lat ? Number(params.lat) : null
   let userLng = params.lng ? Number(params.lng) : null
@@ -128,14 +172,25 @@ export default async function ResultsPage({ searchParams }: ResultsPageProps) {
         params.price
     )
 
+  const hasSwitzerlandAdvancedFilters =
+    selectedCountry === "switzerland" &&
+    Boolean(
+      params.where ||
+        params.radius ||
+        params.guestPlay ||
+        params.holes ||
+        params.handicap ||
+        params.price
+    )
+
   const backHref = isPlannerMode
-    ? params.tripId
-      ? `/ireland/planner?tripId=${params.tripId}`
-      : "/ireland/planner"
+    ? plannerHref
     : params.source === "home"
     ? "/"
     : hasIrelandAdvancedFilters
-    ? "/filters?country=Ireland&source=ireland"
+    ? buildFiltersHref(params)
+    : hasSwitzerlandAdvancedFilters
+    ? buildFiltersHref(params)
     : selectedCountry === "switzerland"
     ? "/switzerland"
     : selectedCountry === "ireland"
@@ -257,8 +312,8 @@ export default async function ResultsPage({ searchParams }: ResultsPageProps) {
       if (value) urlParams.set(key, String(value))
     })
 
-    if (selectedCountry && !urlParams.get("country")) {
-      urlParams.set("country", selectedCountry)
+    if (selectedCountryDisplay && !urlParams.get("country")) {
+      urlParams.set("country", selectedCountryDisplay)
     }
 
     return `/map?${urlParams.toString()}`
@@ -307,44 +362,47 @@ export default async function ResultsPage({ searchParams }: ResultsPageProps) {
       </section>
 
       <div className="mx-auto max-w-[1180px] px-5 py-7">
-  {error && <p>Error loading courses</p>}
+        {error && <p>Error loading courses</p>}
 
-  {!isPlannerMode && selectedCountry === "ireland" && (
-    <div className="mb-6 rounded-3xl bg-gradient-to-r from-emerald-950 via-emerald-900 to-emerald-800 p-5 text-white shadow-sm">
-      <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
-        <div>
-          <div className="text-[12px] font-semibold uppercase tracking-[0.18em] text-emerald-100/80">
-            Golf Trip Planner
+        {!isPlannerMode && selectedCountry === "ireland" && (
+          <div className="mb-6 rounded-3xl bg-gradient-to-r from-emerald-950 via-emerald-900 to-emerald-800 p-5 text-white shadow-sm">
+            <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+              <div>
+                <div className="text-[12px] font-semibold uppercase tracking-[0.18em] text-emerald-100/80">
+                  Golf Trip Planner
+                </div>
+
+                <h2 className="mt-2 text-xl font-bold">
+                  Planning a golf trip?
+                </h2>
+
+                <p className="mt-2 max-w-[700px] text-sm leading-6 text-white/85">
+                  Compare nearby courses, build a day-by-day itinerary, vote with your
+                  golf group and share your plans.
+                </p>
+              </div>
+
+              <Link
+                href="/ireland/planner"
+                className="inline-flex items-center justify-center rounded-full bg-white px-5 py-3 font-semibold text-emerald-900 no-underline"
+              >
+                Start Planning
+              </Link>
+            </div>
           </div>
+        )}
 
-          <h2 className="mt-2 text-xl font-bold">
-            Planning a golf trip?
-          </h2>
-
-          <p className="mt-2 max-w-[700px] text-sm leading-6 text-white/85">
-            Compare nearby courses, build a day-by-day itinerary, vote with your
-            golf group and share your plans.
-          </p>
-        </div>
-
-        <Link
-          href="/ireland/planner"
-          className="inline-flex items-center justify-center rounded-full bg-white px-5 py-3 font-semibold text-emerald-900 no-underline"
-        >
-          Start Planning
-        </Link>
-      </div>
-    </div>
-  )}
-
-  <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
           {sortedCourses.map((course: any) => (
             <CourseCard
               key={course.id}
               {...course}
               userLat={userLat}
               userLng={userLng}
-              searchParams={{ ...params, country: selectedCountry || undefined }}
+              searchParams={{
+                ...params,
+                country: selectedCountryDisplay || params.country,
+              }}
             />
           ))}
         </div>
@@ -364,7 +422,7 @@ export default async function ResultsPage({ searchParams }: ResultsPageProps) {
       {isPlannerMode && (
         <div className="fixed bottom-6 left-0 right-0 flex justify-center px-5">
           <Link
-            href={params.tripId ? `/ireland/planner?tripId=${params.tripId}` : '/ireland/planner'}
+            href={plannerHref}
             className="rounded-full bg-emerald-700 px-6 py-3 font-semibold text-white shadow-lg no-underline"
           >
             Back to Planner
