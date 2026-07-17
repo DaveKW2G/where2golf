@@ -1,8 +1,19 @@
 'use client'
 
 import Link from 'next/link'
-import { Suspense, useEffect, useState } from 'react'
+import { Suspense, useEffect, useMemo, useState } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
+
+function getPlannerHref(countryParam: string | null, tripId: string) {
+  const isSwitzerland = countryParam === 'Switzerland'
+  const basePath = isSwitzerland ? '/switzerland/planner' : '/ireland/planner'
+
+  if (tripId && tripId !== 'undefined' && tripId !== 'null') {
+    return `${basePath}?tripId=${encodeURIComponent(tripId)}`
+  }
+
+  return basePath
+}
 
 function FiltersPageContent() {
   const router = useRouter()
@@ -13,6 +24,7 @@ function FiltersPageContent() {
   const plannerParam = searchParams.get('planner')
 
   const isIreland = countryParam === 'Ireland'
+  const isSwitzerland = countryParam === 'Switzerland'
   const isPlannerMode = sourceParam === 'planner' || plannerParam === 'true'
 
   const [where, setWhere] = useState('')
@@ -34,6 +46,17 @@ function FiltersPageContent() {
     if (urlWhere) setWhere(urlWhere)
     if (urlTripId) setTripId(urlTripId)
   }, [])
+
+  const backHref = useMemo(() => {
+    if (isPlannerMode) {
+      return getPlannerHref(countryParam, tripId)
+    }
+
+    if (isIreland) return '/ireland'
+    if (isSwitzerland) return '/switzerland'
+
+    return '/'
+  }, [countryParam, isIreland, isPlannerMode, isSwitzerland, tripId])
 
   function toggle(value: string, current: string, setter: (v: string) => void) {
     setter(current === value ? '' : value)
@@ -98,15 +121,16 @@ function FiltersPageContent() {
     )
   }
 
+  const priceOptions = isIreland
+    ? ['€', '€€', '€€€', '€€€€']
+    : ['CHF', 'CHF CHF', 'CHF CHF CHF', 'CHF CHF CHF CHF']
+
   return (
     <main className="min-h-screen bg-stone-100">
       <section className="relative overflow-hidden bg-gradient-to-b from-emerald-950 via-emerald-900 to-emerald-800 px-5 pt-5 pb-6 text-white">
         <div className="mx-auto max-w-[480px]">
           <div className="flex items-center justify-between">
-            <Link
-              href={isPlannerMode ? '/ireland/planner' : isIreland ? '/ireland' : '/'}
-              className="text-white no-underline"
-            >
+            <Link href={backHref} className="text-white no-underline">
               ← Back
             </Link>
 
@@ -121,12 +145,18 @@ function FiltersPageContent() {
 
           <div className="mt-5">
             <h1 className="text-[24px] font-bold">
-              {isIreland ? 'Advanced Search Ireland' : 'Advanced Filters'}
+              {isIreland
+                ? 'Advanced Search Ireland'
+                : isSwitzerland
+                ? 'Advanced Search Switzerland'
+                : 'Advanced Filters'}
             </h1>
 
             <p className="mt-2 text-[14px] text-white/80">
               {isIreland
                 ? 'Refine your search to find Irish golf courses by location, course type, access and price.'
+                : isSwitzerland
+                ? 'Refine your search to find Swiss golf courses by location, guest access, handicap and price band.'
                 : 'Refine your search to find where you can play as an independent guest.'}
             </p>
           </div>
@@ -256,7 +286,7 @@ function FiltersPageContent() {
           </h2>
 
           <div className="flex flex-wrap gap-2">
-            {['€', '€€', '€€€', '€€€€'].map((option) => (
+            {priceOptions.map((option) => (
               <Chip
                 key={option}
                 label={option}
