@@ -376,7 +376,7 @@ export default async function GolfNearZurichPage() {
               No golf courses found near Zurich.
             </div>
           ) : (
-            <div className="grid gap-4">
+            <div className="grid gap-4 lg:grid-cols-2">
               {coursesWithDistance.map((course) => (
                 <CourseCard
                   key={course.id}
