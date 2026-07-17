@@ -130,77 +130,36 @@ function getCourseMix(courses: PlannerCourse[]) {
   return courseTypes.join(" / ");
 }
 
-function getGreenFeeRange(priceRange?: string) {
+function formatSwissPriceRange(priceRange?: string) {
   const cleanPrice = priceRange?.trim();
 
-  if (!cleanPrice) return null;
+  if (!cleanPrice) return "-";
 
-  if (cleanPrice === "\u20ac" || cleanPrice === "CHF" || cleanPrice === "CHF 0-100") {
-    return { low: 0, high: 100 };
-  }
+  const normalisedPrice = cleanPrice
+    .replace(/Â/g, "")
+    .replace(/€/g, "CHF")
+    .replace(/₣/g, "CHF")
+    .replace(/\s+/g, " ")
+    .trim();
 
-  if (
-    cleanPrice === "\u20ac\u20ac" ||
-    cleanPrice === "CHF CHF" ||
-    cleanPrice === "CHF 101-200"
-  ) {
-    return { low: 101, high: 200 };
-  }
+  if (normalisedPrice === "CHF 0-100") return "CHF";
+  if (normalisedPrice === "CHF 101-200") return "CHF CHF";
+  if (normalisedPrice === "CHF 201-300") return "CHF CHF CHF";
+  if (normalisedPrice === "CHF 300+") return "CHF CHF CHF CHF";
 
-  if (
-    cleanPrice === "\u20ac\u20ac\u20ac" ||
-    cleanPrice === "CHF CHF CHF" ||
-    cleanPrice === "CHF 201-300"
-  ) {
-    return { low: 201, high: 300 };
-  }
-
-  if (
-    cleanPrice === "\u20ac\u20ac\u20ac\u20ac" ||
-    cleanPrice === "CHF CHF CHF CHF" ||
-    cleanPrice === "CHF 300+"
-  ) {
-    return { low: 300, high: 450 };
-  }
-
-  return null;
+  return normalisedPrice;
 }
 
-function formatSwissPriceRange(priceRange?: string) {
-  const range = getGreenFeeRange(priceRange);
+function getPriceBandSummary(courses: PlannerCourse[]) {
+  const priceBands = courses
+    .map((course) => formatSwissPriceRange(course.price_range))
+    .filter((priceBand) => priceBand !== "-");
 
-  if (!range) return priceRange || "-";
+  if (priceBands.length === 0) return "Add courses with price bands to compare pricing.";
 
-  if (range.low === 0 && range.high === 100) return "CHF 0-100";
-  if (range.low === 101 && range.high === 200) return "CHF 101-200";
-  if (range.low === 201 && range.high === 300) return "CHF 201-300";
+  const uniqueBands = Array.from(new Set(priceBands));
 
-  return "CHF 300+";
-}
-
-
-function formatSwissAmount(amount: number) {
-  return `CHF ${Math.round(amount).toLocaleString("en-CH")}`;
-}
-
-function getGreenFeeEstimate(courses: PlannerCourse[]) {
-  const courseRanges = courses
-    .map((course) => getGreenFeeRange(course.price_range))
-    .filter((range): range is { low: number; high: number } => Boolean(range));
-
-  if (courseRanges.length === 0) return null;
-
-  const perGolferLow = courseRanges.reduce((sum, range) => sum + range.low, 0);
-  const perGolferHigh = courseRanges.reduce(
-    (sum, range) => sum + range.high,
-    0,
-  );
-
-  return {
-    pricedCourses: courseRanges.length,
-    perGolferLow,
-    perGolferHigh,
-  };
+  return uniqueBands.join(` ${SEPARATOR} `);
 }
 
 function generatePlannerUserId() {
@@ -397,7 +356,7 @@ export default function SwitzerlandPlannerPage() {
 
   const averageDistance = getAverageDistance(selectedCourses);
   const courseMix = getCourseMix(selectedCourses);
-  const greenFeeEstimate = getGreenFeeEstimate(selectedCourses);
+  const priceBandSummary = getPriceBandSummary(selectedCourses);
 
   async function loadVoteTotals(activeTripId: string) {
     if (!activeTripId) return;
@@ -1786,42 +1745,20 @@ export default function SwitzerlandPlannerPage() {
 
               <div className="mt-3 rounded-2xl bg-emerald-50 p-4 ring-1 ring-emerald-100">
                 <div className="text-[13px] font-semibold text-emerald-800">
-                  Green Fee Guide
+                  Price Band Guide
                 </div>
 
-                {greenFeeEstimate ? (
-                  <div className="mt-2 grid gap-2">
-                    <div className="text-[22px] font-bold text-slate-900">
-                      {formatSwissAmount(greenFeeEstimate.perGolferLow)} -{" "}
-                      {formatSwissAmount(greenFeeEstimate.perGolferHigh)}
-                    </div>
-
-                    <p className="text-xs leading-5 text-slate-600">
-                      Per golfer guide only. Actual green fees can vary by
-                      weekday/weekend, season, tee time and booking conditions.
-                    </p>
-
-                    {greenFeeEstimate.pricedCourses <
-                      selectedCourses.length && (
-                      <p className="text-xs leading-5 text-slate-600">
-                        Guide excludes{" "}
-                        {selectedCourses.length -
-                          greenFeeEstimate.pricedCourses}{" "}
-                        course
-                        {selectedCourses.length -
-                          greenFeeEstimate.pricedCourses ===
-                        1
-                          ? ""
-                          : "s"}{" "}
-                        without a price band.
-                      </p>
-                    )}
+                <div className="mt-2 grid gap-2">
+                  <div className="text-[20px] font-bold text-slate-900">
+                    {priceBandSummary}
                   </div>
-                ) : (
-                  <p className="mt-2 text-sm leading-6 text-slate-600">
-                    Add courses with price bands to estimate green fees.
+
+                  <p className="text-xs leading-5 text-slate-600">
+                    Swiss price bands are shown as bands only. Exact green fees
+                    can vary by club, weekday/weekend, season, tee time and
+                    booking conditions.
                   </p>
-                )}
+                </div>
               </div>
 
               {tripError && (
