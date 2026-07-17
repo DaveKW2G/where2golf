@@ -149,9 +149,13 @@ function getPriceBandSummary(courses: PlannerCourse[]) {
     .map((course) => formatSwissPriceRange(course.price_range))
     .filter((priceBand) => priceBand !== "-");
 
-  if (priceBands.length === 0) return "Add courses with price bands to compare pricing.";
+  if (priceBands.length === 0) return "No price bands yet";
 
   const uniqueBands = Array.from(new Set(priceBands));
+
+  if (uniqueBands.length === 1) {
+    return uniqueBands[0];
+  }
 
   return uniqueBands.join(` ${SEPARATOR} `);
 }
@@ -1748,9 +1752,10 @@ export default function SwitzerlandPlannerPage() {
                   </div>
 
                   <p className="text-xs leading-5 text-slate-600">
-                    Price bands are shown exactly as stored in Supabase. Exact green fees
-                    can vary by club, weekday/weekend, season, tee time and
-                    booking conditions.
+                    Use the price bands as a quick guide to compare the relative
+                    cost of courses in your shortlist. Exact green fees can vary
+                    by club, weekday/weekend, season, tee time and booking
+                    conditions.
                   </p>
                 </div>
               </div>
