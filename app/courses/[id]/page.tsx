@@ -339,6 +339,33 @@ function isPlannerSearchContext(searchParams: {
   );
 }
 
+function getFallbackHrefFromSource(source?: string) {
+  if (!source) return null;
+
+  const sourceFallbacks: Record<string, string> = {
+    ireland: "/ireland",
+    "irish-links-golf": "/irish-links-golf",
+    "links-golf-near-dublin": "/links-golf-near-dublin",
+    "golf-near-dublin": "/golf-near-dublin",
+    "golf-near-cork": "/golf-near-cork",
+    "golf-near-galway": "/golf-near-galway",
+    "golf-near-belfast": "/golf-near-belfast",
+    "golf-near-adare-manor": "/golf-near-adare-manor",
+    switzerland: "/switzerland",
+    "golf-near-zurich": "/golf-near-zurich",
+    "golf-near-geneva": "/golf-near-geneva",
+    "golf-near-basel": "/golf-near-basel",
+    "golf-near-lausanne": "/golf-near-lausanne",
+    "golf-near-lucerne": "/golf-near-lucerne",
+    "golf-in-the-swiss-alps": "/golf-in-the-swiss-alps",
+    "golf-near-st-gallen": "/golf-near-st-gallen",
+    "golf-near-lugano": "/golf-near-lugano",
+    "golf-near-winterthur": "/golf-near-winterthur",
+  };
+
+  return sourceFallbacks[source] || null;
+}
+
 function buildFallbackHref(
   searchParams: {
     [key: string]: string | string[] | undefined;
@@ -353,6 +380,14 @@ function buildFallbackHref(
 
   if (returnTo && returnTo.startsWith("/")) {
     return returnTo;
+  }
+
+  const sourceFallbackHref = getFallbackHrefFromSource(
+    getSingleParam(searchParams.source),
+  );
+
+  if (sourceFallbackHref) {
+    return sourceFallbackHref;
   }
 
   const params = new URLSearchParams();
