@@ -30,6 +30,12 @@ const popularDestinations = [
       "Compare top links, parkland and resort courses within easy reach of Ireland’s main international gateway.",
   },
   {
+    title: "Irish Links Golf",
+    href: "/irish-links-golf",
+    description:
+      "Explore Links golf courses across Ireland, compare guest access and add courses to your free itinerary.",
+  },
+  {
     title: "Best Links Golf Near Dublin",
     href: "/links-golf-near-dublin",
     description:
@@ -281,6 +287,19 @@ export default function IrelandPage() {
               </p>
 
               <p className="mt-4 text-sm leading-7 text-slate-700">
+                Links golf is one of Ireland&apos;s biggest attractions. True
+                Links courses are rare globally, and Ireland has one of the
+                strongest concentrations anywhere in the world.{" "}
+                <Link
+                  href="/irish-links-golf"
+                  className="font-semibold text-emerald-800 no-underline hover:text-emerald-900"
+                >
+                  Explore Irish Links Golf
+                </Link>
+                .
+              </p>
+
+              <p className="mt-4 text-sm leading-7 text-slate-700">
                 Ireland is generally visitor-friendly, but access still varies
                 by course. Some clubs welcome visitors throughout the week,
                 some prioritise weekdays and certain premium venues offer more
@@ -385,6 +404,13 @@ export default function IrelandPage() {
                     firm fairways, dunes, uneven lies and exposed wind
                     conditions.
                   </p>
+
+                  <Link
+                    href="/irish-links-golf"
+                    className="mt-4 inline-block text-sm font-semibold text-emerald-800 no-underline hover:text-emerald-900"
+                  >
+                    Explore Irish Links Golf →
+                  </Link>
                 </div>
 
                 <div className="rounded-3xl bg-stone-50 p-5 ring-1 ring-slate-200">
@@ -510,6 +536,13 @@ export default function IrelandPage() {
                 </h2>
 
                 <div className="mt-4 grid gap-3">
+                  <Link
+                    href="/irish-links-golf"
+                    className="rounded-2xl bg-emerald-50 px-4 py-3 text-sm font-semibold text-emerald-900 no-underline ring-1 ring-emerald-100"
+                  >
+                    Irish Links Golf →
+                  </Link>
+
                   <Link
                     href="/golf-near-dublin"
                     className="rounded-2xl bg-slate-50 px-4 py-3 text-sm font-semibold text-slate-800 no-underline ring-1 ring-slate-200"
