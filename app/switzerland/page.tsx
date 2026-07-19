@@ -113,25 +113,25 @@ const popularDestinations = [
 const priceCategories = [
   {
     label: '€',
-    range: 'Value',
+    range: 'Value · CHF 0–80',
     description:
       'Accessible visitor golf and practical local courses for budget-conscious Swiss golf planning.',
   },
   {
     label: '€€',
-    range: 'Mid Range',
+    range: 'Mid-range · CHF 81–120',
     description:
       'Established Swiss clubs and strong regional courses with a broader visitor-golf experience.',
   },
   {
     label: '€€€',
-    range: 'Premium',
+    range: 'Premium · CHF 121–160',
     description:
       'Higher-end lake, resort and championship-style golf experiences across Switzerland.',
   },
   {
     label: '€€€€',
-    range: 'Bucket List',
+    range: 'Bucket List · CHF 161+',
     description:
       'Prestige venues, standout alpine settings and the most memorable Swiss golf experiences.',
   },
