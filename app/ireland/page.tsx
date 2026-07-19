@@ -437,7 +437,10 @@ export default function IrelandPage() {
               </div>
             </section>
 
-            <section className="mt-6 rounded-3xl bg-white p-5 shadow-sm ring-1 ring-slate-200/70 lg:p-7">
+            <section
+              id="pricing-guide"
+              className="mt-6 scroll-mt-24 rounded-3xl bg-white p-5 shadow-sm ring-1 ring-slate-200/70 lg:p-7"
+            >
               <p className="text-[12px] font-semibold uppercase tracking-[0.18em] text-emerald-800">
                 Green-fee guide
               </p>
@@ -536,13 +539,6 @@ export default function IrelandPage() {
                 </h2>
 
                 <div className="mt-4 grid gap-3">
-                  <Link
-                    href="/irish-links-golf"
-                    className="rounded-2xl bg-emerald-50 px-4 py-3 text-sm font-semibold text-emerald-900 no-underline ring-1 ring-emerald-100"
-                  >
-                    Irish Links Golf →
-                  </Link>
-
                   <Link
                     href="/golf-near-dublin"
                     className="rounded-2xl bg-slate-50 px-4 py-3 text-sm font-semibold text-slate-800 no-underline ring-1 ring-slate-200"
