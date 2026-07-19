@@ -303,15 +303,20 @@ export default async function IrishLinksGolfPage() {
             strong Links golf routes for visiting golfers.
           </p>
 
-          <div className="mt-4 flex flex-wrap gap-2">
-            {featuredRegions.map((region) => (
-              <span
-                key={region}
-                className="rounded-full bg-stone-50 px-4 py-2 text-sm font-semibold text-slate-700 ring-1 ring-slate-200"
-              >
-                {region}
-              </span>
-            ))}
+          <div className="mt-5 rounded-2xl bg-stone-50 p-4 ring-1 ring-slate-200">
+            <p className="text-sm font-semibold text-slate-900">
+              Links golf regions covered on this page
+            </p>
+
+            <p className="mt-2 text-sm leading-6 text-slate-600">
+              Courses are shown together in one national list rather than split
+              into county filters. This keeps the page focused on Irish Links
+              golf as a complete trip-planning category.
+            </p>
+
+            <p className="mt-3 text-sm leading-6 text-slate-700">
+              {featuredRegions.join(", ")}
+            </p>
           </div>
         </section>
 
