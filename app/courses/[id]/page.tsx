@@ -427,7 +427,17 @@ function getNearbyIrelandGuideLinks(course: Course): NearbyGuideLink[] {
     }
   });
 
-  const isLinksCourse = course.course_type === "Links";
+  const isLinksCourse =
+    course.course_type?.toLowerCase().includes("links") || false;
+
+  if (isLinksCourse) {
+    nearbyLinks.unshift({
+      title: "Irish Links Golf",
+      href: "/irish-links-golf",
+      description:
+        "Compare Links golf courses across Ireland and add your preferred options to your itinerary.",
+    });
+  }
 
   const distanceToDublinKm = getDistanceKm(
     53.3498,
@@ -441,7 +451,7 @@ function getNearbyIrelandGuideLinks(course: Course): NearbyGuideLink[] {
       title: "Best Links Golf Near Dublin",
       href: "/links-golf-near-dublin",
       description:
-        "Compare classic links courses near Dublin and add your preferred options to your itinerary.",
+        "Compare classic Links courses near Dublin and add your preferred options to your itinerary.",
     });
   }
 
@@ -634,6 +644,10 @@ export default async function CoursePage({
   const regionHref = isIreland
     ? "/ireland"
     : `/switzerland/${course.region.toLowerCase()}`;
+
+  const priceGuideHref = isIreland
+    ? "/ireland#pricing-guide"
+    : "/switzerland#pricing-guide";
 
   const regionLinkText = isIreland
     ? "Explore more golf in Ireland"
@@ -916,6 +930,13 @@ export default async function CoursePage({
                   </>
                 )}
               </div>
+
+              <Link
+                href={priceGuideHref}
+                className="mt-3 inline-block text-sm font-semibold text-emerald-700 no-underline hover:text-emerald-900"
+              >
+                Price guide →
+              </Link>
             </div>
 
             <div className="border-b border-slate-200 lg:col-span-2">
