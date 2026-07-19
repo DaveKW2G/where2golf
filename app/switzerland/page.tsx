@@ -460,7 +460,10 @@ export default function SwitzerlandPage() {
               </div>
             </section>
 
-            <section className="mt-6 rounded-3xl bg-white p-5 shadow-sm ring-1 ring-slate-200/70 lg:p-7">
+            <section
+              id="pricing-guide"
+              className="mt-6 scroll-mt-24 rounded-3xl bg-white p-5 shadow-sm ring-1 ring-slate-200/70 lg:p-7"
+            >
               <p className="text-[12px] font-semibold uppercase tracking-[0.18em] text-emerald-800">
                 Price-band guide
               </p>
