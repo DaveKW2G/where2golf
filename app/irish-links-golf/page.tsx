@@ -348,32 +348,6 @@ export default async function IrishLinksGolfPage() {
         </section>
 
         <section className="mt-6 rounded-3xl bg-white p-5 shadow-sm ring-1 ring-slate-200/70 lg:p-6">
-          <h2 className="text-lg font-semibold text-slate-900">
-            Planning an Irish Links golf trip
-          </h2>
-
-          <p className="mt-3 text-sm leading-6 text-slate-600">
-            Links golf is highly seasonal and popular with international
-            visitors. Booking windows, visitor days, green fees and handicap
-            requirements can vary significantly between clubs, especially for
-            famous championship courses.
-          </p>
-
-          <p className="mt-3 text-sm leading-6 text-slate-600">
-            A strong Irish Links itinerary usually balances famous courses with
-            more accessible options nearby. This can make the trip easier to
-            book, easier to travel and more enjoyable for the whole group.
-          </p>
-
-          <Link
-            href="/about#pricing-guide"
-            className="mt-4 inline-block text-sm font-semibold text-emerald-700 no-underline"
-          >
-            View the GuestPlayGolf pricing guide →
-          </Link>
-        </section>
-
-        <section className="mt-6 rounded-3xl bg-white p-5 shadow-sm ring-1 ring-slate-200/70 lg:p-6">
           <RegionalGolfLinks />
         </section>
       </section>
