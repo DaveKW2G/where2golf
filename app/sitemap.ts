@@ -100,7 +100,19 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       priority: 0.8,
     },
     {
+      url: `${baseUrl}/irish-links-golf`,
+      lastModified: now,
+      changeFrequency: 'weekly' as const,
+      priority: 0.8,
+    },
+    {
       url: `${baseUrl}/golf-near-dublin`,
+      lastModified: now,
+      changeFrequency: 'weekly' as const,
+      priority: 0.8,
+    },
+    {
+      url: `${baseUrl}/links-golf-near-dublin`,
       lastModified: now,
       changeFrequency: 'weekly' as const,
       priority: 0.8,
@@ -164,9 +176,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const coursePages =
     courses?.map((course) => ({
       url: `${baseUrl}/courses/${course.id}`,
-      lastModified: course.updated_at
-        ? new Date(course.updated_at)
-        : now,
+      lastModified: course.updated_at ? new Date(course.updated_at) : now,
       changeFrequency: 'monthly' as const,
       priority: 0.6,
     })) || []
