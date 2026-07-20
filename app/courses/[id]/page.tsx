@@ -228,16 +228,14 @@ export async function generateMetadata({
   const canonicalUrl = `${siteUrl}/courses/${data.id}`;
 
   const title = isIreland
-    ? `${data.course_name} | Visitor Info & Trip Planner`
-    : `${data.course_name} | Guest Golf in ${data.town}`;
+    ? `${data.course_name} | Visitor Access & Green Fees | GuestPlayGolf`
+    : `${data.course_name} | Guest Play & Handicap | GuestPlayGolf`;
 
   const description = isIreland
-    ? `Explore ${data.course_name} in ${data.town}, ${regionName}. Check visitor access and course information, then add it to your free Irish golf trip planner to plan, share and vote.`
-    : `Explore ${data.course_name} in ${data.town}, ${regionName}. Check guest access, handicap requirements, season and nearby Swiss golf courses on GuestPlayGolf.`;
+    ? `Planning to play ${data.course_name}? Find visitor access, green fees, course information and nearby golf courses. Planning a golf trip? Use GuestPlayGolf's free trip planner to share and vote with friends.`
+    : `Planning to play ${data.course_name}? Find guest play rules, handicap requirements, course information and nearby golf courses. Planning a golf trip? Use GuestPlayGolf's free trip planner to share and vote with friends.`;
 
-  const openGraphDescription = isIreland
-    ? `Visitor information for ${data.course_name}. Add the course to a free Irish golf trip itinerary, share your plan and vote with your group.`
-    : `Guest access, handicap information and nearby golf courses for ${data.course_name} in ${data.town}, Switzerland.`;
+  const openGraphDescription = description;
 
   return {
     metadataBase: new URL(siteUrl),
@@ -247,9 +245,7 @@ export async function generateMetadata({
       canonical: canonicalUrl,
     },
     openGraph: {
-      title: isIreland
-        ? `${data.course_name} | GuestPlayGolf Trip Planner`
-        : `${data.course_name} | GuestPlayGolf`,
+      title,
       description: openGraphDescription,
       url: canonicalUrl,
       siteName: "GuestPlayGolf",
