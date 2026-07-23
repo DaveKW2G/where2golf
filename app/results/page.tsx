@@ -233,7 +233,7 @@ export default async function ResultsPage({ searchParams }: ResultsPageProps) {
   if (params.region) query = query.eq("region", params.region)
 
   if (params.courseType) {
-    query = query.ilike("course_type", params.courseType)
+    query = query.ilike("course_type", `%${params.courseType}%`)
   }
 
   if (params.guestPlay === "Weekend") {
