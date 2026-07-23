@@ -124,9 +124,9 @@ function FiltersPageContent() {
   const priceOptions = ['€', '€€', '€€€', '€€€€']
 
   return (
-    <main className="min-h-screen bg-stone-100">
-      <section className="relative overflow-hidden bg-gradient-to-b from-emerald-950 via-emerald-900 to-emerald-800 px-5 pt-5 pb-6 text-white">
-        <div className="mx-auto max-w-[480px]">
+    <main className="min-h-screen overflow-x-hidden bg-stone-100 text-slate-800">
+      <section className="relative overflow-hidden bg-gradient-to-b from-emerald-950 via-emerald-900 to-emerald-800 px-5 pb-9 pt-6 text-white lg:pb-12 lg:pt-8">
+        <div className="mx-auto max-w-[480px] lg:max-w-[1120px]">
           <div className="flex items-center justify-between">
             <Link href={backHref} className="text-white no-underline">
               ← Back
@@ -141,8 +141,8 @@ function FiltersPageContent() {
             </button>
           </div>
 
-          <div className="mt-5">
-            <h1 className="text-[24px] font-bold">
+          <div className="mt-6 lg:max-w-[800px]">
+            <h1 className="text-[28px] font-bold leading-tight sm:text-[32px] lg:text-[42px] lg:leading-[1.08]">
               {isIreland
                 ? 'Advanced Search Ireland'
                 : isSwitzerland
@@ -150,7 +150,7 @@ function FiltersPageContent() {
                 : 'Advanced Filters'}
             </h1>
 
-            <p className="mt-2 text-[14px] text-white/80">
+            <p className="mt-4 text-[15px] leading-6 text-emerald-50/90 lg:max-w-[740px] lg:text-[17px] lg:leading-7">
               {isIreland
                 ? 'Refine your search to find Irish golf courses by location, course type, access and price.'
                 : isSwitzerland
@@ -161,8 +161,9 @@ function FiltersPageContent() {
         </div>
       </section>
 
-      <div className="mx-auto max-w-[480px] space-y-6 px-5 py-6 pb-24">
-        <section className="rounded-2xl bg-white p-5 shadow-sm">
+      <section className="mx-auto w-full max-w-[480px] px-4 py-6 pb-28 lg:max-w-[1120px] lg:px-5 lg:py-8">
+        <div className="grid gap-6 lg:grid-cols-2 lg:items-start">
+        <section className="rounded-3xl bg-white p-5 shadow-sm ring-1 ring-slate-200/70 lg:col-span-2 lg:p-6">
           <h2 className="mb-3 text-sm font-semibold text-slate-700">
             Play Near
           </h2>
@@ -195,7 +196,7 @@ function FiltersPageContent() {
         </section>
 
         {isIreland && (
-          <section className="rounded-2xl bg-white p-5 shadow-sm">
+          <section className="rounded-3xl bg-white p-5 shadow-sm ring-1 ring-slate-200/70 lg:p-6">
             <h2 className="mb-3 text-sm font-semibold text-slate-700">
               Course Type
             </h2>
@@ -214,7 +215,7 @@ function FiltersPageContent() {
           </section>
         )}
 
-        <section className="rounded-2xl bg-white p-5 shadow-sm">
+        <section className="rounded-3xl bg-white p-5 shadow-sm ring-1 ring-slate-200/70 lg:p-6">
           <h2 className="mb-3 text-sm font-semibold text-slate-700">
             Guest Access
           </h2>
@@ -235,7 +236,7 @@ function FiltersPageContent() {
           </div>
         </section>
 
-        <section className="rounded-2xl bg-white p-5 shadow-sm">
+        <section className="rounded-3xl bg-white p-5 shadow-sm ring-1 ring-slate-200/70 lg:p-6">
           <h2 className="mb-3 text-sm font-semibold text-slate-700">
             Holes
           </h2>
@@ -254,7 +255,7 @@ function FiltersPageContent() {
         </section>
 
         {!isIreland && (
-          <section className="rounded-2xl bg-white p-5 shadow-sm">
+          <section className="rounded-3xl bg-white p-5 shadow-sm ring-1 ring-slate-200/70 lg:p-6">
             <h2 className="mb-2 text-sm font-semibold text-slate-700">
               Your Handicap
             </h2>
@@ -278,7 +279,7 @@ function FiltersPageContent() {
           </section>
         )}
 
-        <section className="rounded-2xl bg-white p-5 shadow-sm">
+        <section className="rounded-3xl bg-white p-5 shadow-sm ring-1 ring-slate-200/70 lg:p-6">
           <h2 className="mb-3 text-sm font-semibold text-slate-700">
             Price
           </h2>
@@ -295,15 +296,16 @@ function FiltersPageContent() {
             ))}
           </div>
         </section>
-      </div>
+        </div>
+      </section>
 
-      <div className="fixed bottom-6 left-0 right-0 px-5">
-        <div className="mx-auto max-w-[480px]">
+      <div className="fixed bottom-6 left-0 right-0 z-20 px-5">
+        <div className="mx-auto flex max-w-[480px] justify-center lg:max-w-[1120px] lg:justify-end">
           <button
             type="button"
             onClick={handleSearch}
             disabled={isSearching}
-            className="w-full rounded-2xl bg-emerald-700 py-4 font-semibold text-white shadow-lg disabled:opacity-75"
+            className="w-full rounded-2xl bg-emerald-700 py-4 font-semibold text-white shadow-lg transition hover:bg-emerald-800 disabled:opacity-75 lg:max-w-[360px]"
           >
             {isSearching ? 'Finding courses...' : 'Show Courses'}
           </button>
