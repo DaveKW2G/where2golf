@@ -299,7 +299,7 @@ function FiltersPageContent() {
         </div>
       </section>
 
-      <div className="fixed bottom-6 left-0 right-0 z-20 px-5">
+      <div className="fixed bottom-6 left-0 right-0 z-20 px-5 lg:static lg:px-5 lg:pb-8">
         <div className="mx-auto flex max-w-[480px] justify-center lg:max-w-[1120px] lg:justify-end">
           <button
             type="button"
