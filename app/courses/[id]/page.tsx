@@ -844,13 +844,6 @@ export default async function CoursePage({
               region: ${JSON.stringify(course.region)},
               country: ${JSON.stringify(country)}
             });
-
-            window.gtag('event', 'course_view', {
-              course_name: ${JSON.stringify(course.course_name)},
-              course_id: ${JSON.stringify(String(course.id))},
-              region: ${JSON.stringify(course.region)},
-              country: ${JSON.stringify(country)}
-            });
           }
         `}
       </Script>
