@@ -636,6 +636,18 @@ export default function PlannerPage() {
         return;
       }
 
+      if (typeof window !== "undefined" && (window as any).gtag) {
+        (window as any).gtag("event", "planner_started", {
+          country: "Ireland",
+          base_location: confirmedBase.label,
+          month_of_travel: month,
+          number_of_golfers: numberOfGolfers,
+          number_of_golf_days: numberOfGolfDays,
+          golf_ireland_member: golfIrelandMember,
+          trip_id: tripData.trip_id,
+        });
+      }
+
       setGeocodedBase(confirmedBase);
       setTripId(tripData.trip_id);
       setTripCode(tripData.trip_code || "");
