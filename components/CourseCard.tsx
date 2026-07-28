@@ -333,6 +333,24 @@ export default function CourseCard({
         ? responseData.selected_courses
         : []
 
+      if (
+        !isAddedToPlanner &&
+        typeof window !== 'undefined' &&
+        (window as any).gtag
+      ) {
+        (window as any).gtag('event', 'course_added_to_trip', {
+          country: countryValue,
+          trip_id: activeTripId,
+          course_id: plannerCourse.id,
+          course_name: plannerCourse.course_name,
+          course_region: plannerCourse.region,
+          course_type: plannerCourse.course_type,
+          price_range: plannerCourse.price_range,
+          selected_course_count: syncedCourses.length,
+          add_source: 'course_card',
+        })
+      }
+
       window.localStorage.setItem(plannerStorageKeys.coursesKey, JSON.stringify(syncedCourses))
       setIsAddedToPlanner(syncedCourses.some((course: PlannerCourse) => course.id === id))
       window.dispatchEvent(new Event('guestplaygolf-planner-courses-updated'))

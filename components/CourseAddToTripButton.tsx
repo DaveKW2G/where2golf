@@ -96,6 +96,24 @@ export default function CourseAddToTripButton({
         ? data.selected_courses
         : [cleanCourse];
 
+      if (
+        !isAddedToPlanner &&
+        typeof window !== "undefined" &&
+        (window as any).gtag
+      ) {
+        (window as any).gtag("event", "course_added_to_trip", {
+          country: "Ireland",
+          trip_id: activeTripId,
+          course_id: cleanCourse.id,
+          course_name: cleanCourse.course_name,
+          course_region: cleanCourse.region,
+          course_type: cleanCourse.course_type,
+          price_range: cleanCourse.price_range,
+          selected_course_count: updatedCourses.length,
+          add_source: "course_detail",
+        });
+      }
+
       window.localStorage.setItem(
         plannerCoursesKey,
         JSON.stringify(updatedCourses),
