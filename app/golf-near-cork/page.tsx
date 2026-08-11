@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { cache } from "react";
 import { createClient } from "@/lib/supabase/server";
 import CourseCard from "@/components/CourseCard";
 
@@ -8,25 +9,6 @@ const siteUrl = "https://guestplaygolf.com";
 const corkLat = 51.8985;
 const corkLng = -8.4756;
 const corkRadiusKm = 70;
-
-export const metadata: Metadata = {
-  metadataBase: new URL(siteUrl),
-  title: "Golf Near Cork | Courses & Free Golf Trip Planner",
-  description:
-    "Find the best golf near Cork for visiting golfers. Compare coastal links and parkland courses, then use our free golf trip planner to build, share and vote on your Cork golf itinerary.",
-  alternates: {
-    canonical: "/golf-near-cork",
-  },
-  openGraph: {
-    title:
-      "Golf Near Cork | Courses & Free Golf Trip Planner | GuestPlayGolf",
-    description:
-      "Compare visitor-friendly golf near Cork, build a free golf itinerary, share your trip and vote on courses with your group.",
-    url: `${siteUrl}/golf-near-cork`,
-    siteName: "GuestPlayGolf",
-    type: "website",
-  },
-};
 
 function toRad(value: number) {
   return (value * Math.PI) / 180;
@@ -53,6 +35,59 @@ function getDistanceKm(
   const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
 
   return earthRadiusKm * c;
+}
+
+const getCorkCourses = cache(async () => {
+  const supabase = await createClient();
+
+  const { data: courses, error } = await supabase
+    .from("courses")
+    .select(
+      "id, country, course_name, town, region, holes, independent_guest_days, season, price_range, course_image, handicap_required, max_handicap, latitude, longitude, course_type",
+    )
+    .eq("country", "Ireland")
+    .not("latitude", "is", null)
+    .not("longitude", "is", null)
+    .limit(300);
+
+  const coursesWithDistance =
+    courses
+      ?.map((course) => ({
+        ...course,
+        distance: getDistanceKm(
+          corkLat,
+          corkLng,
+          course.latitude,
+          course.longitude,
+        ),
+      }))
+      .filter((course) => course.distance <= corkRadiusKm)
+      .sort((a, b) => (a.distance ?? 9999) - (b.distance ?? 9999)) || [];
+
+  return { coursesWithDistance, error };
+});
+
+export async function generateMetadata(): Promise<Metadata> {
+  const { coursesWithDistance } = await getCorkCourses();
+  const courseCount = coursesWithDistance.length;
+  const title = `${courseCount} Golf Courses Near Cork | Access & Prices`;
+  const description = `Explore ${courseCount} visitor-friendly golf courses within ${corkRadiusKm} km of Cork. Compare visitor access and prices, then build and share a free golf trip itinerary.`;
+
+  return {
+    metadataBase: new URL(siteUrl),
+    title,
+    description,
+    alternates: {
+      canonical: "/golf-near-cork",
+    },
+    openGraph: {
+      title,
+      description,
+      url: `${siteUrl}/golf-near-cork`,
+      siteName: "GuestPlayGolf",
+      type: "website",
+    },
+  };
 }
 
 function RegionalGolfLinks() {
@@ -115,35 +150,7 @@ function RegionalGolfLinks() {
 }
 
 export default async function GolfNearCorkPage() {
-  const supabase = await createClient();
-
-  const { data: courses, error } = await supabase
-    .from("courses")
-    .select(
-      "id, country, course_name, town, region, holes, independent_guest_days, season, price_range, course_image, handicap_required, max_handicap, latitude, longitude, course_type",
-    )
-    .eq("country", "Ireland")
-    .not("latitude", "is", null)
-    .not("longitude", "is", null)
-    .limit(300);
-
-  const coursesWithDistance =
-    courses
-      ?.map((course) => {
-        const distance = getDistanceKm(
-          corkLat,
-          corkLng,
-          course.latitude,
-          course.longitude,
-        );
-
-        return {
-          ...course,
-          distance,
-        };
-      })
-      .filter((course) => course.distance <= corkRadiusKm)
-      .sort((a, b) => (a.distance ?? 9999) - (b.distance ?? 9999)) || [];
+  const { coursesWithDistance, error } = await getCorkCourses();
 
   const courseCount = coursesWithDistance.length;
 
@@ -165,10 +172,14 @@ export default async function GolfNearCorkPage() {
             </h1>
 
             <p className="mt-4 text-[15px] leading-6 text-emerald-50/95 lg:max-w-[720px] lg:text-[17px] lg:leading-7">
-              Compare visitor-friendly golf near Cork, from coastal courses and
-              famous links to scenic parkland layouts. Add your preferred
-              courses to a free itinerary, share the trip and vote with your
-              group.
+              Explore <strong>{courseCount} visitor-friendly golf courses</strong>{" "}
+              within {corkRadiusKm} km of Cork, with clear visitor access and
+              pricing information.
+            </p>
+
+            <p className="mt-3 text-[15px] leading-6 text-emerald-50/95 lg:max-w-[720px] lg:text-[17px] lg:leading-7">
+              Compare your options, add courses to a free golf-trip itinerary,
+              then share it with your group and vote on where to play.
             </p>
 
             <p className="mt-4 text-[13px] font-bold uppercase tracking-[0.14em] text-emerald-200">
