@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { cache } from "react";
 import { createClient } from "@/lib/supabase/server";
 import DublinDistanceFilteredCourses from "@/components/DublinDistanceFilteredCourses";
 
@@ -8,25 +9,6 @@ const siteUrl = "https://guestplaygolf.com";
 const dublinLat = 53.3498;
 const dublinLng = -6.2603;
 const dublinRadiusKm = 100;
-
-export const metadata: Metadata = {
-  metadataBase: new URL(siteUrl),
-  title: "Best Links Golf Near Dublin | Free Golf Trip Planner",
-  description:
-    "Find the best links golf near Dublin for visiting golfers. Compare rare Irish links courses, then use our free golf trip planner to build, share and vote on your Dublin golf itinerary.",
-  alternates: {
-    canonical: "/links-golf-near-dublin",
-  },
-  openGraph: {
-    title:
-      "Best Links Golf Near Dublin | Free Golf Trip Planner | GuestPlayGolf",
-    description:
-      "Compare visitor-friendly links golf near Dublin, build a free golf itinerary, share your trip and vote on courses with your group.",
-    url: `${siteUrl}/links-golf-near-dublin`,
-    siteName: "GuestPlayGolf",
-    type: "website",
-  },
-};
 
 function toRad(value: number) {
   return (value * Math.PI) / 180;
@@ -53,6 +35,60 @@ function getDistanceKm(
   const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
 
   return earthRadiusKm * c;
+}
+
+const getLinksCoursesNearDublin = cache(async () => {
+  const supabase = await createClient();
+
+  const { data: courses, error } = await supabase
+    .from("courses")
+    .select(
+      "id, country, course_name, town, region, holes, independent_guest_days, season, price_range, course_image, max_handicap, latitude, longitude, course_type",
+    )
+    .ilike("country", "Ireland")
+    .eq("course_type", "Links")
+    .not("latitude", "is", null)
+    .not("longitude", "is", null)
+    .limit(300);
+
+  const linksCoursesWithinDublinHub =
+    courses
+      ?.map((course) => ({
+        ...course,
+        distance: getDistanceKm(
+          dublinLat,
+          dublinLng,
+          course.latitude,
+          course.longitude,
+        ),
+      }))
+      .filter((course) => course.distance <= dublinRadiusKm)
+      .sort((a, b) => (a.distance ?? 9999) - (b.distance ?? 9999)) || [];
+
+  return { linksCoursesWithinDublinHub, error };
+});
+
+export async function generateMetadata(): Promise<Metadata> {
+  const { linksCoursesWithinDublinHub } = await getLinksCoursesNearDublin();
+  const courseCount = linksCoursesWithinDublinHub.length;
+  const title = `${courseCount} Links Golf Courses Near Dublin | Access & Prices`;
+  const description = `Explore ${courseCount} visitor-friendly links golf courses within ${dublinRadiusKm} km of Dublin. Compare visitor access and prices, then build and share a free golf trip itinerary.`;
+
+  return {
+    metadataBase: new URL(siteUrl),
+    title,
+    description,
+    alternates: {
+      canonical: "/links-golf-near-dublin",
+    },
+    openGraph: {
+      title,
+      description,
+      url: `${siteUrl}/links-golf-near-dublin`,
+      siteName: "GuestPlayGolf",
+      type: "website",
+    },
+  };
 }
 
 function RegionalGolfLinks() {
@@ -115,36 +151,8 @@ function RegionalGolfLinks() {
 }
 
 export default async function LinksGolfNearDublinPage() {
-  const supabase = await createClient();
-
-  const { data: courses, error } = await supabase
-    .from("courses")
-    .select(
-      "id, country, course_name, town, region, holes, independent_guest_days, season, price_range, course_image, max_handicap, latitude, longitude, course_type",
-    )
-    .ilike("country", "Ireland")
-    .eq("course_type", "Links")
-    .not("latitude", "is", null)
-    .not("longitude", "is", null)
-    .limit(300);
-
-  const linksCoursesWithinDublinHub =
-    courses
-      ?.map((course) => {
-        const distance = getDistanceKm(
-          dublinLat,
-          dublinLng,
-          course.latitude,
-          course.longitude,
-        );
-
-        return {
-          ...course,
-          distance,
-        };
-      })
-      .filter((course) => course.distance <= dublinRadiusKm)
-      .sort((a, b) => (a.distance ?? 9999) - (b.distance ?? 9999)) || [];
+  const { linksCoursesWithinDublinHub, error } =
+    await getLinksCoursesNearDublin();
 
   const courseCount = linksCoursesWithinDublinHub.length;
 
@@ -169,10 +177,17 @@ export default async function LinksGolfNearDublinPage() {
             </h1>
 
             <p className="mt-4 text-[15px] leading-6 text-emerald-50/95 lg:max-w-[720px] lg:text-[17px] lg:leading-7">
-              Compare visitor-friendly links golf near Dublin, from classic
-              coastal courses to famous Irish links within day-trip range. Add
-              your preferred courses to a free itinerary, share the trip and
-              vote with your group.
+              Explore{" "}
+              <strong>
+                {courseCount} visitor-friendly links golf courses
+              </strong>{" "}
+              within {dublinRadiusKm} km of Dublin, with clear visitor access
+              and pricing information.
+            </p>
+
+            <p className="mt-3 text-[15px] leading-6 text-emerald-50/95 lg:max-w-[720px] lg:text-[17px] lg:leading-7">
+              Compare your options, add courses to a free golf-trip itinerary,
+              then share it with your group and vote on where to play.
             </p>
 
             <p className="mt-4 text-[13px] font-bold uppercase tracking-[0.14em] text-emerald-200">
