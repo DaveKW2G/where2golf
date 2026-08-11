@@ -5,23 +5,34 @@ import CourseCard from "@/components/CourseCard";
 
 const siteUrl = "https://guestplaygolf.com";
 
-export const metadata: Metadata = {
-  metadataBase: new URL(siteUrl),
-  title: "Irish Links Golf | Courses & Free Golf Trip Planner",
-  description:
-    "Explore Irish Links golf courses where visiting golfers can play. Compare guest access, price bands and course details, then build a free Ireland golf itinerary to share and vote on with your group.",
-  alternates: {
-    canonical: "/irish-links-golf",
-  },
-  openGraph: {
-    title: "Irish Links Golf | Courses & Free Golf Trip Planner | GuestPlayGolf",
-    description:
-      "Compare visitor-friendly Irish Links golf courses, build a free itinerary, share your trip and vote on courses with your group.",
-    url: `${siteUrl}/irish-links-golf`,
-    siteName: "GuestPlayGolf",
-    type: "website",
-  },
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const supabase = await createClient();
+  const { count } = await supabase
+    .from("courses")
+    .select("id", { count: "exact", head: true })
+    .ilike("country", "Ireland")
+    .ilike("course_type", "%Links%");
+
+  const courseCount = count ?? 0;
+  const title = `${courseCount} Links Golf Courses in Ireland | Access & Prices`;
+  const description = `Explore ${courseCount} links golf courses across Ireland and Northern Ireland. Compare visitor access, price bands and course details, then build a free golf-trip itinerary to share and vote on with your group.`;
+
+  return {
+    metadataBase: new URL(siteUrl),
+    title,
+    description,
+    alternates: {
+      canonical: "/irish-links-golf",
+    },
+    openGraph: {
+      title: `${title} | GuestPlayGolf`,
+      description,
+      url: `${siteUrl}/irish-links-golf`,
+      siteName: "GuestPlayGolf",
+      type: "website",
+    },
+  };
+}
 
 const featuredRegions = [
   "Dublin",
@@ -137,10 +148,16 @@ export default async function IrishLinksGolfPage() {
             </h1>
 
             <p className="mt-4 text-[15px] leading-6 text-emerald-50/95 lg:max-w-[740px] lg:text-[17px] lg:leading-7">
-              Compare Irish Links golf courses where visiting golfers can play.
-              Check guest access, price bands and course details, then add your
-              preferred courses to a free itinerary, share the trip and vote
-              with your group.
+              <strong>
+                Explore {courseCount} links golf courses across Ireland and
+                Northern Ireland, with clear visitor access and pricing
+                information for every course.
+              </strong>
+            </p>
+
+            <p className="mt-3 text-[15px] leading-6 text-emerald-50/95 lg:max-w-[740px] lg:text-[17px] lg:leading-7">
+              Compare your options, add courses to a free golf-trip itinerary,
+              then share it with your group and vote on where to play.
             </p>
 
             <p className="mt-4 text-[13px] font-bold uppercase tracking-[0.14em] text-emerald-200">
