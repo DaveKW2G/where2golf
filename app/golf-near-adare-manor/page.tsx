@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { cache } from "react";
 import { createClient } from "@/lib/supabase/server";
 import CourseCard from "@/components/CourseCard";
 
@@ -9,25 +10,6 @@ const siteUrl = "https://guestplaygolf.com";
 const adareManorLat = 52.5627;
 const adareManorLng = -8.7944;
 const adareManorRadiusKm = 80;
-
-export const metadata: Metadata = {
-  metadataBase: new URL(siteUrl),
-  title: "Golf Near Adare Manor | Courses & Free Golf Trip Planner",
-  description:
-    "Find the best golf near Adare Manor for visiting golfers. Compare Ryder Cup region golf, west of Ireland links and parkland courses, then use our free golf trip planner.",
-  alternates: {
-    canonical: "/golf-near-adare-manor",
-  },
-  openGraph: {
-    title:
-      "Golf Near Adare Manor | Courses & Free Golf Trip Planner | GuestPlayGolf",
-    description:
-      "Compare visitor-friendly golf near Adare Manor, build a free golf itinerary, share your trip and vote on courses with your group.",
-    url: `${siteUrl}/golf-near-adare-manor`,
-    siteName: "GuestPlayGolf",
-    type: "website",
-  },
-};
 
 function toRad(value: number) {
   return (value * Math.PI) / 180;
@@ -54,6 +36,59 @@ function getDistanceKm(
   const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
 
   return earthRadiusKm * c;
+}
+
+const getGolfNearAdareManor = cache(async () => {
+  const supabase = await createClient();
+
+  const { data: courses, error } = await supabase
+    .from("courses")
+    .select(
+      "id, country, course_name, town, region, holes, independent_guest_days, season, price_range, course_image, handicap_required, max_handicap, latitude, longitude, course_type",
+    )
+    .eq("country", "Ireland")
+    .not("latitude", "is", null)
+    .not("longitude", "is", null)
+    .limit(300);
+
+  const coursesWithDistance =
+    courses
+      ?.map((course) => ({
+        ...course,
+        distance: getDistanceKm(
+          adareManorLat,
+          adareManorLng,
+          course.latitude,
+          course.longitude,
+        ),
+      }))
+      .filter((course) => course.distance <= adareManorRadiusKm)
+      .sort((a, b) => (a.distance ?? 9999) - (b.distance ?? 9999)) || [];
+
+  return { coursesWithDistance, error };
+});
+
+export async function generateMetadata(): Promise<Metadata> {
+  const { coursesWithDistance } = await getGolfNearAdareManor();
+  const courseCount = coursesWithDistance.length;
+  const title = `${courseCount} Golf Courses Near Adare Manor | Access & Prices`;
+  const description = `Explore ${courseCount} visitor-friendly golf courses within ${adareManorRadiusKm} km of Adare Manor, with clear visitor access and pricing information. Build a free itinerary, share it and vote with your group.`;
+
+  return {
+    metadataBase: new URL(siteUrl),
+    title,
+    description,
+    alternates: {
+      canonical: "/golf-near-adare-manor",
+    },
+    openGraph: {
+      title,
+      description,
+      url: `${siteUrl}/golf-near-adare-manor`,
+      siteName: "GuestPlayGolf",
+      type: "website",
+    },
+  };
 }
 
 function RegionalGolfLinks() {
@@ -116,35 +151,7 @@ function RegionalGolfLinks() {
 }
 
 export default async function GolfNearAdareManorPage() {
-  const supabase = await createClient();
-
-  const { data: courses, error } = await supabase
-    .from("courses")
-    .select(
-      "id, country, course_name, town, region, holes, independent_guest_days, season, price_range, course_image, handicap_required, max_handicap, latitude, longitude, course_type",
-    )
-    .eq("country", "Ireland")
-    .not("latitude", "is", null)
-    .not("longitude", "is", null)
-    .limit(300);
-
-  const coursesWithDistance =
-    courses
-      ?.map((course) => {
-        const distance = getDistanceKm(
-          adareManorLat,
-          adareManorLng,
-          course.latitude,
-          course.longitude,
-        );
-
-        return {
-          ...course,
-          distance,
-        };
-      })
-      .filter((course) => course.distance <= adareManorRadiusKm)
-      .sort((a, b) => (a.distance ?? 9999) - (b.distance ?? 9999)) || [];
+  const { coursesWithDistance, error } = await getGolfNearAdareManor();
 
   const courseCount = coursesWithDistance.length;
 
@@ -166,10 +173,14 @@ export default async function GolfNearAdareManorPage() {
             </h1>
 
             <p className="mt-4 text-[15px] leading-6 text-emerald-50/95 lg:max-w-[720px] lg:text-[17px] lg:leading-7">
-              Compare visitor-friendly golf near Adare Manor, from Ryder Cup
-              region parkland and castle estate golf to famous west of Ireland
-              links. Add your preferred courses to a free itinerary, share the
-              trip and vote with your group.
+              Explore <strong>{courseCount} visitor-friendly golf courses</strong>{" "}
+              within {adareManorRadiusKm} km of Adare Manor, with clear visitor
+              access and pricing information.
+            </p>
+
+            <p className="mt-3 text-[15px] leading-6 text-emerald-50/95 lg:max-w-[720px] lg:text-[17px] lg:leading-7">
+              Compare your options, add courses to a free golf-trip itinerary,
+              then share it with your group and vote on where to play.
             </p>
 
             <p className="mt-4 text-[13px] font-bold uppercase tracking-[0.14em] text-emerald-200">
