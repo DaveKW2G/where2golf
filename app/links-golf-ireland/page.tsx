@@ -5,6 +5,13 @@ import CourseCard from "@/components/CourseCard";
 
 const siteUrl = "https://guestplaygolf.com";
 
+function normalizeRegion(value: string | null) {
+  return (value ?? "")
+    .normalize("NFKD")
+    .replace(/[^a-zA-Z]/g, "")
+    .toLowerCase();
+}
+
 export async function generateMetadata(): Promise<Metadata> {
   const supabase = await createClient();
 
@@ -164,15 +171,18 @@ export default async function LinksGolfIrelandPage() {
     .limit(300);
 
   const linksCourses = courses || [];
-
   const courseCount = linksCourses.length;
 
   const groupedRegions = linksRegions.map((group) => ({
     ...group,
 
-    courses: linksCourses.filter((course) =>
-      group.counties.includes((course.region ?? "").trim()),
-    ),
+    courses: linksCourses.filter((course) => {
+      const courseRegion = normalizeRegion(course.region);
+
+      return group.counties.some(
+        (county) => normalizeRegion(county) === courseRegion,
+      );
+    }),
   }));
 
   return (
@@ -210,7 +220,7 @@ export default async function LinksGolfIrelandPage() {
             </p>
 
             <p className="mt-4 text-[13px] font-bold uppercase tracking-[0.14em] text-emerald-200">
-              Plan. Share. Vote. Play.
+              Plan. Share. Vote. Golf.
             </p>
 
             <div className="mt-5 flex flex-wrap gap-3">
