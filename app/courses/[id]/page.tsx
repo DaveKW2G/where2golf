@@ -316,7 +316,8 @@ function getPlannerHrefFromSearchParams(
 ) {
   const country = getCountryFromSearchParams(searchParams, defaultHref);
   const tripId = getSingleParam(searchParams.tripId);
-  const basePath = country === "Ireland" ? "/ireland/planner" : "/switzerland/planner";
+  const basePath =
+    country === "Ireland" ? "/ireland/planner" : "/switzerland/planner";
 
   if (isValidTripId(tripId)) {
     return `${basePath}?tripId=${encodeURIComponent(tripId as string)}`;
@@ -340,7 +341,7 @@ function getFallbackHrefFromSource(source?: string) {
 
   const sourceFallbacks: Record<string, string> = {
     ireland: "/ireland",
-    "irish-links-golf": "/irish-links-golf",
+    "links-golf-ireland": "/links-golf-ireland",
     "links-golf-near-dublin": "/links-golf-near-dublin",
     "golf-near-dublin": "/golf-near-dublin",
     "golf-near-cork": "/golf-near-cork",
@@ -463,10 +464,10 @@ function getNearbyIrelandGuideLinks(course: Course): NearbyGuideLink[] {
 
   if (isLinksCourse) {
     nearbyLinks.unshift({
-      title: "Irish Links Golf",
-      href: "/irish-links-golf",
+      title: "Links Golf in Ireland",
+      href: "/links-golf-ireland",
       description:
-        "Compare Links golf courses across Ireland and add your preferred options to your itinerary.",
+        "Compare links golf courses across Ireland and add your preferred options to your itinerary.",
     });
   }
 
