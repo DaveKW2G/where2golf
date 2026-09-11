@@ -30,10 +30,10 @@ const popularDestinations = [
       "Compare top links, parkland and resort courses within easy reach of Ireland’s main international gateway.",
   },
   {
-    title: "Irish Links Golf",
-    href: "/irish-links-golf",
+    title: "Links Golf in Ireland",
+    href: "/links-golf-ireland",
     description:
-      "Explore Links golf courses across Ireland, compare guest access and add courses to your free itinerary.",
+      "Explore links golf courses across Ireland, compare guest access and add courses to your free itinerary.",
   },
   {
     title: "Best Links Golf Near Dublin",
@@ -303,10 +303,10 @@ export default function IrelandPage() {
                 Links courses are rare globally, and Ireland has one of the
                 strongest concentrations anywhere in the world.{" "}
                 <Link
-                  href="/irish-links-golf"
+                  href="/links-golf-ireland"
                   className="font-semibold text-emerald-800 no-underline hover:text-emerald-900"
                 >
-                  Explore Irish Links Golf
+                  Explore Links Golf in Ireland
                 </Link>
                 .
               </p>
@@ -418,10 +418,10 @@ export default function IrelandPage() {
                   </p>
 
                   <Link
-                    href="/irish-links-golf"
+                    href="/links-golf-ireland"
                     className="mt-4 inline-block text-sm font-semibold text-emerald-800 no-underline hover:text-emerald-900"
                   >
-                    Explore Irish Links Golf →
+                    Explore Links Golf in Ireland →
                   </Link>
                 </div>
 
