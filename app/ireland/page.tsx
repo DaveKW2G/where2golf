@@ -54,6 +54,18 @@ const popularDestinations = [
       "Discover coastal, links and parkland golf across Cork and the south of Ireland.",
   },
   {
+    title: "Golf Courses in Cork",
+    href: "/golf-courses-cork",
+    description:
+      "Explore 23 visitor-friendly golf courses across County Cork and compare access, prices and course types.",
+  },
+  {
+    title: "Golf Courses in Donegal",
+    href: "/golf-courses-donegal",
+    description:
+      "Explore 8 visitor-friendly golf courses across County Donegal and plan your golf trip around Ireland’s northwest coast.",
+  },
+  {
     title: "Golf Near Galway",
     href: "/golf-near-galway",
     description:
