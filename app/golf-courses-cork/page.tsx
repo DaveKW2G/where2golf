@@ -186,27 +186,31 @@ export default async function GolfCoursesCorkPage() {
             </p>
 
             <h2 className="mt-1 text-[21px] font-semibold text-slate-900 lg:text-[24px]">
-              Where to play golf in Cork
+              Golf in Cork — Home of the Langer
             </h2>
 
             <p className="mt-4 text-sm leading-7 text-slate-600">
-              County Cork offers a broad mix of golf, from coastal and links
-              layouts to traditional parkland clubs and resort courses. This
-              page focuses specifically on courses located within County Cork,
-              rather than courses selected by driving distance from Cork city.
+              County Cork is a brilliant base for a golf trip — and there is
+              plenty going on when the clubs are back in the bag. Cork City is
+              a lively place to spend a few nights, with a great food scene,
+              pubs, music and plenty of character. Head south towards Kinsale
+              or further west and you have some of Ireland&apos;s most beautiful
+              coastal towns and scenery to explore.
             </p>
 
             <p className="mt-4 text-sm leading-7 text-slate-600">
-              That makes it useful for golfers who want to see the complete Cork
-              golf inventory in one place. Compare independent visitor access,
-              price bands and course type before deciding which courses fit your
-              itinerary.
+              Then there is West Cork — famous for its rugged coastline,
+              colourful towns, great food and slower pace of life. It is the
+              kind of place where the drive between golf courses can become as
+              memorable as the golf itself.
             </p>
 
             <p className="mt-4 text-sm leading-7 text-slate-600">
-              Cork city, Kinsale, the harbour area and West Cork can all form
-              part of a County Cork golf trip, giving visitors a mix of
-              locations and course styles without leaving the county.
+              The home of the Langers boasts {courseCount} visitor-friendly
+              golf courses on GuestPlayGolf, ranging from local parkland clubs
+              to resort golf and spectacular coastal courses. Compare where you
+              can play, what it costs and the type of course, then build the
+              ones you like into your Cork golf trip.
             </p>
 
             <div className="mt-6 grid gap-3 sm:grid-cols-3">
