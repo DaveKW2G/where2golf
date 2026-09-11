@@ -7,6 +7,7 @@ const siteUrl = "https://guestplaygolf.com";
 
 export async function generateMetadata(): Promise<Metadata> {
   const supabase = await createClient();
+
   const { count } = await supabase
     .from("courses")
     .select("id", { count: "exact", head: true })
@@ -14,16 +15,22 @@ export async function generateMetadata(): Promise<Metadata> {
     .ilike("course_type", "%Links%");
 
   const courseCount = count ?? 0;
+
   const title = `${courseCount} Links Golf Courses in Ireland | Access & Prices`;
+
   const description = `Explore ${courseCount} links golf courses across the island of Ireland. Compare visitor access, price bands and course details by region, then build a free golf-trip itinerary to share and vote on with your group.`;
 
   return {
     metadataBase: new URL(siteUrl),
+
     title,
+
     description,
+
     alternates: {
       canonical: "/links-golf-ireland",
     },
+
     openGraph: {
       title: `${title} | GuestPlayGolf`,
       description,
@@ -42,6 +49,7 @@ const linksRegions = [
     description:
       "Combine Dublin's famous links with courses along Ireland's east coast, from Louth to Wexford.",
   },
+
   {
     key: "northern-ireland",
     name: "Northern Ireland",
@@ -49,6 +57,7 @@ const linksRegions = [
     description:
       "Explore the celebrated links of the north coast and County Down, including some of Ireland's best-known championship courses.",
   },
+
   {
     key: "donegal-northwest",
     name: "Donegal & Northwest",
@@ -56,6 +65,7 @@ const linksRegions = [
     description:
       "Build a northwest route through Donegal, Sligo and Mayo, home to one of Ireland's strongest concentrations of coastal links.",
   },
+
   {
     key: "west",
     name: "West of Ireland",
@@ -63,6 +73,7 @@ const linksRegions = [
     description:
       "Pair the west coast scenery of Galway and Clare with established links such as Lahinch, Doonbeg and Connemara.",
   },
+
   {
     key: "southwest",
     name: "Southwest Ireland",
@@ -153,12 +164,14 @@ export default async function LinksGolfIrelandPage() {
     .limit(300);
 
   const linksCourses = courses || [];
+
   const courseCount = linksCourses.length;
 
   const groupedRegions = linksRegions.map((group) => ({
     ...group,
+
     courses: linksCourses.filter((course) =>
-      group.counties.includes(course.region ?? ""),
+      group.counties.includes((course.region ?? "").trim()),
     ),
   }));
 
@@ -166,7 +179,10 @@ export default async function LinksGolfIrelandPage() {
     <main className="min-h-screen overflow-x-hidden bg-stone-100 text-slate-800">
       <section className="bg-gradient-to-b from-emerald-950 via-emerald-900 to-emerald-800 px-5 pb-9 pt-6 text-white lg:pb-12 lg:pt-8">
         <div className="mx-auto max-w-[480px] lg:max-w-[1120px]">
-          <Link href="/ireland" className="text-sm text-white/90 no-underline">
+          <Link
+            href="/ireland"
+            className="text-sm text-white/90 no-underline"
+          >
             ← Ireland
           </Link>
 
@@ -242,7 +258,8 @@ export default async function LinksGolfIrelandPage() {
                 </div>
 
                 <p className="mt-1 text-xs leading-5 text-slate-500">
-                  See how independent guest access differs from course to course.
+                  See how independent guest access differs from course to
+                  course.
                 </p>
               </div>
 
@@ -325,7 +342,8 @@ export default async function LinksGolfIrelandPage() {
                 </Link>
 
                 <p className="mt-3 text-center text-xs leading-5 text-slate-600">
-                  Browse by region below and add your preferred courses as you go.
+                  Browse by region below and add your preferred courses as you
+                  go.
                 </p>
               </div>
             </div>
@@ -390,7 +408,9 @@ export default async function LinksGolfIrelandPage() {
                     <div>
                       <p className="text-[11px] font-bold uppercase tracking-[0.16em] text-emerald-700">
                         {group.courses.length}{" "}
-                        {group.courses.length === 1 ? "link course" : "links courses"}
+                        {group.courses.length === 1
+                          ? "links course"
+                          : "links courses"}
                       </p>
 
                       <h2 className="mt-1 text-xl font-bold text-slate-900 lg:text-2xl">
