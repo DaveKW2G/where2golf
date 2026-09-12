@@ -30,6 +30,12 @@ const popularDestinations = [
       "Compare top links, parkland and resort courses within easy reach of Ireland’s main international gateway.",
   },
   {
+    title: "Golf Courses in Dublin",
+    href: "/golf-courses-dublin",
+    description:
+      "Explore 14 visitor-friendly golf courses across County Dublin and compare access, prices and course types.",
+  },
+  {
     title: "Links Golf in Ireland",
     href: "/links-golf-ireland",
     description:
@@ -58,6 +64,12 @@ const popularDestinations = [
     href: "/golf-courses-cork",
     description:
       "Explore 23 visitor-friendly golf courses across County Cork and compare access, prices and course types.",
+  },
+  {
+    title: "Golf Courses in Kerry",
+    href: "/golf-courses-kerry",
+    description:
+      "Explore visitor-friendly golf courses across County Kerry, from Killarney and the Ring of Kerry to the Atlantic coast.",
   },
   {
     title: "Golf Courses in Donegal",
