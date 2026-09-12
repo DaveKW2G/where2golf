@@ -104,6 +104,13 @@ function RegionalGolfLinks() {
 
       <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
         <Link
+          href="/golf-courses-dublin"
+          className="rounded-2xl bg-slate-50 px-4 py-3 text-sm font-semibold text-slate-800 no-underline ring-1 ring-slate-200 transition hover:bg-slate-100"
+        >
+          Golf Courses in Dublin →
+        </Link>
+
+        <Link
           href="/links-golf-near-dublin"
           className="rounded-2xl bg-emerald-50 px-4 py-3 text-sm font-semibold text-emerald-900 no-underline ring-1 ring-emerald-100 transition hover:bg-emerald-100"
         >
