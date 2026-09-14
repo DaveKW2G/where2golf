@@ -186,7 +186,7 @@ export default async function GolfCoursesGalwayPage() {
             </p>
 
             <h2 className="mt-1 text-[21px] font-semibold text-slate-900 lg:text-[24px]">
-              Golf in Galway — The City of the Tribes
+              The Tribesmen
             </h2>
 
             <p className="mt-4 text-sm leading-7 text-slate-600">
@@ -204,11 +204,11 @@ export default async function GolfCoursesGalwayPage() {
             </p>
 
             <p className="mt-4 text-sm leading-7 text-slate-600">
-              The City of the Tribes has {courseCount} visitor-friendly golf
-              courses listed on GuestPlayGolf, from Galway Golf Club and Galway
-              Bay to parkland clubs across the county. Compare where you can play,
-              what it costs and the type of course, then build the ones you like
-              into your Galway golf trip.
+              County Galway has {courseCount} visitor-friendly golf courses
+              listed on GuestPlayGolf, from Galway Golf Club and Galway Bay to
+              parkland clubs across the county. Compare where you can play, what
+              it costs and the type of course, then build the ones you like into
+              your Galway golf trip.
             </p>
 
             <div className="mt-6 grid gap-3 sm:grid-cols-3">
