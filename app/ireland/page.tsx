@@ -22,7 +22,52 @@ export const metadata: Metadata = {
   },
 };
 
-const popularDestinations = [
+const countyGuides = [
+  {
+    title: "Golf Courses in County Dublin",
+    href: "/golf-courses-dublin",
+    description:
+      "Explore courses across County Dublin and compare visitor access, prices and course types.",
+  },
+  {
+    title: "Golf Courses in County Cork",
+    href: "/golf-courses-cork",
+    description:
+      "Find parkland, resort and coastal golf across County Cork, from the city to West Cork.",
+  },
+  {
+    title: "Golf Courses in County Kerry",
+    href: "/golf-courses-kerry",
+    description:
+      "Explore golf around Killarney, Dingle and the Ring of Kerry, with links on the Atlantic coast.",
+  },
+  {
+    title: "Golf Courses in County Clare",
+    href: "/golf-courses-clare",
+    description:
+      "Find courses across County Clare, including Lahinch and Doonbeg, and compare visitor access.",
+  },
+  {
+    title: "Golf Courses in County Galway",
+    href: "/golf-courses-galway",
+    description:
+      "Compare County Galway courses from the city and Galway Bay to Connemara.",
+  },
+  {
+    title: "Golf Courses in County Donegal",
+    href: "/golf-courses-donegal",
+    description:
+      "Explore visitor-friendly links golf along County Donegal’s Atlantic coast.",
+  },
+  {
+    title: "Golf Courses in County Down",
+    href: "/golf-courses-down",
+    description:
+      "Discover County Down golf, from Royal County Down and Ardglass to Rory McIlroy’s home club at Holywood.",
+  },
+];
+
+const golfNearGuides = [
   {
     title: "Golf Near Dublin",
     href: "/golf-near-dublin",
@@ -30,52 +75,10 @@ const popularDestinations = [
       "Compare top links, parkland and resort courses within easy reach of Ireland’s main international gateway.",
   },
   {
-    title: "Golf Courses in Dublin",
-    href: "/golf-courses-dublin",
-    description:
-      "Explore 14 visitor-friendly golf courses across County Dublin and compare access, prices and course types.",
-  },
-  {
-    title: "Links Golf in Ireland",
-    href: "/links-golf-ireland",
-    description:
-      "Explore links golf courses across Ireland, compare guest access and add courses to your free itinerary.",
-  },
-  {
-    title: "Best Links Golf Near Dublin",
-    href: "/links-golf-near-dublin",
-    description:
-      "Explore classic Irish links golf near Dublin, including accessible coastal courses and bucket-list venues.",
-  },
-  {
-    title: "Golf Near Adare Manor",
-    href: "/golf-near-adare-manor",
-    description:
-      "Plan golf around Adare Manor and the Ryder Cup region, with access to Clare, Kerry and the west coast.",
-  },
-  {
     title: "Golf Near Cork",
     href: "/golf-near-cork",
     description:
       "Discover coastal, links and parkland golf across Cork and the south of Ireland.",
-  },
-  {
-    title: "Golf Courses in Cork",
-    href: "/golf-courses-cork",
-    description:
-      "Explore 23 visitor-friendly golf courses across County Cork and compare access, prices and course types.",
-  },
-  {
-    title: "Golf Courses in Kerry",
-    href: "/golf-courses-kerry",
-    description:
-      "Explore visitor-friendly golf courses across County Kerry, from Killarney and the Ring of Kerry to the Atlantic coast.",
-  },
-  {
-    title: "Golf Courses in Donegal",
-    href: "/golf-courses-donegal",
-    description:
-      "Explore 8 visitor-friendly golf courses across County Donegal and plan your golf trip around Ireland’s northwest coast.",
   },
   {
     title: "Golf Near Galway",
@@ -88,6 +91,27 @@ const popularDestinations = [
     href: "/golf-near-belfast",
     description:
       "Explore Northern Ireland golf, including world-famous links and strong visitor options around Belfast.",
+  },
+  {
+    title: "Golf Near Adare Manor",
+    href: "/golf-near-adare-manor",
+    description:
+      "Plan golf around Adare Manor and the Ryder Cup region, with access to Clare, Kerry and the west coast.",
+  },
+];
+
+const linksGolfGuides = [
+  {
+    title: "Links Golf in Ireland",
+    href: "/links-golf-ireland",
+    description:
+      "Browse links courses across Ireland and compare where visitors can play.",
+  },
+  {
+    title: "Best Links Golf Near Dublin",
+    href: "/links-golf-near-dublin",
+    description:
+      "Explore coastal links within reach of Dublin, from local clubs to bucket-list courses.",
   },
 ];
 
@@ -368,34 +392,103 @@ export default function IrelandPage() {
 
             <section className="mt-6 rounded-3xl bg-white p-5 shadow-sm ring-1 ring-slate-200/70 lg:p-7">
               <p className="text-[12px] font-semibold uppercase tracking-[0.18em] text-emerald-800">
-                Regional golf guides
+                County golf guides
               </p>
 
               <h2 className="mt-1 text-[21px] font-semibold text-slate-900 lg:text-[24px]">
-                Golf near major Irish destinations
+                Explore golf by county
               </h2>
 
               <p className="mt-3 text-sm leading-6 text-slate-600">
-                Compare the strongest golf regions, major airports and popular
-                travel bases before adding courses to your itinerary.
+                Browse courses located within a county and compare visitor access
+                and prices before planning your trip.
               </p>
 
               <div className="mt-5 grid gap-4 sm:grid-cols-2">
-                {popularDestinations.map((destination) => (
+                {countyGuides.map((county) => (
+                  <Link
+                    key={county.href}
+                    href={county.href}
+                    className="group block rounded-3xl bg-emerald-800 px-5 py-5 text-white no-underline shadow-sm transition hover:-translate-y-0.5 hover:bg-emerald-900 hover:shadow-md"
+                  >
+                    <div className="text-[17px] font-semibold">
+                      {county.title}
+                    </div>
+
+                    <p className="mt-2 text-sm leading-6 text-white/80">
+                      {county.description}
+                    </p>
+
+                    <p className="mt-4 text-sm font-semibold text-emerald-100">
+                      Explore courses →
+                    </p>
+                  </Link>
+                ))}
+              </div>
+            </section>
+
+            <section className="mt-6 rounded-3xl bg-white p-5 shadow-sm ring-1 ring-slate-200/70 lg:p-7">
+              <p className="text-[12px] font-semibold uppercase tracking-[0.18em] text-emerald-800">
+                Golf trip bases
+              </p>
+
+              <h2 className="mt-1 text-[21px] font-semibold text-slate-900 lg:text-[24px]">
+                Plan around a base
+              </h2>
+
+              <p className="mt-3 text-sm leading-6 text-slate-600">
+                These guides include courses within driving distance of a base,
+                including options across county boundaries.
+              </p>
+
+              <div className="mt-5 grid gap-4 sm:grid-cols-2">
+                {golfNearGuides.map((destination) => (
                   <Link
                     key={destination.href}
                     href={destination.href}
-                    className="group block rounded-3xl bg-emerald-800 px-5 py-5 text-white no-underline shadow-sm transition hover:-translate-y-0.5 hover:bg-emerald-900 hover:shadow-md"
+                    className="group block rounded-3xl bg-stone-50 px-5 py-5 text-slate-900 no-underline ring-1 ring-slate-200 transition hover:-translate-y-0.5 hover:bg-stone-100 hover:shadow-md"
                   >
                     <div className="text-[17px] font-semibold">
                       {destination.title}
                     </div>
 
-                    <p className="mt-2 text-sm leading-6 text-white/80">
+                    <p className="mt-2 text-sm leading-6 text-slate-600">
                       {destination.description}
                     </p>
 
-                    <p className="mt-4 text-sm font-semibold text-emerald-100">
+                    <p className="mt-4 text-sm font-semibold text-emerald-800">
+                      Explore courses →
+                    </p>
+                  </Link>
+                ))}
+              </div>
+            </section>
+
+            <section className="mt-6 rounded-3xl bg-white p-5 shadow-sm ring-1 ring-slate-200/70 lg:p-7">
+              <p className="text-[12px] font-semibold uppercase tracking-[0.18em] text-emerald-800">
+                Links golf guides
+              </p>
+
+              <h2 className="mt-1 text-[21px] font-semibold text-slate-900 lg:text-[24px]">
+                Explore links golf
+              </h2>
+
+              <div className="mt-5 grid gap-4 sm:grid-cols-2">
+                {linksGolfGuides.map((guide) => (
+                  <Link
+                    key={guide.href}
+                    href={guide.href}
+                    className="group block rounded-3xl bg-stone-50 px-5 py-5 text-slate-900 no-underline ring-1 ring-slate-200 transition hover:-translate-y-0.5 hover:bg-stone-100 hover:shadow-md"
+                  >
+                    <div className="text-[17px] font-semibold">
+                      {guide.title}
+                    </div>
+
+                    <p className="mt-2 text-sm leading-6 text-slate-600">
+                      {guide.description}
+                    </p>
+
+                    <p className="mt-4 text-sm font-semibold text-emerald-800">
                       Explore courses →
                     </p>
                   </Link>
