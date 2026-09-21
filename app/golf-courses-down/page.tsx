@@ -32,7 +32,7 @@ export async function generateMetadata(): Promise<Metadata> {
 
   const title = `${courseCount} Golf Courses in County Down | Access & Prices`;
 
-  const description = `Explore ${courseCount} visitor-friendly golf courses in County Down, Northern Ireland, from Royal County Down to Ardglass and clubs near Belfast. Compare access and prices.`;
+  const description = `Explore ${courseCount} visitor-friendly golf courses in County Down, Northern Ireland, from Royal County Down and Ardglass to Holywood. Compare visitor access and prices.`;
 
   return {
     metadataBase: new URL(siteUrl),
@@ -150,13 +150,13 @@ export default async function GolfCoursesDownPage() {
             <p className="mt-4 text-[15px] leading-6 text-emerald-50/95 lg:max-w-[740px] lg:text-[17px] lg:leading-7">
               Explore{" "}
               <strong>{courseCount} visitor-friendly golf courses</strong> in
-              County Down, Northern Ireland, with visitor access, prices and course
-              details in one place.
+              County Down, Northern Ireland, with visitor access, prices and
+              course details in one place.
             </p>
 
             <p className="mt-3 text-[15px] leading-6 text-emerald-50/95 lg:max-w-[740px] lg:text-[17px] lg:leading-7">
-              From the Belfast area to Newcastle and the Ards coast, pick your rounds
-              and add them to a free golf-trip itinerary.
+              From Newcastle to Ardglass and Holywood, pick your rounds and
+              add them to a free golf-trip itinerary.
             </p>
 
             <p className="mt-4 text-[13px] font-bold uppercase tracking-[0.14em] text-emerald-200">
@@ -186,28 +186,29 @@ export default async function GolfCoursesDownPage() {
             </p>
 
             <h2 className="mt-1 text-[21px] font-semibold text-slate-900 lg:text-[24px]">
-              Golf in County Down — from Belfast to the Mournes
+              Golf in County Down
             </h2>
 
             <p className="mt-4 text-sm leading-7 text-slate-600">
-              Flying into Belfast City Airport or Belfast International? You
-              can spend a night in Belfast, see the Titanic Quarter and then
-              head out to the golf. Holywood and Belvoir Park make sense if
-              you want to play close to the city.
+              County Down has plenty to offer for a golf trip. Royal County
+              Down in Newcastle is the best-known course, Ardglass brings you
+              out to the coast, and there are more options around Bangor and
+              Holywood. Holywood Golf Club is also where Rory McIlroy grew up
+              playing — a draw in its own right for many golfers.
             </p>
 
             <p className="mt-4 text-sm leading-7 text-slate-600">
-              Further down the coast, Royal County Down sits beside the beach
-              in Newcastle, with the Mourne Mountains behind it. Ardglass is
-              another one to look at if you like your golf by the sea. Leave
-              room for a walk in the Mournes or a drive around Strangford
-              Lough while you are here.
+              There is plenty to do away from the courses. Newcastle sits at
+              the foot of the Mourne Mountains, while Strangford Lough and
+              Castle Ward are worth exploring if you have a day between
+              rounds. The mix of golf, coast and mountains makes Down a good
+              place to stay for more than a night.
             </p>
 
             <p className="mt-4 text-sm leading-7 text-slate-600">
-              There are {courseCount} visitor-friendly County Down courses
-              listed on GuestPlayGolf. Check access and price bands, choose
-              the ones that suit your trip and put them into your itinerary.
+              It&apos;s easy to reach from Belfast&apos;s airports or by driving
+              up from Dublin. Once you&apos;re there, the courses below will
+              help you compare visitor access and prices and plan your rounds.
             </p>
 
             <div className="mt-6 grid gap-3 sm:grid-cols-3">
@@ -316,7 +317,7 @@ export default async function GolfCoursesDownPage() {
               </p>
 
               <h2 className="mt-1 text-xl font-bold text-slate-900 lg:text-2xl">
-                {courseCount} golf courses in Down
+                {courseCount} golf courses in County Down
               </h2>
             </div>
 
