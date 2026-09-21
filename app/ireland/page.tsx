@@ -65,6 +65,18 @@ const countyGuides = [
     description:
       "Discover County Down golf, from Royal County Down and Ardglass to Rory McIlroy’s home club at Holywood.",
   },
+  {
+    title: "Golf Courses in County Wicklow",
+    href: "/golf-courses-wicklow",
+    description:
+      "Explore golf around Powerscourt, Druids Glen and Arklow, with the Wicklow Mountains and coast nearby.",
+  },
+  {
+    title: "Golf Courses in County Kildare",
+    href: "/golf-courses-kildare",
+    description:
+      "Compare rounds at The K Club, Carton House and Moyvalley, all within easy reach of Dublin.",
+  },
 ];
 
 const golfNearGuides = [
