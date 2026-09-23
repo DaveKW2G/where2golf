@@ -341,6 +341,15 @@ function getFallbackHrefFromSource(source?: string) {
 
   const sourceFallbacks: Record<string, string> = {
     ireland: "/ireland",
+    "golf-courses-cork": "/golf-courses-cork",
+    "golf-courses-donegal": "/golf-courses-donegal",
+    "golf-courses-dublin": "/golf-courses-dublin",
+    "golf-courses-kerry": "/golf-courses-kerry",
+    "golf-courses-clare": "/golf-courses-clare",
+    "golf-courses-galway": "/golf-courses-galway",
+    "golf-courses-down": "/golf-courses-down",
+    "golf-courses-wicklow": "/golf-courses-wicklow",
+    "golf-courses-kildare": "/golf-courses-kildare",
     "links-golf-ireland": "/links-golf-ireland",
     "links-golf-near-dublin": "/links-golf-near-dublin",
     "golf-near-dublin": "/golf-near-dublin",
