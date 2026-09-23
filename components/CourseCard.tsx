@@ -195,7 +195,17 @@ export default function CourseCard({
 
   const sourceReturnTo: Record<string, string> = {
     'irish-links-golf': '/irish-links-golf',
+    'links-golf-ireland': '/links-golf-ireland',
     'links-golf-near-dublin': '/links-golf-near-dublin',
+    'golf-courses-cork': '/golf-courses-cork',
+    'golf-courses-donegal': '/golf-courses-donegal',
+    'golf-courses-dublin': '/golf-courses-dublin',
+    'golf-courses-kerry': '/golf-courses-kerry',
+    'golf-courses-clare': '/golf-courses-clare',
+    'golf-courses-galway': '/golf-courses-galway',
+    'golf-courses-down': '/golf-courses-down',
+    'golf-courses-wicklow': '/golf-courses-wicklow',
+    'golf-courses-kildare': '/golf-courses-kildare',
     'golf-near-dublin': '/golf-near-dublin',
     'golf-near-cork': '/golf-near-cork',
     'golf-near-galway': '/golf-near-galway',
