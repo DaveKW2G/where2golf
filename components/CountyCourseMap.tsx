@@ -1,5 +1,7 @@
 "use client";
 
+import "leaflet/dist/leaflet.css";
+
 import Link from "next/link";
 import { useEffect } from "react";
 import {
@@ -28,52 +30,6 @@ type CountyCourseMapProps = {
   initialCenter: [number, number];
 };
 
-function RefreshMapSize() {
-  const map = useMap();
-
-  useEffect(() => {
-    function refresh() {
-      map.invalidateSize({
-        animate: false,
-        pan: false,
-      });
-    }
-
-    const frame =
-      window.requestAnimationFrame(refresh);
-
-    const timerOne = window.setTimeout(
-      refresh,
-      150,
-    );
-
-    const timerTwo = window.setTimeout(
-      refresh,
-      500,
-    );
-
-    const timerThree = window.setTimeout(
-      refresh,
-      1000,
-    );
-
-    window.addEventListener("resize", refresh);
-
-    return () => {
-      window.cancelAnimationFrame(frame);
-      window.clearTimeout(timerOne);
-      window.clearTimeout(timerTwo);
-      window.clearTimeout(timerThree);
-      window.removeEventListener(
-        "resize",
-        refresh,
-      );
-    };
-  }, [map]);
-
-  return null;
-}
-
 function FitCourses({
   courses,
   initialCenter,
@@ -85,10 +41,7 @@ function FitCourses({
 
   useEffect(() => {
     const timer = window.setTimeout(() => {
-      map.invalidateSize({
-        animate: false,
-        pan: false,
-      });
+      map.invalidateSize();
 
       const points = courses
         .map((course) => {
@@ -102,10 +55,7 @@ function FitCourses({
             return null;
           }
 
-          return [lat, lng] as [
-            number,
-            number,
-          ];
+          return [lat, lng] as [number, number];
         })
         .filter(
           (
@@ -128,7 +78,7 @@ function FitCourses({
         padding: [30, 30],
         maxZoom: 11,
       });
-    }, 200);
+    }, 100);
 
     return () => {
       window.clearTimeout(timer);
@@ -158,8 +108,8 @@ export default function CountyCourseMap({
   if (mappedCourses.length === 0) {
     return (
       <div className="rounded-3xl bg-white p-6 text-center text-sm text-slate-600 shadow-sm ring-1 ring-slate-200/70">
-        Map locations are not currently
-        available for these courses.
+        Map locations are not currently available for
+        these courses.
       </div>
     );
   }
@@ -180,10 +130,8 @@ export default function CountyCourseMap({
       >
         <TileLayer
           attribution="&copy; OpenStreetMap contributors"
-          url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+          url="https://tile.openstreetmap.org/{z}/{x}/{y}.png"
         />
-
-        <RefreshMapSize />
 
         <FitCourses
           courses={mappedCourses}
@@ -194,12 +142,11 @@ export default function CountyCourseMap({
           const lat = Number(course.latitude);
           const lng = Number(course.longitude);
 
-          const query =
-            new URLSearchParams({
-              country: "ireland",
-              source,
-              returnTo,
-            });
+          const query = new URLSearchParams({
+            country: "ireland",
+            source,
+            returnTo,
+          });
 
           return (
             <CircleMarker
@@ -227,9 +174,7 @@ export default function CountyCourseMap({
 
                   <div className="mt-2 flex flex-wrap gap-1 text-xs text-slate-600">
                     {course.course_type && (
-                      <span>
-                        {course.course_type}
-                      </span>
+                      <span>{course.course_type}</span>
                     )}
 
                     {course.holes && (
