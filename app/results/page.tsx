@@ -255,7 +255,25 @@ export default async function ResultsPage({ searchParams }: ResultsPageProps) {
 
   if (params.price) query = query.eq("price_range", params.price)
 
-  const { data: courses, error } = await query.limit(300)
+  // Load every match before applying the distance and handicap filters below.
+  // A stable order keeps courses from being skipped across database pages.
+  query = query.order("id", { ascending: true })
+  const pageSize = 300
+  const courses: NonNullable<Awaited<typeof query>["data"]> = []
+  let error: Awaited<typeof query>["error"] = null
+
+  for (let offset = 0; ; offset += pageSize) {
+    const page = await query.range(offset, offset + pageSize - 1)
+
+    if (page.error) {
+      error = page.error
+      courses.length = 0
+      break
+    }
+
+    courses.push(...(page.data ?? []))
+    if (!page.data || page.data.length < pageSize) break
+  }
 
   let sortedCourses = courses ? [...courses] : []
 
