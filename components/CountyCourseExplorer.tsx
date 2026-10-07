@@ -41,14 +41,6 @@ type CountyCourseExplorerProps = {
   initialCenter: [number, number];
 };
 
-const priceLabels: Record<string, string> = {
-  "€": "€0–50",
-  "€€": "€51–100",
-  "€€€": "€101–200",
-  "€€€€": "€201–300",
-  "€€€€€": "€300+",
-};
-
 const priceOrder = ["€", "€€", "€€€", "€€€€", "€€€€€"];
 
 function formatCourseType(value: string) {
@@ -174,7 +166,7 @@ export default function CountyCourseExplorer({
 
                 {availablePrices.map((value) => (
                   <option key={value} value={value}>
-                    {priceLabels[value] || value}
+                    {value}
                   </option>
                 ))}
               </select>
