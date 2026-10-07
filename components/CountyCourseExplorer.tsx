@@ -41,18 +41,45 @@ type CountyCourseExplorerProps = {
   initialCenter: [number, number];
 };
 
-const priceOrder = ["€", "€€", "€€€", "€€€€", "€€€€€"];
+const priceOptions = [
+  {
+    value: "€",
+    label: "€",
+  },
+  {
+    value: "€€",
+    label: "€€",
+  },
+  {
+    value: "€€€",
+    label: "€€€",
+  },
+  {
+    value: "€€€€",
+    label: "€€€€",
+  },
+  {
+    value: "€€€€€",
+    label: "€€€€€",
+  },
+];
 
-function formatCourseType(value: string) {
-  return value
-    .split(" ")
-    .map(
-      (word) =>
-        word.charAt(0).toUpperCase() +
-        word.slice(1).toLowerCase(),
-    )
-    .join(" ");
-}
+const courseTypeOptions = [
+  "Links",
+  "Parkland",
+  "Heathland",
+];
+
+const holesOptions = [
+  {
+    value: "9",
+    label: "9 holes",
+  },
+  {
+    value: "18",
+    label: "18 holes",
+  },
+];
 
 export default function CountyCourseExplorer({
   courses,
@@ -64,52 +91,6 @@ export default function CountyCourseExplorer({
   const [courseType, setCourseType] = useState("");
   const [holes, setHoles] = useState("");
   const [view, setView] = useState<"list" | "map">("list");
-
-  const availablePrices = useMemo(() => {
-    const values = Array.from(
-      new Set(
-        courses
-          .map((course) => course.price_range?.trim())
-          .filter((value): value is string => Boolean(value)),
-      ),
-    );
-
-    return values.sort((a, b) => {
-      const aIndex = priceOrder.indexOf(a);
-      const bIndex = priceOrder.indexOf(b);
-
-      if (aIndex === -1 && bIndex === -1) {
-        return a.localeCompare(b);
-      }
-
-      if (aIndex === -1) return 1;
-      if (bIndex === -1) return -1;
-
-      return aIndex - bIndex;
-    });
-  }, [courses]);
-
-  const availableTypes = useMemo(() => {
-    return Array.from(
-      new Set(
-        courses
-          .map((course) => course.course_type?.trim())
-          .filter((value): value is string => Boolean(value)),
-      ),
-    ).sort((a, b) => a.localeCompare(b));
-  }, [courses]);
-
-  const availableHoles = useMemo(() => {
-    return Array.from(
-      new Set(
-        courses
-          .map((course) =>
-            course.holes ? String(course.holes) : "",
-          )
-          .filter(Boolean),
-      ),
-    ).sort((a, b) => Number(a) - Number(b));
-  }, [courses]);
 
   const filteredCourses = useMemo(() => {
     return courses.filter((course) => {
@@ -130,7 +111,7 @@ export default function CountyCourseExplorer({
 
       if (
         holes &&
-        String(course.holes || "") !== holes
+        String(course.holes || "").trim() !== holes
       ) {
         return false;
       }
@@ -139,7 +120,10 @@ export default function CountyCourseExplorer({
     });
   }, [courses, price, courseType, holes]);
 
-  const hasFilters = Boolean(price || courseType || holes);
+  const hasFilters = Boolean(
+    price || courseType || holes,
+  );
+
   const returnTo = `/${source}`;
 
   function clearFilters() {
@@ -162,11 +146,16 @@ export default function CountyCourseExplorer({
                 }
                 className="mt-1 block w-full rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-sm font-normal text-slate-800 outline-none focus:border-emerald-600"
               >
-                <option value="">All prices</option>
+                <option value="">
+                  All prices
+                </option>
 
-                {availablePrices.map((value) => (
-                  <option key={value} value={value}>
-                    {value}
+                {priceOptions.map((option) => (
+                  <option
+                    key={option.value}
+                    value={option.value}
+                  >
+                    {option.label}
                   </option>
                 ))}
               </select>
@@ -181,13 +170,20 @@ export default function CountyCourseExplorer({
                 }
                 className="mt-1 block w-full rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-sm font-normal text-slate-800 outline-none focus:border-emerald-600"
               >
-                <option value="">All types</option>
+                <option value="">
+                  All types
+                </option>
 
-                {availableTypes.map((value) => (
-                  <option key={value} value={value}>
-                    {formatCourseType(value)}
-                  </option>
-                ))}
+                {courseTypeOptions.map(
+                  (option) => (
+                    <option
+                      key={option}
+                      value={option}
+                    >
+                      {option}
+                    </option>
+                  ),
+                )}
               </select>
             </label>
 
@@ -200,11 +196,16 @@ export default function CountyCourseExplorer({
                 }
                 className="mt-1 block w-full rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-sm font-normal text-slate-800 outline-none focus:border-emerald-600"
               >
-                <option value="">All holes</option>
+                <option value="">
+                  All holes
+                </option>
 
-                {availableHoles.map((value) => (
-                  <option key={value} value={value}>
-                    {value} holes
+                {holesOptions.map((option) => (
+                  <option
+                    key={option.value}
+                    value={option.value}
+                  >
+                    {option.label}
                   </option>
                 ))}
               </select>
@@ -226,12 +227,16 @@ export default function CountyCourseExplorer({
               type="button"
               onClick={() =>
                 setView((current) =>
-                  current === "list" ? "map" : "list",
+                  current === "list"
+                    ? "map"
+                    : "list",
                 )
               }
               className="rounded-full bg-emerald-800 px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-emerald-900"
             >
-              {view === "list" ? "View map" : "View list"}
+              {view === "list"
+                ? "View map"
+                : "View list"}
             </button>
           </div>
         </div>
@@ -241,13 +246,15 @@ export default function CountyCourseExplorer({
           <strong className="font-semibold text-slate-800">
             {filteredCourses.length}
           </strong>{" "}
-          of {courses.length} golf courses in {countyName}
+          of {courses.length} golf courses in{" "}
+          {countyName}
         </div>
       </div>
 
       {filteredCourses.length === 0 ? (
         <div className="rounded-2xl bg-white p-6 text-center text-sm text-slate-600 shadow-sm ring-1 ring-slate-200/70">
-          No golf courses match those filters.
+          No golf courses match those
+          filters.
         </div>
       ) : view === "map" ? (
         <CountyCourseMap
@@ -261,13 +268,18 @@ export default function CountyCourseExplorer({
             <CourseCard
               key={course.id}
               id={course.id}
-              country={course.country || "Ireland"}
+              country={
+                course.country || "Ireland"
+              }
               course_name={course.course_name}
               town={course.town || ""}
               region={course.region || ""}
-              holes={course.holes ?? undefined}
+              holes={
+                course.holes ?? undefined
+              }
               independent_guest_days={
-                course.independent_guest_days ?? undefined
+                course.independent_guest_days ??
+                undefined
               }
               price_range={
                 course.price_range ?? undefined
