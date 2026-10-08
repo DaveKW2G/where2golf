@@ -11,22 +11,76 @@ export const metadata: Metadata = {
 }
 export default async function GreenFeesIrelandPage() {
   const { courses, error } = await getIrelandCourses()
-  return <main className="min-h-screen bg-stone-100 text-slate-800">
-    <section className="bg-gradient-to-b from-emerald-950 via-emerald-900 to-emerald-800 px-5 py-8 text-white lg:py-12"><div className="mx-auto max-w-[480px] lg:max-w-[1120px]"><Link href="/ireland" className="text-sm text-emerald-100">← Explore golf in Ireland</Link><p className="mt-6 text-xs font-semibold uppercase tracking-[0.18em] text-emerald-200">Visitor green-fee guide</p><h1 className="mt-2 text-3xl font-bold leading-tight lg:text-5xl">Golf Green Fees Ireland</h1><p className="mt-4 max-w-3xl text-lg leading-7 text-emerald-50">Compare courses by price and find golf that fits your budget. Explore five visitor price bands, choose when you can play and switch between a list and a map.</p><div className="mt-6 flex flex-wrap gap-3"><a href="#compare-courses" className="rounded-full bg-white px-5 py-3 font-semibold text-emerald-900">Compare courses by price</a><Link href="/ireland/planner" className="rounded-full border border-white/30 px-5 py-3 font-semibold">Start your free golf trip planner</Link></div></div></section>
-    <div className="mx-auto max-w-[480px] space-y-6 px-4 py-6 lg:max-w-[1120px] lg:px-5 lg:py-8">
-      <section className="rounded-3xl bg-white p-5 shadow-sm ring-1 ring-slate-200/70 lg:p-7"><h2 className="text-2xl font-bold">How our five price bands work</h2><p className="mt-3 max-w-4xl text-sm leading-7 text-slate-600">The bands help you compare ordinary independent visitor green fees. Use them as a guide when budgeting for popular or peak playing periods. Some listings use dated published tariffs or sampled booking prices rather than a confirmed peak-season maximum; check the course notes and current club tariff before booking.</p><div className="mt-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-5">{priceBands.map(b=><div key={b.value} className="rounded-2xl bg-emerald-50 p-4 ring-1 ring-emerald-100"><h3 className="text-xl font-bold text-emerald-950">{b.name}</h3><p className="mt-2 text-2xl font-bold text-emerald-800">{b.value}</p><p className="mt-2 text-sm font-semibold">{b.range}</p><p className="mt-2 text-xs leading-5 text-slate-600">{b.description}</p></div>)}</div><p className="mt-4 text-sm leading-7 text-slate-600">Weekday, off-peak, winter or twilight tee times may cost less. Eligible Golf Ireland members may also receive a reduced rate, depending on the club&apos;s conditions. The bands here show visitor pricing; member discounts are not calculated.</p><p className="mt-2 text-sm leading-7 text-slate-600">Check the number of holes and course notes: a nine-hole course or tariff is not directly comparable with an eighteen-hole round. Northern Ireland courses are included, with sterling tariffs represented in euro bands for comparison. Courses within each band are listed alphabetically, rather than ranked by an exact fee.</p></section>
-      <section aria-labelledby="planner-heading" className="rounded-3xl bg-gradient-to-br from-emerald-950 to-emerald-800 p-5 text-white shadow-sm lg:p-7">
-        <span className="inline-block rounded-full bg-white px-3 py-1 text-xs font-bold uppercase tracking-wide text-emerald-900">Free golf trip planner</span>
-        <h2 id="planner-heading" className="mt-4 text-2xl font-bold">Build your Irish golf trip around your budget</h2>
-        <p className="mt-3 max-w-3xl text-sm leading-7 text-emerald-50">Compare green-fee bands, choose courses that suit your group and turn your shortlist into a day-by-day itinerary. Share the trip and let everyone vote on where to play.</p>
-        <div className="mt-5 grid gap-4 sm:grid-cols-3">
-          <div className="rounded-2xl bg-white/10 p-4"><h3 className="font-bold">1. Plan</h3><p className="mt-2 text-sm leading-6 text-emerald-50">Use the filters below to find courses, then open a course and choose Plan Trip. Add your preferred rounds and organise each golf day.</p></div>
-          <div className="rounded-2xl bg-white/10 p-4"><h3 className="font-bold">2. Share</h3><p className="mt-2 text-sm leading-6 text-emerald-50">Share your itinerary with your playing partners so the group can review the plan in one place.</p></div>
-          <div className="rounded-2xl bg-white/10 p-4"><h3 className="font-bold">3. Vote</h3><p className="mt-2 text-sm leading-6 text-emerald-50">Let the group vote on preferred courses and agree where to play before booking directly with each club.</p></div>
-        </div>
-        <Link href="/ireland/planner" className="mt-5 inline-block rounded-full bg-white px-6 py-3 text-sm font-bold text-emerald-900">Start Free Golf Trip Planner →</Link>
-        <p className="mt-3 text-xs text-emerald-100">Plan. Share. Vote. Play.</p>
-      </section>
+  return <main className="min-h-screen overflow-x-hidden bg-stone-100 text-slate-800">
+    <section className="bg-gradient-to-b from-emerald-950 via-emerald-900 to-emerald-800 px-5 pb-9 pt-6 text-white lg:pb-12 lg:pt-8"><div className="mx-auto max-w-[480px] lg:max-w-[1120px]"><Link href="/ireland" className="text-sm text-emerald-100">← Explore golf in Ireland</Link><p className="mt-6 text-xs font-semibold uppercase tracking-[0.18em] text-emerald-200">Visitor green-fee guide</p><h1 className="mt-2 text-[28px] font-bold leading-tight sm:text-[32px] lg:text-[42px] lg:leading-[1.08]">Golf Green Fees Ireland</h1><p className="mt-4 text-[15px] leading-6 text-emerald-50/95 lg:max-w-[740px] lg:text-[17px] lg:leading-7">Compare courses by price and find golf that fits your budget. Explore five visitor price bands, choose when you can play and switch between a list and a map.</p><div className="mt-6 flex flex-wrap gap-3"><a href="#compare-courses" className="rounded-full bg-white px-5 py-3 font-semibold text-emerald-900">Compare courses by price</a><Link href="/ireland/planner" className="rounded-full border border-white/30 px-5 py-3 font-semibold">Start your free golf trip planner</Link></div></div></section>
+    <div className="mx-auto w-full max-w-[480px] space-y-6 px-4 py-6 lg:max-w-[1120px] lg:px-5 lg:py-8">
+      <div className="grid min-w-0 gap-6 lg:grid-cols-[minmax(0,1fr)_360px] lg:items-stretch">
+        <section className="rounded-3xl bg-white p-5 shadow-sm ring-1 ring-slate-200/70 lg:flex lg:h-full lg:flex-col lg:p-7"><h2 className="text-[21px] font-semibold text-slate-900 lg:text-[24px]">How our five price bands work</h2><p className="mt-3 max-w-4xl text-sm leading-7 text-slate-600">The bands help you compare ordinary independent visitor green fees. Use them as a guide when budgeting for popular or peak playing periods. Some listings use dated published tariffs or sampled booking prices rather than a confirmed peak-season maximum; check the course notes and current club tariff before booking.</p><div className="mt-5 grid gap-3 sm:grid-cols-2">{priceBands.map(b=><div key={b.value} className="rounded-2xl bg-emerald-50 p-4 ring-1 ring-emerald-100"><h3 className="text-xl font-bold text-emerald-950">{b.name}</h3><p className="mt-2 text-2xl font-bold text-emerald-800">{b.value}</p><p className="mt-2 text-sm font-semibold">{b.range}</p><p className="mt-2 text-xs leading-5 text-slate-600">{b.description}</p></div>)}</div><p className="mt-4 text-sm leading-7 text-slate-600">Weekday, off-peak, winter or twilight tee times may cost less. Eligible Golf Ireland members may also receive a reduced rate, depending on the club&apos;s conditions. The bands here show visitor pricing; member discounts are not calculated.</p><p className="mt-2 text-sm leading-7 text-slate-600">Check the number of holes and course notes: a nine-hole course or tariff is not directly comparable with an eighteen-hole round. Northern Ireland courses are included, with sterling tariffs represented in euro bands for comparison. Courses within each band are listed alphabetically, rather than ranked by an exact fee.</p></section>
+          <aside className="min-w-0">
+            <div className="flex h-full flex-col rounded-3xl bg-emerald-50 p-5 shadow-sm ring-1 ring-emerald-100 lg:p-6">
+              <span className="inline-block w-fit rounded-full bg-white px-3 py-1 text-[11px] font-bold uppercase tracking-wide text-emerald-800 ring-1 ring-emerald-200">
+                Free online tool
+              </span>
+
+              <h2 className="mt-4 text-xl font-bold text-slate-900">
+                Build your Irish golf trip
+              </h2>
+
+              <p className="mt-3 text-sm leading-6 text-slate-700">
+                Choose Irish courses, build a day-by-day
+                itinerary and organise your golf trip in one
+                place. Share the plan and let your group vote on
+                where to play.
+              </p>
+
+              <div className="mt-4 grid gap-3">
+                <div className="flex gap-3">
+                  <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-white text-xs font-bold text-emerald-800 ring-1 ring-emerald-200">
+                    1
+                  </span>
+
+                  <p className="pt-1 text-sm text-slate-700">
+                    Compare the courses below by price and visitor access.
+                  </p>
+                </div>
+
+                <div className="flex gap-3">
+                  <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-white text-xs font-bold text-emerald-800 ring-1 ring-emerald-200">
+                    2
+                  </span>
+
+                  <p className="pt-1 text-sm text-slate-700">
+                    Add your preferred courses to each golf day.
+                  </p>
+                </div>
+
+                <div className="flex gap-3">
+                  <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-white text-xs font-bold text-emerald-800 ring-1 ring-emerald-200">
+                    3
+                  </span>
+
+                  <p className="pt-1 text-sm text-slate-700">
+                    Share the trip and vote as a group.
+                  </p>
+                </div>
+              </div>
+
+              <div className="mt-auto pt-5">
+                <Link
+                  href="/ireland/planner"
+                  className="block w-full rounded-full bg-emerald-800 px-5 py-3 text-center text-sm font-semibold text-white no-underline transition hover:bg-emerald-900"
+                >
+                  Start Free Golf Trip Planner
+                </Link>
+
+                <p className="mt-3 text-center text-xs leading-5 text-slate-600">
+                  Browse Irish courses below and add your
+                  preferred options as you go.
+                </p>
+              </div>
+            </div>
+          </aside>
+      </div>
       <section id="compare-courses" className="scroll-mt-6"><div className="mb-4"><h2 className="text-2xl font-bold">Compare visitor green fees across Ireland</h2><p className="mt-2 text-sm text-slate-600">For great value golf, select €50 or less. Combine a price band with any of the other filters below.</p></div>{error ? <div role="alert" className="rounded-2xl bg-red-50 p-5 text-red-800">Unable to load courses. Please refresh the page to try again.</div> : <CountyCourseExplorer courses={courses} countyName="Ireland" source="golf-green-fees-ireland" initialCenter={[53.4,-8]} showCounty pricingFocus />}</section>
       <section aria-labelledby="related-guides-heading" className="rounded-3xl bg-white p-5 shadow-sm ring-1 ring-slate-200/70 lg:p-7">
         <h2 id="related-guides-heading" className="text-2xl font-bold">Continue planning your Irish golf trip</h2>
