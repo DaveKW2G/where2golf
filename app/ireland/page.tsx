@@ -23,63 +23,6 @@ export const metadata: Metadata = {
   },
 };
 
-const countyGuides = [
-  {
-    title: "Golf Courses in County Dublin",
-    href: "/golf-courses-dublin",
-    description:
-      "Explore courses across County Dublin and compare visitor access, prices and course types.",
-  },
-  {
-    title: "Golf Courses in County Cork",
-    href: "/golf-courses-cork",
-    description:
-      "Find parkland, resort and coastal golf across County Cork, from the city to West Cork.",
-  },
-  {
-    title: "Golf Courses in County Kerry",
-    href: "/golf-courses-kerry",
-    description:
-      "Explore golf around Killarney, Dingle and the Ring of Kerry, with links on the Atlantic coast.",
-  },
-  {
-    title: "Golf Courses in County Clare",
-    href: "/golf-courses-clare",
-    description:
-      "Find courses across County Clare, including Lahinch and Doonbeg, and compare visitor access.",
-  },
-  {
-    title: "Golf Courses in County Galway",
-    href: "/golf-courses-galway",
-    description:
-      "Compare County Galway courses from the city and Galway Bay to Connemara.",
-  },
-  {
-    title: "Golf Courses in County Donegal",
-    href: "/golf-courses-donegal",
-    description:
-      "Explore visitor-friendly links golf along County Donegal’s Atlantic coast.",
-  },
-  {
-    title: "Golf Courses in County Down",
-    href: "/golf-courses-down",
-    description:
-      "Discover County Down golf, from Royal County Down and Ardglass to Rory McIlroy’s home club at Holywood.",
-  },
-  {
-    title: "Golf Courses in County Wicklow",
-    href: "/golf-courses-wicklow",
-    description:
-      "Explore golf around Powerscourt, Druids Glen and Arklow, with the Wicklow Mountains and coast nearby.",
-  },
-  {
-    title: "Golf Courses in County Kildare",
-    href: "/golf-courses-kildare",
-    description:
-      "Compare rounds at The K Club, Carton House and Moyvalley, all within easy reach of Dublin.",
-  },
-];
-
 const golfNearGuides = [
   {
     title: "Golf Near Dublin",
@@ -378,127 +321,28 @@ export default function IrelandPage() {
               </div>
             </section>
 
-            <section className="mt-6 rounded-3xl bg-white p-5 shadow-sm ring-1 ring-slate-200/70 lg:p-7">
-              <p className="text-[12px] font-semibold uppercase tracking-[0.18em] text-emerald-800">
-                County golf guides
-              </p>
 
-              <h2 className="mt-1 text-[21px] font-semibold text-slate-900 lg:text-[24px]">
-                Explore golf by county
-              </h2>
-
-              <p className="mt-3 text-sm leading-6 text-slate-600">
-                Browse courses located within a county and compare visitor access
-                and prices before planning your trip.
-              </p>
-
-              <div className="mt-5 grid gap-4 sm:grid-cols-2">
-                {countyGuides.map((county) => (
-                  <Link
-                    key={county.href}
-                    href={county.href}
-                    className="group block rounded-3xl bg-emerald-800 px-5 py-5 text-white no-underline shadow-sm transition hover:-translate-y-0.5 hover:bg-emerald-900 hover:shadow-md"
-                  >
-                    <div className="text-[17px] font-semibold">
-                      {county.title}
-                    </div>
-
-                    <p className="mt-2 text-sm leading-6 text-white/80">
-                      {county.description}
-                    </p>
-
-                    <p className="mt-4 text-sm font-semibold text-emerald-100">
-                      Explore courses →
-                    </p>
-                  </Link>
-                ))}
-              </div>
-
-              <div className="mt-5 rounded-2xl bg-stone-50 p-4 ring-1 ring-slate-200 lg:p-5">
-                <h3 className="text-base font-semibold text-slate-900">
-                  Know a course we should add?
-                </h3>
-                <p className="mt-2 text-sm leading-6 text-slate-600">
-                  Suggest a course, flag a mistake, or get in touch if you work
-                  with a golf club.
-                </p>
-                <Link
-                  href="/contact"
-                  className="mt-3 inline-block text-sm font-semibold text-emerald-800 no-underline hover:underline"
-                >
-                  Contact GuestPlayGolf →
-                </Link>
-              </div>
-            </section>
 
             <section className="mt-6 rounded-3xl bg-white p-5 shadow-sm ring-1 ring-slate-200/70 lg:p-7">
-              <p className="text-[12px] font-semibold uppercase tracking-[0.18em] text-emerald-800">
-                Golf trip bases
-              </p>
-
-              <h2 className="mt-1 text-[21px] font-semibold text-slate-900 lg:text-[24px]">
-                Plan around a base
-              </h2>
-
-              <p className="mt-3 text-sm leading-6 text-slate-600">
-                These guides include courses within driving distance of a base,
-                including options across county boundaries.
-              </p>
-
+              <p className="text-[12px] font-semibold uppercase tracking-[0.18em] text-emerald-800">Explore Irish golf</p>
+              <h2 className="mt-1 text-[21px] font-semibold text-slate-900 lg:text-[24px]">Golf near, links golf and Ireland golf prices</h2>
+              <p className="mt-3 text-sm leading-6 text-slate-600">Choose a base for your trip, explore links courses or compare visitor green fees.</p>
               <div className="mt-5 grid gap-4 sm:grid-cols-2">
-                {golfNearGuides.map((destination) => (
-                  <Link
-                    key={destination.href}
-                    href={destination.href}
-                    className="group block rounded-3xl bg-stone-50 px-5 py-5 text-slate-900 no-underline ring-1 ring-slate-200 transition hover:-translate-y-0.5 hover:bg-stone-100 hover:shadow-md"
-                  >
-                    <div className="text-[17px] font-semibold">
-                      {destination.title}
-                    </div>
-
-                    <p className="mt-2 text-sm leading-6 text-slate-600">
-                      {destination.description}
-                    </p>
-
-                    <p className="mt-4 text-sm font-semibold text-emerald-800">
-                      Explore courses →
-                    </p>
+                {[...golfNearGuides, ...linksGolfGuides, {
+                  title: "Ireland Golf Prices",
+                  href: "/golf-green-fees-ireland",
+                  description: "Compare five visitor price bands, from Great Value to Bucket List, and find courses that fit your budget.",
+                }].map((guide) => (
+                  <Link key={guide.href} href={guide.href} className="group block rounded-3xl bg-stone-50 px-5 py-5 text-slate-900 no-underline ring-1 ring-slate-200 transition hover:-translate-y-0.5 hover:bg-stone-100 hover:shadow-md">
+                    <div className="text-[17px] font-semibold">{guide.title}</div>
+                    <p className="mt-2 text-sm leading-6 text-slate-600">{guide.description}</p>
+                    <p className="mt-4 text-sm font-semibold text-emerald-800">Explore courses →</p>
                   </Link>
                 ))}
               </div>
             </section>
 
-            <section className="mt-6 rounded-3xl bg-white p-5 shadow-sm ring-1 ring-slate-200/70 lg:p-7">
-              <p className="text-[12px] font-semibold uppercase tracking-[0.18em] text-emerald-800">
-                Links golf guides
-              </p>
 
-              <h2 className="mt-1 text-[21px] font-semibold text-slate-900 lg:text-[24px]">
-                Explore links golf
-              </h2>
-
-              <div className="mt-5 grid gap-4 sm:grid-cols-2">
-                {linksGolfGuides.map((guide) => (
-                  <Link
-                    key={guide.href}
-                    href={guide.href}
-                    className="group block rounded-3xl bg-stone-50 px-5 py-5 text-slate-900 no-underline ring-1 ring-slate-200 transition hover:-translate-y-0.5 hover:bg-stone-100 hover:shadow-md"
-                  >
-                    <div className="text-[17px] font-semibold">
-                      {guide.title}
-                    </div>
-
-                    <p className="mt-2 text-sm leading-6 text-slate-600">
-                      {guide.description}
-                    </p>
-
-                    <p className="mt-4 text-sm font-semibold text-emerald-800">
-                      Explore courses →
-                    </p>
-                  </Link>
-                ))}
-              </div>
-            </section>
 
             <section className="mt-6 rounded-3xl bg-white p-5 shadow-sm ring-1 ring-slate-200/70 lg:p-7">
               <p className="text-[12px] font-semibold uppercase tracking-[0.18em] text-emerald-800">
