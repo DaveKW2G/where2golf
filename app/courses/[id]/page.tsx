@@ -3,6 +3,9 @@ import Script from "next/script";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import BackButton from "@/components/BackButton";
+import Breadcrumbs, {
+  getIrelandCourseBreadcrumbs,
+} from "@/components/Breadcrumbs";
 import CourseCTAButtons from "@/components/CourseCTAButtons";
 import CourseAddToTripButton from "@/components/CourseAddToTripButton";
 
@@ -652,6 +655,14 @@ export default async function CoursePage({
   const country = course.country || "Switzerland";
   const isIreland = country === "Ireland";
   const regionName = regionNames[course.region] || course.region;
+  const courseBreadcrumbs = isIreland
+    ? getIrelandCourseBreadcrumbs(
+        course.id,
+        course.course_name,
+        course.region,
+        getSingleParam(resolvedSearchParams.source),
+      )
+    : null;
 
   const countryHref = isIreland ? "/ireland" : "/switzerland";
   const fallbackHref = buildFallbackHref(resolvedSearchParams, countryHref);
@@ -859,6 +870,10 @@ export default async function CoursePage({
       </Script>
 
       <div className="mx-auto max-w-[480px] lg:max-w-[1120px]">
+        {courseBreadcrumbs && (
+          <Breadcrumbs items={courseBreadcrumbs} compact />
+        )}
+
         <article className="overflow-hidden rounded-[30px] bg-white shadow-sm ring-1 ring-slate-200/60">
           <div className="relative h-60 w-full overflow-hidden bg-slate-200 sm:h-72 lg:h-[420px]">
             {course.course_image ? (

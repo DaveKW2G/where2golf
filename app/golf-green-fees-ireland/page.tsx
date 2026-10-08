@@ -1,3 +1,4 @@
+import Breadcrumbs from "@/components/Breadcrumbs";
 import type { Metadata } from 'next'
 import Link from 'next/link'
 import CountyCourseExplorer from '@/components/CountyCourseExplorer'
@@ -12,6 +13,7 @@ export const metadata: Metadata = {
 export default async function GreenFeesIrelandPage() {
   const { courses, error } = await getIrelandCourses()
   return <main className="min-h-screen overflow-x-hidden bg-stone-100 text-slate-800">
+      <Breadcrumbs page="/golf-green-fees-ireland" />
     <section className="bg-gradient-to-b from-emerald-950 via-emerald-900 to-emerald-800 px-5 pb-9 pt-6 text-white lg:pb-12 lg:pt-8"><div className="mx-auto max-w-[480px] lg:max-w-[1120px]"><Link href="/ireland" className="text-sm text-emerald-100">← Explore golf in Ireland</Link><p className="mt-6 text-xs font-semibold uppercase tracking-[0.18em] text-emerald-200">Visitor green-fee guide</p><h1 className="mt-2 text-[28px] font-bold leading-tight sm:text-[32px] lg:text-[42px] lg:leading-[1.08]">Golf Green Fees Ireland</h1><p className="mt-4 text-[15px] leading-6 text-emerald-50/95 lg:max-w-[740px] lg:text-[17px] lg:leading-7">Compare courses by price and find golf that fits your budget. Explore five visitor price bands, choose when you can play and switch between a list and a map.</p><div className="mt-6 flex flex-wrap gap-3"><a href="#compare-courses" className="rounded-full bg-white px-5 py-3 font-semibold text-emerald-900">Compare courses by price</a><Link href="/ireland/planner" className="rounded-full border border-white/30 px-5 py-3 font-semibold">Start your free golf trip planner</Link></div></div></section>
     <div className="mx-auto w-full max-w-[480px] space-y-6 px-4 py-6 lg:max-w-[1120px] lg:px-5 lg:py-8">
       <div className="grid min-w-0 gap-6 lg:grid-cols-[minmax(0,1fr)_360px] lg:items-stretch">

@@ -1,3 +1,4 @@
+import Breadcrumbs from "@/components/Breadcrumbs";
 import type { Metadata } from "next";
 import Link from "next/link";
 import IrelandPageClient from "@/components/IrelandPageClient";
@@ -162,6 +163,7 @@ function PlannerCard() {
 export default function IrelandPage() {
   return (
     <main className="min-h-screen overflow-x-hidden bg-stone-100 text-slate-800">
+      <Breadcrumbs page="/ireland" />
       <section className="relative overflow-hidden px-5 pb-10 pt-5 text-white lg:pb-14 lg:pt-7">
         <div
           className="absolute inset-0 bg-cover bg-center"

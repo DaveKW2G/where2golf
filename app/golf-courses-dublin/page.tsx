@@ -1,3 +1,4 @@
+import Breadcrumbs from "@/components/Breadcrumbs";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { cache } from "react";
@@ -119,6 +120,7 @@ export default async function GolfCoursesDublinPage() {
 
   return (
     <main className="min-h-screen overflow-x-hidden bg-stone-100 text-slate-800">
+      <Breadcrumbs page="/golf-courses-dublin" />
       <section className="bg-gradient-to-b from-emerald-950 via-emerald-900 to-emerald-800 px-5 pb-9 pt-6 text-white lg:pb-12 lg:pt-8">
         <div className="mx-auto max-w-[480px] lg:max-w-[1120px]">
           <Link
