@@ -1,8 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import IrelandPageClient from "@/components/IrelandPageClient";
-import CountyCourseExplorer from "@/components/CountyCourseExplorer";
-import { getIrelandCourses } from "@/lib/ireland-courses";
 import { priceBands } from "@/lib/course-explorer";
 
 const siteUrl = "https://guestplaygolf.com";
@@ -218,8 +216,7 @@ function PlannerCard() {
   );
 }
 
-export default async function IrelandPage() {
-  const { courses, error } = await getIrelandCourses();
+export default function IrelandPage() {
   return (
     <main className="min-h-screen overflow-x-hidden bg-stone-100 text-slate-800">
       <section className="relative overflow-hidden px-5 pb-10 pt-5 text-white lg:pb-14 lg:pt-7">
@@ -298,13 +295,6 @@ export default async function IrelandPage() {
       <section className="mx-auto w-full max-w-[480px] px-4 py-6 lg:max-w-[1120px] lg:px-5 lg:py-8">
         <div id="find-courses">
           <IrelandPageClient />
-          <section className="mt-6">
-            <div className="mb-4 flex flex-wrap items-end justify-between gap-3">
-              <div><h2 className="text-2xl font-bold text-slate-900">Explore Ireland’s golf courses</h2><p className="mt-2 text-sm text-slate-600">Filter by county, price, when you can play, course type, holes and distance.</p></div>
-              <Link href="/golf-green-fees-ireland" className="font-semibold text-emerald-800">Compare green fees and understand the bands →</Link>
-            </div>
-            {error ? <p role="alert" className="rounded-2xl bg-red-50 p-5 text-red-800">Unable to load courses. Please refresh to try again.</p> : <CountyCourseExplorer courses={courses} countyName="Ireland" source="ireland" initialCenter={[53.4, -8]} showCounty />}
-          </section>
         </div>
 
         <div className="mt-6 lg:grid lg:grid-cols-[minmax(0,1fr)_360px] lg:items-start lg:gap-6">
@@ -583,7 +573,7 @@ export default async function IrelandPage() {
               <p className="mt-3 text-sm leading-6 text-slate-600">
                 GuestPlayGolf uses simple price bands to help you compare
                 courses quickly. Exact green fees can vary by season, day, tee
-                time and booking conditions. Weekday and off-peak rates, and eligible Golf Ireland member rates, may be lower. Some guides use dated tariffs or sampled booking prices; check the course notes and current club fee before booking.
+                time and booking conditions.
               </p>
 
               <div className="mt-5 grid gap-4 sm:grid-cols-2">
