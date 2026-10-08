@@ -329,6 +329,10 @@ export default function IrelandPage() {
               <p className="mt-3 text-sm leading-6 text-slate-600">Choose a base for your trip, explore links courses or compare visitor green fees.</p>
               <div className="mt-5 grid gap-4 sm:grid-cols-2">
                 {[...golfNearGuides, ...linksGolfGuides, {
+                  title: "Golf in Northern Ireland",
+                  href: "/golf-in-northern-ireland",
+                  description: "Explore courses across all six counties, compare visitor access and green fees, and plan your Northern Ireland golf trip.",
+                }, {
                   title: "Ireland Golf Prices",
                   href: "/golf-green-fees-ireland",
                   description: "Compare five visitor price bands, from Great Value to Bucket List, and find courses that fit your budget.",
