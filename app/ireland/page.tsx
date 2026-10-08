@@ -333,6 +333,10 @@ export default function IrelandPage() {
                   href: "/golf-in-northern-ireland",
                   description: "Explore courses across all six counties, compare visitor access and green fees, and plan your Northern Ireland golf trip.",
                 }, {
+                  title: "Golf in Ireland’s South East",
+                  href: "/golf-in-south-east-ireland",
+                  description: "Explore the Sunny South East across Carlow, Kilkenny, Tipperary, Waterford and Wexford, then plan your golf trip.",
+                }, {
                   title: "Ireland Golf Prices",
                   href: "/golf-green-fees-ireland",
                   description: "Compare five visitor price bands, from Great Value to Bucket List, and find courses that fit your budget.",
