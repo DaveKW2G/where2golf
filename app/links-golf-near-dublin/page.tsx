@@ -1,8 +1,9 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { cache } from "react";
-import { createClient } from "@/lib/supabase/server";
-import DublinDistanceFilteredCourses from "@/components/DublinDistanceFilteredCourses";
+import { getIrelandCourses } from "@/lib/ireland-courses";
+import { hasCoordinates } from "@/lib/course-explorer";
+import CountyCourseExplorer from "@/components/CountyCourseExplorer";
 
 const siteUrl = "https://guestplaygolf.com";
 
@@ -38,18 +39,8 @@ function getDistanceKm(
 }
 
 const getLinksCoursesNearDublin = cache(async () => {
-  const supabase = await createClient();
-
-  const { data: courses, error } = await supabase
-    .from("courses")
-    .select(
-      "id, country, course_name, town, region, holes, independent_guest_days, season, price_range, course_image, max_handicap, latitude, longitude, course_type",
-    )
-    .ilike("country", "Ireland")
-    .eq("course_type", "Links")
-    .not("latitude", "is", null)
-    .not("longitude", "is", null)
-    .limit(300);
+  const { courses: allCourses, error } = await getIrelandCourses();
+  const courses = allCourses.filter(course => hasCoordinates(course) && course.course_type?.trim() === "Links");
 
   const linksCoursesWithinDublinHub =
     courses
@@ -58,8 +49,8 @@ const getLinksCoursesNearDublin = cache(async () => {
         distance: getDistanceKm(
           dublinLat,
           dublinLng,
-          course.latitude,
-          course.longitude,
+          Number(course.latitude),
+          Number(course.longitude),
         ),
       }))
       .filter((course) => course.distance <= dublinRadiusKm)
@@ -348,7 +339,7 @@ export default async function LinksGolfNearDublinPage() {
             </div>
           )}
 
-          <DublinDistanceFilteredCourses courses={linksCoursesWithinDublinHub} />
+          <CountyCourseExplorer hideCourseType courses={linksCoursesWithinDublinHub} countyName="the Dublin area" source="links-golf-near-dublin" initialCenter={[dublinLat, dublinLng]} initialOrigin={[dublinLat, dublinLng]} initialRadiusKm={dublinRadiusKm} originName="Dublin" townExample="Dublin" showCounty />
         </section>
 
         <section className="mt-6 rounded-3xl bg-white p-5 shadow-sm ring-1 ring-slate-200/70 lg:p-6">

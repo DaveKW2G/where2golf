@@ -1,16 +1,10 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
-import CourseCard from "@/components/CourseCard";
+import CountyCourseExplorer from "@/components/CountyCourseExplorer";
+import { getIrelandCourses } from "@/lib/ireland-courses";
 
 const siteUrl = "https://guestplaygolf.com";
-
-function normalizeRegion(value: string | null) {
-  return (value ?? "")
-    .normalize("NFKD")
-    .replace(/[^a-zA-Z]/g, "")
-    .toLowerCase();
-}
 
 export async function generateMetadata(): Promise<Metadata> {
   const supabase = await createClient();
@@ -157,33 +151,10 @@ function RegionalGolfLinks() {
 }
 
 export default async function LinksGolfIrelandPage() {
-  const supabase = await createClient();
-
-  const { data: courses, error } = await supabase
-    .from("courses")
-    .select(
-      "id, country, course_name, town, region, holes, independent_guest_days, season, price_range, course_image, handicap_required, max_handicap, latitude, longitude, course_type",
-    )
-    .ilike("country", "Ireland")
-    .ilike("course_type", "%Links%")
-    .order("region", { ascending: true })
-    .order("course_name", { ascending: true })
-    .limit(300);
-
-  const linksCourses = courses || [];
+  const { courses, error } = await getIrelandCourses();
+  const linksCourses = courses.filter(course => course.course_type?.toLowerCase().includes("links"));
   const courseCount = linksCourses.length;
-
-  const groupedRegions = linksRegions.map((group) => ({
-    ...group,
-
-    courses: linksCourses.filter((course) => {
-      const courseRegion = normalizeRegion(course.region);
-
-      return group.counties.some(
-        (county) => normalizeRegion(county) === courseRegion,
-      );
-    }),
-  }));
+  const groupedRegions = linksRegions.map(group => ({ ...group, courses: linksCourses.filter(course => group.counties.some(county => county.toLowerCase() === course.region?.trim().toLowerCase())) }));
 
   return (
     <main className="min-h-screen overflow-x-hidden bg-stone-100 text-slate-800">
@@ -406,68 +377,7 @@ export default async function LinksGolfIrelandPage() {
             No links golf courses found.
           </div>
         ) : (
-          <div className="mt-6 space-y-8">
-            {groupedRegions.map((group) => (
-              <section
-                key={group.key}
-                id={group.key}
-                className="scroll-mt-24"
-              >
-                <div className="mb-4 rounded-3xl bg-white p-5 shadow-sm ring-1 ring-slate-200/70 lg:p-6">
-                  <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
-                    <div>
-                      <p className="text-[11px] font-bold uppercase tracking-[0.16em] text-emerald-700">
-                        {group.courses.length}{" "}
-                        {group.courses.length === 1
-                          ? "links course"
-                          : "links courses"}
-                      </p>
-
-                      <h2 className="mt-1 text-xl font-bold text-slate-900 lg:text-2xl">
-                        {group.name}
-                      </h2>
-                    </div>
-
-                    <p className="text-xs font-medium text-slate-500">
-                      {group.counties.join(" · ")}
-                    </p>
-                  </div>
-
-                  <p className="mt-3 max-w-[820px] text-sm leading-6 text-slate-600">
-                    {group.description}
-                  </p>
-
-                  {group.key === "dublin-east" && (
-                    <Link
-                      href="/links-golf-near-dublin"
-                      className="mt-4 inline-block text-sm font-semibold text-emerald-700 no-underline"
-                    >
-                      Staying in Dublin? See Links Golf Near Dublin →
-                    </Link>
-                  )}
-                </div>
-
-                {group.courses.length > 0 ? (
-                  <div className="grid gap-4 lg:grid-cols-2">
-                    {group.courses.map((course) => (
-                      <CourseCard
-                        key={course.id}
-                        {...course}
-                        searchParams={{
-                          country: "ireland",
-                          source: "links-golf-ireland",
-                        }}
-                      />
-                    ))}
-                  </div>
-                ) : (
-                  <div className="rounded-2xl bg-white p-5 text-sm text-slate-600 shadow-sm ring-1 ring-slate-200/70">
-                    No courses currently listed in this region.
-                  </div>
-                )}
-              </section>
-            ))}
-          </div>
+          <div className="mt-6"><CountyCourseExplorer hideCourseType courses={linksCourses} countyName="Ireland" source="links-golf-ireland" initialCenter={[53.4, -8]} townExample="Dublin" showCounty groups={linksRegions} /></div>
         )}
 
         <section className="mt-8 rounded-3xl bg-white p-5 shadow-sm ring-1 ring-slate-200/70 lg:p-6">

@@ -1,24 +1,14 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { cache } from "react";
-import { createClient } from "@/lib/supabase/server";
-import CourseCard from "@/components/CourseCard";
+import { getIrelandCourses } from "@/lib/ireland-courses";
+import CountyCourseExplorer from "@/components/CountyCourseExplorer";
 
 const siteUrl = "https://guestplaygolf.com";
 
 const getGalwayCountyCourses = cache(async () => {
-  const supabase = await createClient();
-
-  const { data: courses, error } = await supabase
-    .from("courses")
-    .select(
-      "id, country, course_name, town, region, holes, independent_guest_days, season, price_range, course_image, handicap_required, max_handicap, latitude, longitude, course_type",
-    )
-    .eq("country", "Ireland")
-    .eq("region", "Galway")
-    .order("town", { ascending: true })
-    .order("course_name", { ascending: true })
-    .limit(100);
+  const { courses: allCourses, error } = await getIrelandCourses();
+  const courses = allCourses.filter(course => course.region?.trim() === "Galway");
 
   return {
     courses: courses || [],
@@ -340,18 +330,7 @@ export default async function GolfCoursesGalwayPage() {
               No golf courses are currently listed in County Galway.
             </div>
           ) : (
-            <div className="grid gap-4 lg:grid-cols-2">
-              {courses.map((course) => (
-                <CourseCard
-                  key={course.id}
-                  {...course}
-                  searchParams={{
-                    country: "ireland",
-                    source: "golf-courses-galway",
-                  }}
-                />
-              ))}
-            </div>
+            <CountyCourseExplorer courses={courses} countyName="County Galway" source="golf-courses-galway" initialCenter={[53.2707, -9.0568]} townExample="Galway" />
           )}
         </section>
 

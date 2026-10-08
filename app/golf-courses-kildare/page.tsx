@@ -1,24 +1,14 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { cache } from "react";
-import { createClient } from "@/lib/supabase/server";
-import CourseCard from "@/components/CourseCard";
+import { getIrelandCourses } from "@/lib/ireland-courses";
+import CountyCourseExplorer from "@/components/CountyCourseExplorer";
 
 const siteUrl = "https://guestplaygolf.com";
 
 const getKildareCountyCourses = cache(async () => {
-  const supabase = await createClient();
-
-  const { data: courses, error } = await supabase
-    .from("courses")
-    .select(
-      "id, country, course_name, town, region, holes, independent_guest_days, season, price_range, course_image, handicap_required, max_handicap, latitude, longitude, course_type",
-    )
-    .eq("country", "Ireland")
-    .eq("region", "Kildare")
-    .order("town", { ascending: true })
-    .order("course_name", { ascending: true })
-    .limit(100);
+  const { courses: allCourses, error } = await getIrelandCourses();
+  const courses = allCourses.filter(course => course.region?.trim() === "Kildare");
 
   return {
     courses: courses || [],
@@ -346,18 +336,7 @@ export default async function GolfCoursesKildarePage() {
               No golf courses are currently listed in County Kildare.
             </div>
           ) : (
-            <div className="grid gap-4 lg:grid-cols-2">
-              {courses.map((course) => (
-                <CourseCard
-                  key={course.id}
-                  {...course}
-                  searchParams={{
-                    country: "ireland",
-                    source: "golf-courses-kildare",
-                  }}
-                />
-              ))}
-            </div>
+            <CountyCourseExplorer courses={courses} countyName="County Kildare" source="golf-courses-kildare" initialCenter={[53.158, -6.909]} townExample="Naas" />
           )}
         </section>
 

@@ -1,8 +1,9 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { cache } from "react";
-import { createClient } from "@/lib/supabase/server";
-import DublinDistanceFilteredCourses from "@/components/DublinDistanceFilteredCourses";
+import { getIrelandCourses } from "@/lib/ireland-courses";
+import { hasCoordinates } from "@/lib/course-explorer";
+import CountyCourseExplorer from "@/components/CountyCourseExplorer";
 
 const siteUrl = "https://guestplaygolf.com";
 
@@ -38,17 +39,8 @@ function getDistanceKm(
 }
 
 const getDublinCourses = cache(async () => {
-  const supabase = await createClient();
-
-  const { data: courses, error } = await supabase
-    .from("courses")
-    .select(
-      "id, country, course_name, town, region, holes, independent_guest_days, season, price_range, course_image, handicap_required, max_handicap, latitude, longitude, course_type",
-    )
-    .ilike("country", "Ireland")
-    .not("latitude", "is", null)
-    .not("longitude", "is", null)
-    .limit(300);
+  const { courses: allCourses, error } = await getIrelandCourses();
+  const courses = allCourses.filter(course => hasCoordinates(course));
 
   const coursesWithinDublinHub =
     courses
@@ -57,8 +49,8 @@ const getDublinCourses = cache(async () => {
         distance: getDistanceKm(
           dublinLat,
           dublinLng,
-          course.latitude,
-          course.longitude,
+          Number(course.latitude),
+          Number(course.longitude),
         ),
       }))
       .filter((course) => course.distance <= dublinRadiusKm)
@@ -342,7 +334,7 @@ export default async function GolfNearDublinPage() {
             </div>
           )}
 
-          <DublinDistanceFilteredCourses courses={coursesWithinDublinHub} />
+          <CountyCourseExplorer courses={coursesWithinDublinHub} countyName="the Dublin area" source="golf-near-dublin" initialCenter={[dublinLat, dublinLng]} initialOrigin={[dublinLat, dublinLng]} initialRadiusKm={dublinRadiusKm} originName="Dublin" townExample="Dublin" showCounty />
         </section>
 
         <section className="mt-6 rounded-3xl bg-white p-5 shadow-sm ring-1 ring-slate-200/70 lg:p-6">

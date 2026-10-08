@@ -1,7 +1,8 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { createClient } from "@/lib/supabase/server";
-import CourseCard from "@/components/CourseCard";
+import { getIrelandCourses } from "@/lib/ireland-courses";
+import { hasCoordinates } from "@/lib/course-explorer";
+import CountyCourseExplorer from "@/components/CountyCourseExplorer";
 
 const siteUrl = "https://guestplaygolf.com";
 
@@ -115,17 +116,8 @@ function RegionalGolfLinks() {
 }
 
 export default async function GolfNearGalwayPage() {
-  const supabase = await createClient();
-
-  const { data: courses, error } = await supabase
-    .from("courses")
-    .select(
-      "id, country, course_name, town, region, holes, independent_guest_days, season, price_range, course_image, handicap_required, max_handicap, latitude, longitude, course_type",
-    )
-    .eq("country", "Ireland")
-    .not("latitude", "is", null)
-    .not("longitude", "is", null)
-    .limit(300);
+  const { courses: allCourses, error } = await getIrelandCourses();
+  const courses = allCourses.filter(course => hasCoordinates(course));
 
   const coursesWithDistance =
     courses
@@ -133,8 +125,8 @@ export default async function GolfNearGalwayPage() {
         const distance = getDistanceKm(
           galwayLat,
           galwayLng,
-          course.latitude,
-          course.longitude,
+          Number(course.latitude),
+          Number(course.longitude),
         );
 
         return {
@@ -335,20 +327,7 @@ export default async function GolfNearGalwayPage() {
               No golf courses found within {galwayRadiusKm} km of Galway.
             </div>
           ) : (
-            <div className="grid gap-4 lg:grid-cols-2">
-              {coursesWithDistance.map((course) => (
-                <CourseCard
-                  key={course.id}
-                  {...course}
-                  userLat={galwayLat}
-                  userLng={galwayLng}
-                  searchParams={{
-                    country: "ireland",
-                    source: "galway",
-                  }}
-                />
-              ))}
-            </div>
+            <CountyCourseExplorer courses={coursesWithDistance} countyName="the Galway area" source="golf-near-galway" initialCenter={[galwayLat, galwayLng]} initialOrigin={[galwayLat, galwayLng]} initialRadiusKm={galwayRadiusKm} originName="Galway" townExample="Galway" showCounty />
           )}
         </section>
 
