@@ -121,7 +121,7 @@ function FiltersPageContent() {
     )
   }
 
-  const priceOptions = ['€', '€€', '€€€', '€€€€']
+  const priceOptions = isIreland ? ['€', '€€', '€€€', '€€€€', '€€€€€'] : ['€', '€€', '€€€', '€€€€']
 
   return (
     <main className="min-h-screen overflow-x-hidden bg-stone-100 text-slate-800">

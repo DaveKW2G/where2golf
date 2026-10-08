@@ -1,6 +1,9 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import IrelandPageClient from "@/components/IrelandPageClient";
+import CountyCourseExplorer from "@/components/CountyCourseExplorer";
+import { getIrelandCourses } from "@/lib/ireland-courses";
+import { priceBands } from "@/lib/course-explorer";
 
 const siteUrl = "https://guestplaygolf.com";
 
@@ -127,32 +130,7 @@ const linksGolfGuides = [
   },
 ];
 
-const priceCategories = [
-  {
-    label: "€",
-    range: "Value · Up to €100",
-    description:
-      "Accessible green fees and excellent local golf experiences across many visitor-friendly courses.",
-  },
-  {
-    label: "€€",
-    range: "Mid Range · €101–200",
-    description:
-      "Established clubs, championship venues and strong regional golf destinations.",
-  },
-  {
-    label: "€€€",
-    range: "Premium · €201–300",
-    description:
-      "High-end golf resorts and premium visitor golf experiences.",
-  },
-  {
-    label: "€€€€",
-    range: "Bucket List · €300+",
-    description:
-      "Ireland’s most iconic, prestigious and sought-after golf experiences.",
-  },
-];
+const priceCategories = priceBands.map(band => ({ label: band.value, range: `${band.name} · ${band.range}`, description: band.description }));
 
 function PlannerCard() {
   return (
@@ -240,7 +218,8 @@ function PlannerCard() {
   );
 }
 
-export default function IrelandPage() {
+export default async function IrelandPage() {
+  const { courses, error } = await getIrelandCourses();
   return (
     <main className="min-h-screen overflow-x-hidden bg-stone-100 text-slate-800">
       <section className="relative overflow-hidden px-5 pb-10 pt-5 text-white lg:pb-14 lg:pt-7">
@@ -319,6 +298,13 @@ export default function IrelandPage() {
       <section className="mx-auto w-full max-w-[480px] px-4 py-6 lg:max-w-[1120px] lg:px-5 lg:py-8">
         <div id="find-courses">
           <IrelandPageClient />
+          <section className="mt-6">
+            <div className="mb-4 flex flex-wrap items-end justify-between gap-3">
+              <div><h2 className="text-2xl font-bold text-slate-900">Explore Ireland’s golf courses</h2><p className="mt-2 text-sm text-slate-600">Filter by county, price, when you can play, course type, holes and distance.</p></div>
+              <Link href="/golf-green-fees-ireland" className="font-semibold text-emerald-800">Compare green fees and understand the bands →</Link>
+            </div>
+            {error ? <p role="alert" className="rounded-2xl bg-red-50 p-5 text-red-800">Unable to load courses. Please refresh to try again.</p> : <CountyCourseExplorer courses={courses} countyName="Ireland" source="ireland" initialCenter={[53.4, -8]} showCounty />}
+          </section>
         </div>
 
         <div className="mt-6 lg:grid lg:grid-cols-[minmax(0,1fr)_360px] lg:items-start lg:gap-6">
@@ -597,7 +583,7 @@ export default function IrelandPage() {
               <p className="mt-3 text-sm leading-6 text-slate-600">
                 GuestPlayGolf uses simple price bands to help you compare
                 courses quickly. Exact green fees can vary by season, day, tee
-                time and booking conditions.
+                time and booking conditions. Weekday and off-peak rates, and eligible Golf Ireland member rates, may be lower. Some guides use dated tariffs or sampled booking prices; check the course notes and current club fee before booking.
               </p>
 
               <div className="mt-5 grid gap-4 sm:grid-cols-2">

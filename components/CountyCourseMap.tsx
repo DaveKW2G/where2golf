@@ -3,6 +3,7 @@
 import "leaflet/dist/leaflet.css";
 
 import Link from "next/link";
+import { hasCoordinates } from "@/lib/course-explorer";
 import { useEffect } from "react";
 import {
   CircleMarker,
@@ -49,8 +50,7 @@ function FitCourses({
           const lng = Number(course.longitude);
 
           if (
-            !Number.isFinite(lat) ||
-            !Number.isFinite(lng)
+            !hasCoordinates(course)
           ) {
             return null;
           }
@@ -99,8 +99,7 @@ export default function CountyCourseMap({
       const lng = Number(course.longitude);
 
       return (
-        Number.isFinite(lat) &&
-        Number.isFinite(lng)
+        hasCoordinates(course)
       );
     },
   );
@@ -118,6 +117,7 @@ export default function CountyCourseMap({
 
   return (
     <div className="overflow-hidden rounded-3xl bg-white shadow-sm ring-1 ring-slate-200/70">
+      {mappedCourses.length < courses.length && <p className="p-4 text-sm text-slate-600">{courses.length - mappedCourses.length} matching courses have no map location. View the list to see all results.</p>}
       <MapContainer
         center={initialCenter}
         zoom={9}

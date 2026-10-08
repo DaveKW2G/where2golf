@@ -162,7 +162,7 @@ export default async function GolfCoursesLimerickPage() {
             </p>
 
             <p className="mt-3 text-[15px] leading-6 text-emerald-50/95 lg:max-w-[740px] lg:text-[17px] lg:leading-7">
-              Filter courses by price, course type or holes,
+              Filter courses by price, visitor days, course type or holes,
               view them on a map and add your preferred rounds
               to a free golf-trip itinerary.
             </p>
@@ -238,7 +238,7 @@ export default async function GolfCoursesLimerickPage() {
                 </div>
 
                 <p className="mt-1 text-xs leading-5 text-slate-500">
-                  Narrow the list by price, course type and
+                  Narrow the list by price, visitor days, course type and
                   number of holes.
                 </p>
               </div>
