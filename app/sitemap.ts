@@ -1,185 +1,37 @@
-import { MetadataRoute } from 'next'
+import type { MetadataRoute } from 'next'
 import { createClient } from '@/lib/supabase/server'
+import publicPages from './sitemap-pages.json'
+
+// New course uploads appear on the next sitemap request.
+export const dynamic = 'force-dynamic'
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const baseUrl = 'https://guestplaygolf.com'
-
   const supabase = await createClient()
-
-  const { data: courses } = await supabase
-    .from('courses')
-    .select('id, updated_at')
-
-  const now = new Date()
-
-  const staticPages = [
-    {
-      url: baseUrl,
-      lastModified: now,
-      changeFrequency: 'weekly' as const,
-      priority: 1,
-    },
-
-    // Switzerland hub
-    {
-      url: `${baseUrl}/switzerland`,
-      lastModified: now,
-      changeFrequency: 'weekly' as const,
-      priority: 0.9,
-    },
-
-    // Switzerland "golf near"
-    {
-      url: `${baseUrl}/golf-near-zurich`,
-      lastModified: now,
-      changeFrequency: 'weekly' as const,
-      priority: 0.8,
-    },
-    {
-      url: `${baseUrl}/golf-near-geneva`,
-      lastModified: now,
-      changeFrequency: 'weekly' as const,
-      priority: 0.8,
-    },
-    {
-      url: `${baseUrl}/golf-near-basel`,
-      lastModified: now,
-      changeFrequency: 'weekly' as const,
-      priority: 0.8,
-    },
-    {
-      url: `${baseUrl}/golf-near-lausanne`,
-      lastModified: now,
-      changeFrequency: 'weekly' as const,
-      priority: 0.8,
-    },
-    {
-      url: `${baseUrl}/golf-near-lucerne`,
-      lastModified: now,
-      changeFrequency: 'weekly' as const,
-      priority: 0.8,
-    },
-    {
-      url: `${baseUrl}/golf-in-the-swiss-alps`,
-      lastModified: now,
-      changeFrequency: 'weekly' as const,
-      priority: 0.8,
-    },
-
-    // Switzerland additional pages
-    {
-      url: `${baseUrl}/golf-near-st-gallen`,
-      lastModified: now,
-      changeFrequency: 'weekly' as const,
-      priority: 0.8,
-    },
-    {
-      url: `${baseUrl}/golf-near-lugano`,
-      lastModified: now,
-      changeFrequency: 'weekly' as const,
-      priority: 0.8,
-    },
-    {
-      url: `${baseUrl}/golf-near-winterthur`,
-      lastModified: now,
-      changeFrequency: 'weekly' as const,
-      priority: 0.8,
-    },
-
-    // Ireland pages
-    {
-      url: `${baseUrl}/ireland`,
-      lastModified: now,
-      changeFrequency: 'weekly' as const,
-      priority: 0.9,
-    },
-    {
-      url: `${baseUrl}/ireland/planner`,
-      lastModified: now,
-      changeFrequency: 'weekly' as const,
-      priority: 0.8,
-    },
-    {
-      url: `${baseUrl}/irish-links-golf`,
-      lastModified: now,
-      changeFrequency: 'weekly' as const,
-      priority: 0.8,
-    },
-    {
-      url: `${baseUrl}/golf-near-dublin`,
-      lastModified: now,
-      changeFrequency: 'weekly' as const,
-      priority: 0.8,
-    },
-    {
-      url: `${baseUrl}/links-golf-near-dublin`,
-      lastModified: now,
-      changeFrequency: 'weekly' as const,
-      priority: 0.8,
-    },
-    {
-      url: `${baseUrl}/golf-near-cork`,
-      lastModified: now,
-      changeFrequency: 'weekly' as const,
-      priority: 0.8,
-    },
-    {
-      url: `${baseUrl}/golf-near-galway`,
-      lastModified: now,
-      changeFrequency: 'weekly' as const,
-      priority: 0.8,
-    },
-    {
-      url: `${baseUrl}/golf-near-belfast`,
-      lastModified: now,
-      changeFrequency: 'weekly' as const,
-      priority: 0.8,
-    },
-  ]
-
-  const regions = [
-    'ag',
-    'ai',
-    'ar',
-    'be',
-    'bl',
-    'bs',
-    'fr',
-    'ge',
-    'gl',
-    'gr',
-    'ju',
-    'lu',
-    'ne',
-    'nw',
-    'ow',
-    'sg',
-    'sh',
-    'so',
-    'sz',
-    'tg',
-    'ti',
-    'ur',
-    'vd',
-    'vs',
-    'zg',
-    'zh',
-  ]
-
-  const regionPages = regions.map((region) => ({
-    url: `${baseUrl}/switzerland/${region}`,
-    lastModified: now,
-    changeFrequency: 'weekly' as const,
-    priority: 0.7,
+  const entries: MetadataRoute.Sitemap = publicPages.map((route) => ({
+    url: route === '/' ? baseUrl : `${baseUrl}${route}`,
+    changeFrequency: 'weekly',
+    priority: route === '/' ? 1 : ['/ireland', '/switzerland'].includes(route) ? 0.9 : 0.7,
   }))
-
-  const coursePages =
-    courses?.map((course) => ({
-      url: `${baseUrl}/courses/${course.id}`,
-      lastModified: course.updated_at ? new Date(course.updated_at) : now,
-      changeFrequency: 'monthly' as const,
-      priority: 0.6,
-    })) || []
-
-  return [...staticPages, ...regionPages, ...coursePages]
+  // Paginate below the database limit; fail rather than serve incomplete results.
+  const pageSize = 300
+  for (let offset = 0; ; offset += pageSize) {
+    const { data, error } = await supabase
+      .from('courses')
+      .select('id, updated_at')
+      .order('id', { ascending: true })
+      .range(offset, offset + pageSize - 1)
+    if (error || !data) throw new Error('Unable to load courses for sitemap')
+    for (const course of data) {
+      const modified = course.updated_at ? new Date(course.updated_at) : undefined
+      entries.push({
+        url: `${baseUrl}/courses/${encodeURIComponent(String(course.id))}`,
+        ...(modified && !Number.isNaN(modified.getTime()) ? { lastModified: modified } : {}),
+        changeFrequency: 'monthly',
+        priority: 0.6,
+      })
+    }
+    if (data.length < pageSize) break
+  }
+  return entries
 }
