@@ -175,63 +175,10 @@ export default function CourseCard({
   const [hasActiveTrip, setHasActiveTrip] = useState(false)
   const [storedTripIdState, setStoredTripIdState] = useState<string | null>(null)
 
-  const params = new URLSearchParams()
-
-  if (searchParams) {
-    Object.entries(searchParams).forEach(([key, value]) => {
-      if (typeof value === 'string' && value.trim() !== '') {
-        params.set(key, value)
-      } else if (Array.isArray(value)) {
-        value.forEach((item) => {
-          if (item.trim() !== '') params.append(key, item)
-        })
-      }
-    })
-  }
-
-  const returnParams = new URLSearchParams(params)
-  const resultsQueryString = params.toString()
-  const source = getSingleParam(searchParams?.source)
-
-  const sourceReturnTo: Record<string, string> = {
-    'irish-links-golf': '/irish-links-golf',
-    'links-golf-ireland': '/links-golf-ireland',
-    'links-golf-near-dublin': '/links-golf-near-dublin',
-    'golf-courses-cork': '/golf-courses-cork',
-    'golf-courses-donegal': '/golf-courses-donegal',
-    'golf-courses-dublin': '/golf-courses-dublin',
-    'golf-courses-kerry': '/golf-courses-kerry',
-    'golf-courses-clare': '/golf-courses-clare',
-    'golf-courses-galway': '/golf-courses-galway',
-    'golf-courses-down': '/golf-courses-down',
-    'golf-courses-wicklow': '/golf-courses-wicklow',
-    'golf-courses-kildare': '/golf-courses-kildare',
-    'golf-near-dublin': '/golf-near-dublin',
-    'golf-near-cork': '/golf-near-cork',
-    'golf-near-galway': '/golf-near-galway',
-    'golf-near-belfast': '/golf-near-belfast',
-    'golf-near-adare-manor': '/golf-near-adare-manor',
-    'golf-near-zurich': '/golf-near-zurich',
-    'golf-near-geneva': '/golf-near-geneva',
-    'golf-near-basel': '/golf-near-basel',
-    'golf-near-lausanne': '/golf-near-lausanne',
-    'golf-near-lucerne': '/golf-near-lucerne',
-    'golf-in-the-swiss-alps': '/golf-in-the-swiss-alps',
-    'golf-near-st-gallen': '/golf-near-st-gallen',
-    'golf-near-lugano': '/golf-near-lugano',
-    'golf-near-winterthur': '/golf-near-winterthur',
-  }
-
-  if (!returnParams.get('returnTo')) {
-    if (source && sourceReturnTo[source]) {
-      returnParams.set('returnTo', sourceReturnTo[source])
-    } else if (resultsQueryString) {
-      returnParams.set('returnTo', `/results?${resultsQueryString}`)
-    }
-  }
-
-  const courseQueryString = returnParams.toString()
-  const href = courseQueryString ? `/courses/${id}?${courseQueryString}` : `/courses/${id}`
+  // Course-detail URLs are indexable. Keep every internal link on the clean
+  // canonical path so filters and navigation state cannot create duplicate
+  // crawlable variants in Search Console.
+  const href = `/courses/${id}`
 
   const countryValue = getCountryFromParams(country, searchParams)
   const isIreland = countryValue === 'ireland'

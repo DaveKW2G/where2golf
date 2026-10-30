@@ -27,7 +27,6 @@ type MapCourse = {
 
 type CountyCourseMapProps = {
   courses: MapCourse[];
-  source: string;
   initialCenter: [number, number];
 };
 
@@ -90,14 +89,10 @@ function FitCourses({
 
 export default function CountyCourseMap({
   courses,
-  source,
   initialCenter,
 }: CountyCourseMapProps) {
   const mappedCourses = courses.filter(
     (course) => {
-      const lat = Number(course.latitude);
-      const lng = Number(course.longitude);
-
       return (
         hasCoordinates(course)
       );
@@ -112,8 +107,6 @@ export default function CountyCourseMap({
       </div>
     );
   }
-
-  const returnTo = `/${source}`;
 
   return (
     <div className="overflow-hidden rounded-3xl bg-white shadow-sm ring-1 ring-slate-200/70">
@@ -141,12 +134,6 @@ export default function CountyCourseMap({
         {mappedCourses.map((course) => {
           const lat = Number(course.latitude);
           const lng = Number(course.longitude);
-
-          const query = new URLSearchParams({
-            country: "ireland",
-            source,
-            returnTo,
-          });
 
           return (
             <CircleMarker
@@ -191,7 +178,7 @@ export default function CountyCourseMap({
                   </div>
 
                   <Link
-                    href={`/courses/${course.id}?${query.toString()}`}
+                    href={`/courses/${course.id}`}
                     className="mt-3 inline-block font-semibold text-emerald-700 no-underline"
                   >
                     View course →

@@ -667,30 +667,8 @@ export default async function CoursePage({
   const countryHref = isIreland ? "/ireland" : "/switzerland";
   const fallbackHref = buildFallbackHref(resolvedSearchParams, countryHref);
 
-  const courseContextParams = new URLSearchParams();
-
-  for (const [key, value] of Object.entries(resolvedSearchParams)) {
-    if (typeof value === "string" && value.trim() !== "") {
-      courseContextParams.set(key, value);
-    } else if (Array.isArray(value)) {
-      value.forEach((item) => {
-        if (item.trim() !== "") {
-          courseContextParams.append(key, item);
-        }
-      });
-    }
-  }
-
-  if (!courseContextParams.get("country")) {
-    courseContextParams.set("country", country);
-  }
-
-  const courseContextQueryString = courseContextParams.toString();
-
   function getCourseHref(courseId: number) {
-    return courseContextQueryString
-      ? `/courses/${courseId}?${courseContextQueryString}`
-      : `/courses/${courseId}`;
+    return `/courses/${courseId}`;
   }
 
   const regionHref = isIreland
