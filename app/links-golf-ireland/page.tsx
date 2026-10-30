@@ -99,6 +99,27 @@ function RegionalGolfLinks() {
 
       <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
         <Link
+          href="/affordable-links-golf-ireland"
+          className="rounded-2xl bg-emerald-50 px-4 py-3 text-sm font-semibold text-emerald-900 no-underline ring-1 ring-emerald-100 transition hover:bg-emerald-100"
+        >
+          Affordable Links Golf in Ireland →
+        </Link>
+
+        <Link
+          href="/links-golf-northern-ireland"
+          className="rounded-2xl bg-emerald-50 px-4 py-3 text-sm font-semibold text-emerald-900 no-underline ring-1 ring-emerald-100 transition hover:bg-emerald-100"
+        >
+          Links Golf in Northern Ireland →
+        </Link>
+
+        <Link
+          href="/links-golf-west-coast-ireland"
+          className="rounded-2xl bg-emerald-50 px-4 py-3 text-sm font-semibold text-emerald-900 no-underline ring-1 ring-emerald-100 transition hover:bg-emerald-100"
+        >
+          Links Golf on Ireland&apos;s West Coast →
+        </Link>
+
+        <Link
           href="/links-golf-near-dublin"
           className="rounded-2xl bg-emerald-50 px-4 py-3 text-sm font-semibold text-emerald-900 no-underline ring-1 ring-emerald-100 transition hover:bg-emerald-100"
         >
@@ -339,7 +360,7 @@ export default async function LinksGolfIrelandPage() {
           </h2>
 
           <p className="mt-3 text-sm leading-6 text-slate-600">
-            Ireland's links courses are spread around the coast. Choose a region
+            Ireland&apos;s links courses are spread around the coast. Choose a region
             below to jump directly to its courses and start shaping a practical
             route.
           </p>

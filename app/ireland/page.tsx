@@ -70,6 +70,24 @@ const linksGolfGuides = [
     description:
       "Explore coastal links within reach of Dublin, from local clubs to bucket-list courses.",
   },
+  {
+    title: "Affordable Links Golf in Ireland",
+    href: "/affordable-links-golf-ireland",
+    description:
+      "Find value-for-money links, hidden gems and coastal courses in the €50-or-less and €50-to-€100 bands.",
+  },
+  {
+    title: "Links Golf in Northern Ireland",
+    href: "/links-golf-northern-ireland",
+    description:
+      "Compare premium championship links and local coastal courses across Antrim, Derry and Down.",
+  },
+  {
+    title: "Links Golf on Ireland’s West Coast",
+    href: "/links-golf-west-coast-ireland",
+    description:
+      "Plan an Atlantic links road trip from Donegal to Cork along the Wild Atlantic Way.",
+  },
 ];
 
 const priceCategories = priceBands.map(band => ({ label: band.value, range: `${band.name} · ${band.range}`, description: band.description }));

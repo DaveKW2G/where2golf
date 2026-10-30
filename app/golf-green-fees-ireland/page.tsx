@@ -89,7 +89,7 @@ export default async function GreenFeesIrelandPage() {
         <p className="mt-3 text-sm leading-7 text-slate-600">Explore county guides, compare links courses or choose a base for your trip.</p>
         <div className="mt-5 grid gap-6 lg:grid-cols-3">
           <nav aria-label="Ireland golf and planner"><h3 className="font-bold text-slate-900">Explore and plan</h3><div className="mt-3 grid gap-3">{[
-            ['Ireland golf courses', '/ireland'], ['Free Ireland golf trip planner', '/ireland/planner'], ['Links Golf in Ireland', '/links-golf-ireland'], ['Links Golf Near Dublin', '/links-golf-near-dublin']
+            ['Ireland golf courses', '/ireland'], ['Free Ireland golf trip planner', '/ireland/planner'], ['Links Golf in Ireland', '/links-golf-ireland'], ['Affordable Links Golf', '/affordable-links-golf-ireland'], ['Links Golf in Northern Ireland', '/links-golf-northern-ireland'], ['West Coast Links Golf', '/links-golf-west-coast-ireland'], ['Links Golf Near Dublin', '/links-golf-near-dublin']
           ].map(([label,href])=><Link key={href} href={href} className="rounded-xl bg-emerald-50 px-4 py-3 text-sm font-semibold text-emerald-900">{label} →</Link>)}</div></nav>
           <nav aria-label="County golf guides"><h3 className="font-bold text-slate-900">Browse by county</h3><div className="mt-3 grid gap-3">{[
             ['Dublin','dublin'],['Cork','cork'],['Kerry','kerry'],['Clare','clare'],['Galway','galway'],['Donegal','donegal'],['Down','down'],['Wicklow','wicklow'],['Kildare','kildare'],['Limerick','limerick']

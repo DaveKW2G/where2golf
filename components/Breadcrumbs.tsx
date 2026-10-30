@@ -43,8 +43,11 @@ const irelandGuidePages: Record<string, string> = {
   "/golf-green-fees-ireland": "Golf Green Fees Ireland",
   "/golf-in-northern-ireland": "Golf in Northern Ireland",
   "/golf-in-south-east-ireland": "Golf in South East Ireland",
+  "/affordable-links-golf-ireland": "Affordable Links Golf in Ireland",
   "/links-golf-ireland": "Links Golf in Ireland",
+  "/links-golf-northern-ireland": "Links Golf in Northern Ireland",
   "/links-golf-near-dublin": "Links Golf Near Dublin",
+  "/links-golf-west-coast-ireland": "Links Golf on Ireland's West Coast",
 };
 
 for (const [href, label] of Object.entries(irelandGuidePages)) {
@@ -79,6 +82,18 @@ const sourceParents: Record<string, { label: string; href: string }> = {
   "links-golf-ireland": {
     label: "Links Golf in Ireland",
     href: "/links-golf-ireland",
+  },
+  "affordable-links-golf-ireland": {
+    label: "Affordable Links Golf in Ireland",
+    href: "/affordable-links-golf-ireland",
+  },
+  "links-golf-northern-ireland": {
+    label: "Links Golf in Northern Ireland",
+    href: "/links-golf-northern-ireland",
+  },
+  "links-golf-west-coast-ireland": {
+    label: "Links Golf on Ireland's West Coast",
+    href: "/links-golf-west-coast-ireland",
   },
   "irish-links-golf": {
     label: "Links Golf in Ireland",

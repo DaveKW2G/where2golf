@@ -354,7 +354,10 @@ function getFallbackHrefFromSource(source?: string) {
     "golf-courses-wicklow": "/golf-courses-wicklow",
     "golf-courses-kildare": "/golf-courses-kildare",
     "links-golf-ireland": "/links-golf-ireland",
+    "affordable-links-golf-ireland": "/affordable-links-golf-ireland",
+    "links-golf-northern-ireland": "/links-golf-northern-ireland",
     "links-golf-near-dublin": "/links-golf-near-dublin",
+    "links-golf-west-coast-ireland": "/links-golf-west-coast-ireland",
     "golf-near-dublin": "/golf-near-dublin",
     "golf-near-cork": "/golf-near-cork",
     "golf-near-galway": "/golf-near-galway",
@@ -475,12 +478,43 @@ function getNearbyIrelandGuideLinks(course: Course): NearbyGuideLink[] {
     course.course_type?.toLowerCase().includes("links") || false;
 
   if (isLinksCourse) {
-    nearbyLinks.unshift({
-      title: "Links Golf in Ireland",
-      href: "/links-golf-ireland",
-      description:
-        "Compare links golf courses across Ireland and add your preferred options to your itinerary.",
-    });
+    const linksGuides: NearbyGuideLink[] = [
+      {
+        title: "Links Golf in Ireland",
+        href: "/links-golf-ireland",
+        description:
+          "Compare links golf courses across Ireland and add your preferred options to your itinerary.",
+      },
+    ];
+
+    if (["€", "€€"].includes(course.price_range?.trim() || "")) {
+      linksGuides.push({
+        title: "Affordable Links Golf in Ireland",
+        href: "/affordable-links-golf-ireland",
+        description:
+          "Find value-for-money links and coastal hidden gems in Ireland's two lowest visitor price bands.",
+      });
+    }
+
+    if (["Antrim", "Derry", "Down"].includes(course.region?.trim() || "")) {
+      linksGuides.push({
+        title: "Links Golf in Northern Ireland",
+        href: "/links-golf-northern-ireland",
+        description:
+          "Compare premium championship links and local coastal courses across Northern Ireland.",
+      });
+    }
+
+    if (["Donegal", "Sligo", "Mayo", "Galway", "Clare", "Kerry", "Cork"].includes(course.region?.trim() || "")) {
+      linksGuides.push({
+        title: "Links Golf on Ireland's West Coast",
+        href: "/links-golf-west-coast-ireland",
+        description:
+          "Plan an Atlantic links road trip from Donegal to Cork along Ireland's west coast.",
+      });
+    }
+
+    nearbyLinks.unshift(...linksGuides);
   }
 
   const distanceToDublinKm = getDistanceKm(
