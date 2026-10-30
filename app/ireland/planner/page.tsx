@@ -7,6 +7,8 @@ import TripVoteInvite from "@/components/TripVoteInvite";
 type GolfIrelandMember = "Yes" | "No" | "Not sure";
 type DayType = "Weekday" | "Weekend";
 type PlannerStep = "setup" | "planner";
+type BudgetPreference = "any" | "value" | "balanced" | "premium";
+type CourseTypePreference = "any" | "links" | "parkland" | "heathland";
 
 type TripDay = {
   dayNumber: number;
@@ -30,9 +32,13 @@ type PlannerCourse = {
   course_type?: string;
   course_image?: string;
   distance?: number;
+  latitude?: number;
+  longitude?: number;
   max_handicap?: number | string;
   assigned_day?: number | null;
   assigned_slot?: "Morning" | "Afternoon" | null;
+  automatically_recommended?: boolean;
+  recommendation_reasons?: string[];
   suggested_by_name?: string;
   suggested_by_participant_id?: string;
   suggested_at?: string;
@@ -95,6 +101,25 @@ const months = [
   "December",
 ];
 
+const budgetOptions: { value: BudgetPreference; label: string }[] = [
+  { value: "value", label: "Value (€–€€)" },
+  { value: "balanced", label: "Balanced (€€–€€€)" },
+  { value: "premium", label: "Premium (€€€€–€€€€€)" },
+  { value: "any", label: "Any budget" },
+];
+
+const courseTypeOptions: {
+  value: CourseTypePreference;
+  label: string;
+}[] = [
+  { value: "any", label: "A good mix" },
+  { value: "links", label: "Links" },
+  { value: "parkland", label: "Parkland" },
+  { value: "heathland", label: "Heathland" },
+];
+
+const distanceOptions = [25, 50, 75, 100, 150];
+
 const ICON_LOCATION = "📍";
 const ICON_CALENDAR = "📅";
 const ICON_GOLFERS = "👥";
@@ -147,10 +172,11 @@ function formatPriceBand(priceRange?: string) {
 function getGreenFeeRange(priceRange?: string) {
   const cleanPrice = priceRange?.replace(/Â/g, "").trim();
 
-  if (cleanPrice === "€") return { low: 0, high: 100 };
-  if (cleanPrice === "€€") return { low: 101, high: 200 };
-  if (cleanPrice === "€€€") return { low: 201, high: 300 };
-  if (cleanPrice === "€€€€") return { low: 300, high: 450 };
+  if (cleanPrice === "€") return { low: 0, high: 50 };
+  if (cleanPrice === "€€") return { low: 50, high: 100 };
+  if (cleanPrice === "€€€") return { low: 100, high: 200 };
+  if (cleanPrice === "€€€€") return { low: 200, high: 300 };
+  if (cleanPrice === "€€€€€") return { low: 300, high: 450 };
 
   return null;
 }
@@ -320,6 +346,7 @@ export default function PlannerPage() {
   const [baseInput, setBaseInput] = useState("");
   const [geocodedBase, setGeocodedBase] = useState<GeocodedBase | null>(null);
   const [isCreatingTrip, setIsCreatingTrip] = useState(false);
+  const [isBuildingItinerary, setIsBuildingItinerary] = useState(false);
   const [isLoadingTrip, setIsLoadingTrip] = useState(false);
   const [isRemovingCourse, setIsRemovingCourse] = useState<number | null>(null);
   const [isAssigningCourse, setIsAssigningCourse] = useState<number | null>(
@@ -337,6 +364,7 @@ export default function PlannerPage() {
   const [isLoadingTrips, setIsLoadingTrips] = useState(false);
   const [voteSummary, setVoteSummary] = useState<VoteSummary>({});
   const [voteParticipantCount, setVoteParticipantCount] = useState(0);
+  const [builderMessage, setBuilderMessage] = useState("");
 
   const [tripName, setTripName] = useState("");
   const [month, setMonth] = useState("April");
@@ -344,6 +372,11 @@ export default function PlannerPage() {
     useState<GolfIrelandMember>("No");
   const [numberOfGolfers, setNumberOfGolfers] = useState(4);
   const [numberOfGolfDays, setNumberOfGolfDays] = useState(3);
+  const [budgetPreference, setBudgetPreference] =
+    useState<BudgetPreference>("balanced");
+  const [courseTypePreference, setCourseTypePreference] =
+    useState<CourseTypePreference>("any");
+  const [maxDistanceKm, setMaxDistanceKm] = useState(75);
 
   const [tripDays, setTripDays] = useState<TripDay[]>([
     { dayNumber: 1, dayType: "Weekday" },
@@ -554,11 +587,73 @@ export default function PlannerPage() {
     )}`;
   }
 
-  async function handleStartPlanning() {
+  async function buildItinerary(activeTripId: string) {
+    if (!activeTripId || isBuildingItinerary) return false;
+
+    setTripError("");
+    setBuilderMessage("");
+    setIsBuildingItinerary(true);
+
+    try {
+      const response = await fetch("/api/trips/recommend", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          trip_id: activeTripId,
+          budget_preference: budgetPreference,
+          course_type_preference: courseTypePreference,
+          max_distance_km: maxDistanceKm,
+          trip_days: tripDays,
+        }),
+      });
+      const data = await response.json();
+
+      if (!response.ok || !Array.isArray(data.selected_courses)) {
+        setTripError(
+          data.error ||
+            "We could not choose courses automatically. You can still choose them manually.",
+        );
+        return false;
+      }
+
+      const recommendedCourses = data.selected_courses as PlannerCourse[];
+      setSelectedCourses(recommendedCourses);
+      setBuilderMessage(data.message || "Your itinerary is ready.");
+      window.localStorage.setItem(
+        "guestplaygolf_planner_courses",
+        JSON.stringify(recommendedCourses),
+      );
+
+      (window as PlannerWindow).gtag?.("event", "itinerary_auto_built", {
+        country: "Ireland",
+        trip_id: activeTripId,
+        budget_preference: budgetPreference,
+        course_type_preference: courseTypePreference,
+        max_distance_km: maxDistanceKm,
+        selected_course_count: recommendedCourses.length,
+        added_course_count: Number(data.added_count) || 0,
+        filled_day_count: Number(data.filled_day_count) || 0,
+      });
+
+      return true;
+    } catch {
+      setTripError(
+        "We could not choose courses automatically. You can still choose them manually.",
+      );
+      return false;
+    } finally {
+      setIsBuildingItinerary(false);
+    }
+  }
+
+  async function handleStartPlanning(autoBuild: boolean) {
     if (!isReadyToStart) return;
 
     setBaseError("");
     setTripError("");
+    setBuilderMessage("");
     setIsCreatingTrip(true);
 
     const currentPlannerUserId = plannerUserId || getOrCreatePlannerUserId();
@@ -634,6 +729,10 @@ export default function PlannerPage() {
 
       window.localStorage.setItem("guestplaygolf_trip_id", tripData.trip_id);
       window.localStorage.setItem("guestplaygolf_planner_courses", "[]");
+
+      if (autoBuild) {
+        await buildItinerary(tripData.trip_id);
+      }
 
       setStep("planner");
     } catch {
@@ -1122,17 +1221,98 @@ export default function PlannerPage() {
                   </div>
                 </div>
 
+                <fieldset className="rounded-3xl bg-emerald-50 p-4 ring-1 ring-emerald-100">
+                  <legend className="px-2 text-sm font-bold text-emerald-950">
+                    Let us choose the courses
+                  </legend>
+
+                  <p className="mt-1 text-xs leading-5 text-slate-600">
+                    We&apos;ll match courses to your base, budget, preferred style,
+                    visitor access and month of travel.
+                  </p>
+
+                  <div className="mt-4 grid gap-4 sm:grid-cols-3">
+                    <label className="text-xs font-semibold text-slate-700">
+                      Budget
+                      <select
+                        value={budgetPreference}
+                        onChange={(event) =>
+                          setBudgetPreference(
+                            event.target.value as BudgetPreference,
+                          )
+                        }
+                        className="mt-2 w-full rounded-2xl border border-emerald-200 bg-white px-3 py-3 text-sm text-slate-900 outline-none focus:border-emerald-700"
+                      >
+                        {budgetOptions.map((option) => (
+                          <option key={option.value} value={option.value}>
+                            {option.label}
+                          </option>
+                        ))}
+                      </select>
+                    </label>
+
+                    <label className="text-xs font-semibold text-slate-700">
+                      Course style
+                      <select
+                        value={courseTypePreference}
+                        onChange={(event) =>
+                          setCourseTypePreference(
+                            event.target.value as CourseTypePreference,
+                          )
+                        }
+                        className="mt-2 w-full rounded-2xl border border-emerald-200 bg-white px-3 py-3 text-sm text-slate-900 outline-none focus:border-emerald-700"
+                      >
+                        {courseTypeOptions.map((option) => (
+                          <option key={option.value} value={option.value}>
+                            {option.label}
+                          </option>
+                        ))}
+                      </select>
+                    </label>
+
+                    <label className="text-xs font-semibold text-slate-700">
+                      Maximum distance
+                      <select
+                        value={maxDistanceKm}
+                        onChange={(event) =>
+                          setMaxDistanceKm(Number(event.target.value))
+                        }
+                        className="mt-2 w-full rounded-2xl border border-emerald-200 bg-white px-3 py-3 text-sm text-slate-900 outline-none focus:border-emerald-700"
+                      >
+                        {distanceOptions.map((distance) => (
+                          <option key={distance} value={distance}>
+                            Within {distance} km
+                          </option>
+                        ))}
+                      </select>
+                    </label>
+                  </div>
+                </fieldset>
+
                 {tripError && (
                   <p className="text-sm leading-6 text-red-600">{tripError}</p>
                 )}
 
                 <button
                   type="button"
-                  disabled={!isReadyToStart}
-                  onClick={handleStartPlanning}
-                  className="rounded-full bg-slate-900 px-5 py-4 text-sm font-semibold text-white disabled:opacity-50"
+                  disabled={!isReadyToStart || isBuildingItinerary}
+                  onClick={() => handleStartPlanning(true)}
+                  className="rounded-full bg-emerald-800 px-5 py-4 text-sm font-bold text-white shadow-sm disabled:opacity-50"
                 >
-                  {isCreatingTrip ? "Creating your trip..." : "Start Planning"}
+                  {isBuildingItinerary
+                    ? "Choosing your courses..."
+                    : isCreatingTrip
+                      ? "Creating your trip..."
+                      : "Build My Trip"}
+                </button>
+
+                <button
+                  type="button"
+                  disabled={!isReadyToStart || isBuildingItinerary}
+                  onClick={() => handleStartPlanning(false)}
+                  className="rounded-full border border-slate-300 bg-white px-5 py-3 text-sm font-semibold text-slate-700 disabled:opacity-50"
+                >
+                  Start with an empty itinerary
                 </button>
               </div>
             </div>
@@ -1201,6 +1381,115 @@ export default function PlannerPage() {
                 />
               </div>
             )}
+
+            <section
+              aria-labelledby="smart-builder-heading"
+              className="overflow-hidden rounded-3xl bg-gradient-to-br from-emerald-950 via-emerald-900 to-emerald-800 p-5 text-white shadow-sm lg:col-span-2 lg:p-6"
+            >
+              <div className="flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
+                <div className="max-w-2xl">
+                  <span className="inline-flex rounded-full bg-white/10 px-3 py-1 text-[11px] font-bold uppercase tracking-[0.16em] text-emerald-50 ring-1 ring-white/20">
+                    Smart trip builder
+                  </span>
+                  <h2
+                    id="smart-builder-heading"
+                    className="mt-3 text-[22px] font-bold text-white"
+                  >
+                    Let GuestPlayGolf complete your itinerary
+                  </h2>
+                  <p className="mt-2 text-sm leading-6 text-emerald-50/90">
+                    We&apos;ll keep every course already in your trip, assign suitable
+                    choices to empty days and add strong nearby matches where needed.
+                  </p>
+                </div>
+
+                <button
+                  type="button"
+                  onClick={() => buildItinerary(tripId)}
+                  disabled={!tripId || isBuildingItinerary}
+                  className="shrink-0 rounded-full bg-white px-6 py-3 text-sm font-bold text-emerald-950 shadow-sm disabled:opacity-60"
+                >
+                  {isBuildingItinerary
+                    ? "Choosing courses..."
+                    : selectedCourses.length > 0
+                      ? "Complete My Itinerary"
+                      : "Build My Trip"}
+                </button>
+              </div>
+
+              <div className="mt-5 grid gap-3 sm:grid-cols-3">
+                <label className="text-xs font-semibold text-emerald-50">
+                  Budget
+                  <select
+                    value={budgetPreference}
+                    onChange={(event) =>
+                      setBudgetPreference(event.target.value as BudgetPreference)
+                    }
+                    className="mt-2 w-full rounded-2xl border border-white/20 bg-white px-3 py-3 text-sm text-slate-900 outline-none"
+                  >
+                    {budgetOptions.map((option) => (
+                      <option key={option.value} value={option.value}>
+                        {option.label}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+
+                <label className="text-xs font-semibold text-emerald-50">
+                  Course style
+                  <select
+                    value={courseTypePreference}
+                    onChange={(event) =>
+                      setCourseTypePreference(
+                        event.target.value as CourseTypePreference,
+                      )
+                    }
+                    className="mt-2 w-full rounded-2xl border border-white/20 bg-white px-3 py-3 text-sm text-slate-900 outline-none"
+                  >
+                    {courseTypeOptions.map((option) => (
+                      <option key={option.value} value={option.value}>
+                        {option.label}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+
+                <label className="text-xs font-semibold text-emerald-50">
+                  Maximum distance
+                  <select
+                    value={maxDistanceKm}
+                    onChange={(event) =>
+                      setMaxDistanceKm(Number(event.target.value))
+                    }
+                    className="mt-2 w-full rounded-2xl border border-white/20 bg-white px-3 py-3 text-sm text-slate-900 outline-none"
+                  >
+                    {distanceOptions.map((distance) => (
+                      <option key={distance} value={distance}>
+                        Within {distance} km
+                      </option>
+                    ))}
+                  </select>
+                </label>
+              </div>
+
+              {builderMessage && (
+                <p
+                  role="status"
+                  className="mt-4 rounded-2xl bg-white/10 px-4 py-3 text-sm font-semibold text-white ring-1 ring-white/15"
+                >
+                  {ICON_CHECK} {builderMessage}
+                </p>
+              )}
+
+              {tripError && (
+                <p
+                  role="alert"
+                  className="mt-4 rounded-2xl bg-red-50 px-4 py-3 text-sm font-semibold text-red-800"
+                >
+                  {tripError}
+                </p>
+              )}
+            </section>
 
             <div className="min-w-0 max-w-full rounded-3xl bg-white p-5 shadow-sm ring-1 ring-slate-200/70">
               <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
@@ -1457,6 +1746,25 @@ export default function PlannerPage() {
                             <p className="mt-2 inline-flex rounded-full bg-amber-100 px-3 py-1 text-xs font-semibold text-amber-950">
                               Suggested by {course.suggested_by_name}
                             </p>
+                          )}
+
+                          {course.automatically_recommended && (
+                            <div className="mt-2">
+                              <span className="inline-flex rounded-full bg-emerald-100 px-3 py-1 text-xs font-bold text-emerald-900">
+                                GuestPlayGolf recommendation
+                              </span>
+
+                              {course.recommendation_reasons &&
+                                course.recommendation_reasons.length > 0 && (
+                                  <ul className="mt-2 space-y-1 text-xs leading-5 text-slate-600">
+                                    {course.recommendation_reasons.map(
+                                      (reason) => (
+                                        <li key={reason}>✓ {reason}</li>
+                                      ),
+                                    )}
+                                  </ul>
+                                )}
+                            </div>
                           )}
 
                           {typeof course.distance === "number" && (
