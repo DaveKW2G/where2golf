@@ -2,11 +2,11 @@
 
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
+import TripVoteInvite from "@/components/TripVoteInvite";
 
 type GolfIrelandMember = "Yes" | "No" | "Not sure";
 type DayType = "Weekday" | "Weekend";
 type PlannerStep = "setup" | "planner";
-type VoteValue = "must_play" | "happy_to_play" | "not_for_me";
 
 type TripDay = {
   dayNumber: number;
@@ -33,6 +33,10 @@ type PlannerCourse = {
   max_handicap?: number | string;
   assigned_day?: number | null;
   assigned_slot?: "Morning" | "Afternoon" | null;
+  suggested_by_name?: string;
+  suggested_by_participant_id?: string;
+  suggested_at?: string;
+  suggestion_source?: string;
 };
 
 type SavedTrip = {
@@ -56,6 +60,14 @@ type VoteSummary = Record<
     score: number;
   }
 >;
+
+type PlannerWindow = Window & {
+  gtag?: (
+    command: "event",
+    eventName: string,
+    parameters?: Record<string, string | number | boolean>,
+  ) => void;
+};
 
 const quickBases = [
   "Dublin",
@@ -81,12 +93,6 @@ const months = [
   "October",
   "November",
   "December",
-];
-
-const voteOptions: { value: VoteValue; emoji: string; label: string }[] = [
-  { value: "must_play", emoji: "🔥", label: "Must Play" },
-  { value: "happy_to_play", emoji: "👍", label: "Happy To Play" },
-  { value: "not_for_me", emoji: "👎", label: "Not For Me" },
 ];
 
 const ICON_LOCATION = "📍";
@@ -188,23 +194,6 @@ function getOrCreatePlannerUserId() {
   window.localStorage.setItem("guestplaygolf_planner_user_id", newUserId);
 
   return newUserId;
-}
-
-function generateParticipantId() {
-  return `GPG-P-${Math.random().toString(36).substring(2, 10).toUpperCase()}`;
-}
-
-function getOrCreateParticipantId() {
-  const existingId = window.localStorage.getItem(
-    "guestplaygolf_participant_id",
-  );
-
-  if (existingId) return existingId;
-
-  const newId = generateParticipantId();
-  window.localStorage.setItem("guestplaygolf_participant_id", newId);
-
-  return newId;
 }
 
 function getShortPlaceName(place?: string) {
@@ -346,11 +335,8 @@ export default function PlannerPage() {
   const [selectedCourses, setSelectedCourses] = useState<PlannerCourse[]>([]);
   const [savedTrips, setSavedTrips] = useState<SavedTrip[]>([]);
   const [isLoadingTrips, setIsLoadingTrips] = useState(false);
-  const [shareCopied, setShareCopied] = useState(false);
-  const [participantId, setParticipantId] = useState("");
   const [voteSummary, setVoteSummary] = useState<VoteSummary>({});
-  const [selectedVotes, setSelectedVotes] = useState<Record<number, VoteValue>>({});
-  const [isSubmittingVote, setIsSubmittingVote] = useState<number | null>(null);
+  const [voteParticipantCount, setVoteParticipantCount] = useState(0);
 
   const [tripName, setTripName] = useState("");
   const [month, setMonth] = useState("April");
@@ -378,11 +364,14 @@ export default function PlannerPage() {
 
       if (response.ok && data.summary) {
         setVoteSummary(data.summary);
+        setVoteParticipantCount(Number(data.participant_count) || 0);
       } else {
         setVoteSummary({});
+        setVoteParticipantCount(0);
       }
     } catch {
       setVoteSummary({});
+      setVoteParticipantCount(0);
     }
   }
 
@@ -393,9 +382,6 @@ export default function PlannerPage() {
   useEffect(() => {
     const currentPlannerUserId = getOrCreatePlannerUserId();
     setPlannerUserId(currentPlannerUserId);
-
-    const currentParticipantId = getOrCreateParticipantId();
-    setParticipantId(currentParticipantId);
 
     async function loadExistingTrip({
       existingTripId,
@@ -475,15 +461,6 @@ export default function PlannerPage() {
         );
 
         await loadVoteTotals(trip.trip_id);
-
-        try {
-          const storedVotes = window.localStorage.getItem(
-            `guestplaygolf_trip_votes_${trip.trip_id}`,
-          );
-          setSelectedVotes(storedVotes ? JSON.parse(storedVotes) : {});
-        } catch {
-          setSelectedVotes({});
-        }
 
         if ((existingTripCode || existingTripId) && trip.trip_id) {
           window.history.replaceState(
@@ -636,8 +613,8 @@ export default function PlannerPage() {
         return;
       }
 
-      if (typeof window !== "undefined" && (window as any).gtag) {
-        (window as any).gtag("event", "planner_started", {
+      if (typeof window !== "undefined") {
+        (window as PlannerWindow).gtag?.("event", "planner_started", {
           country: "Ireland",
           base_location: confirmedBase.label,
           month_of_travel: month,
@@ -653,7 +630,7 @@ export default function PlannerPage() {
       setTripCode(tripData.trip_code || "");
       setSelectedCourses([]);
       setVoteSummary({});
-      setSelectedVotes({});
+      setVoteParticipantCount(0);
 
       window.localStorage.setItem("guestplaygolf_trip_id", tripData.trip_id);
       window.localStorage.setItem("guestplaygolf_planner_courses", "[]");
@@ -774,70 +751,6 @@ export default function PlannerPage() {
       setTripError("Something went wrong assigning this course.");
     } finally {
       setIsAssigningCourse(null);
-    }
-  }
-
-  async function handleCopyShareLink() {
-    if (!tripId) return;
-
-    const shareUrl = `${window.location.origin}/ireland/planner?tripId=${tripId}`;
-
-    try {
-      await window.navigator.clipboard.writeText(shareUrl);
-      setShareCopied(true);
-      window.setTimeout(() => setShareCopied(false), 2500);
-    } catch {
-      setTripError(
-        "We could not copy the link. Please copy it from your browser address bar.",
-      );
-    }
-  }
-
-  async function handleSubmitVote(courseId: number, vote: VoteValue) {
-    if (!tripId || !participantId || isSubmittingVote) return;
-
-    setTripError("");
-    setIsSubmittingVote(courseId);
-
-    try {
-      const response = await fetch("/api/trips/vote", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          trip_id: tripId,
-          course_id: courseId,
-          participant_id: participantId,
-          vote,
-        }),
-      });
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        setTripError(data.error || "We could not save your vote.");
-        return;
-      }
-
-      if (data.summary) {
-        setVoteSummary(data.summary);
-      }
-
-      const nextSelectedVotes = {
-        ...selectedVotes,
-        [courseId]: vote,
-      };
-
-      setSelectedVotes(nextSelectedVotes);
-      window.localStorage.setItem(
-        `guestplaygolf_trip_votes_${tripId}`,
-        JSON.stringify(nextSelectedVotes),
-      );
-    } catch {
-      setTripError("Something went wrong saving your vote.");
-    } finally {
-      setIsSubmittingVote(null);
     }
   }
 
@@ -1250,15 +1163,13 @@ export default function PlannerPage() {
 
                   <div className="flex shrink-0 gap-2 sm:flex-col">
                     {tripId && (
-                      <button
-                        type="button"
-                        onClick={handleCopyShareLink}
-                        className="rounded-full bg-white px-4 py-2 text-sm font-semibold text-emerald-900 shadow-sm"
+                      <Link
+                        href={`/ireland/planner/vote?tripId=${encodeURIComponent(tripId)}`}
+                        className="rounded-full bg-white px-4 py-2 text-center text-sm font-semibold text-emerald-900 no-underline shadow-sm"
                       >
-                        {shareCopied ? `Copied ${ICON_CHECK}` : "Share"}
-                      </button>
+                        Voting room
+                      </Link>
                     )}
-
                     <button
                       type="button"
                       onClick={() => setStep("setup")}
@@ -1279,6 +1190,17 @@ export default function PlannerPage() {
                 )}
               </div>
             </div>
+
+            {tripId && (
+              <div className="lg:col-span-2">
+                <TripVoteInvite
+                  tripId={tripId}
+                  tripName={tripName}
+                  courseCount={selectedCourses.length}
+                  participantCount={voteParticipantCount}
+                />
+              </div>
+            )}
 
             <div className="min-w-0 max-w-full rounded-3xl bg-white p-5 shadow-sm ring-1 ring-slate-200/70">
               <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
@@ -1531,6 +1453,12 @@ export default function PlannerPage() {
                               .join(` ${SEPARATOR} `)}
                           </p>
 
+                          {course.suggested_by_name && (
+                            <p className="mt-2 inline-flex rounded-full bg-amber-100 px-3 py-1 text-xs font-semibold text-amber-950">
+                              Suggested by {course.suggested_by_name}
+                            </p>
+                          )}
+
                           {typeof course.distance === "number" && (
                             <p className="mt-1 text-sm text-slate-500">
                               {course.distance.toFixed(1)} km from base
@@ -1572,7 +1500,7 @@ export default function PlannerPage() {
                           <div className="mt-4 rounded-2xl bg-white p-3 ring-1 ring-slate-200">
                             <div className="flex items-center justify-between gap-3">
                               <div className="text-xs font-semibold uppercase tracking-wide text-slate-500">
-                                Group vote
+                                Group result
                               </div>
 
                               <div className="text-xs font-semibold text-slate-500">
@@ -1581,36 +1509,6 @@ export default function PlannerPage() {
                                   return `${summary.must_play + summary.happy_to_play + summary.not_for_me} votes`;
                                 })()}
                               </div>
-                            </div>
-
-                            <div className="mt-3 grid gap-2 sm:grid-cols-3">
-                              {voteOptions.map((option) => {
-                                const isSelected =
-                                  selectedVotes[course.id] === option.value;
-
-                                return (
-                                  <button
-                                    key={option.value}
-                                    type="button"
-                                    onClick={() =>
-                                      handleSubmitVote(course.id, option.value)
-                                    }
-                                    disabled={isSubmittingVote === course.id}
-                                    className={`rounded-2xl px-3 py-2.5 text-left text-xs font-semibold transition disabled:opacity-60 ${
-                                      isSelected
-                                        ? "bg-emerald-800 text-white shadow-sm"
-                                        : "bg-stone-50 text-slate-700 ring-1 ring-slate-200"
-                                    }`}
-                                  >
-                                    <span className="block text-base leading-none">
-                                      {option.emoji}
-                                    </span>
-                                    <span className="mt-1 block">
-                                      {option.label}
-                                    </span>
-                                  </button>
-                                );
-                              })}
                             </div>
 
                             <div className="mt-3 flex flex-wrap gap-2 text-xs font-semibold text-slate-600">
@@ -1624,6 +1522,15 @@ export default function PlannerPage() {
                                 👎 {getCourseVoteSummary(voteSummary, course.id).not_for_me}
                               </span>
                             </div>
+
+                            {tripId && (
+                              <Link
+                                href={`/ireland/planner/vote?tripId=${encodeURIComponent(tripId)}`}
+                                className="mt-3 inline-block text-xs font-bold text-emerald-800 no-underline"
+                              >
+                                Cast or update your vote in the group room →
+                              </Link>
+                            )}
                           </div>
                         </div>
 
@@ -1649,7 +1556,7 @@ export default function PlannerPage() {
                 <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
                   <div>
                     <p className="text-[12px] font-semibold uppercase tracking-[0.18em] text-emerald-800">
-                      Course shortlist
+                      Group course board
                     </p>
 
                     <h2 className="mt-1 text-[20px] font-semibold text-slate-900">
@@ -1905,21 +1812,21 @@ export default function PlannerPage() {
           </p>
 
           <p className="mt-4 text-sm leading-7 text-slate-600">
-            The planner allows golf groups to shortlist courses, compare course
+            The planner allows golf groups to collect courses, compare course
             types, estimate green fees and create a shared itinerary. Each
             course can be assigned to a specific day, making it easy to
             visualise your trip before booking accommodation or tee times.
           </p>
 
           <p className="mt-4 text-sm leading-7 text-slate-600">
-            Golf groups can also share trips with friends and vote on
-            shortlisted courses. This makes it easier to agree on which courses
-            should be included in the final itinerary while keeping all trip
-            information in one place.
+            Golf groups can also share trips with friends, vote on every course
+            being considered and suggest options the organiser may have missed.
+            This makes it easier to agree on which courses should be included in
+            the final itinerary while keeping all trip information in one place.
           </p>
 
           <p className="mt-4 text-sm leading-7 text-slate-600">
-            Whether you are planning a links golf trip along Ireland's west
+            Whether you are planning a links golf trip along Ireland&apos;s west
             coast, a golf weekend near Dublin or a multi-day golf holiday across
             several regions, the GuestPlayGolf Trip Planner provides a simple
             way to organise and compare your options.

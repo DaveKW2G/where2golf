@@ -36,7 +36,7 @@ export async function POST(request: Request) {
       : []
 
     const nextCourses = existingCourses.filter(
-      (course: any) => course.id !== courseId
+      (course: { id?: number | string }) => Number(course.id) !== Number(courseId)
     )
 
     const { error: updateError } = await supabase
@@ -53,9 +53,16 @@ export async function POST(request: Request) {
       )
     }
 
+    const { error: voteDeleteError } = await supabase
+      .from('trip_votes')
+      .delete()
+      .eq('trip_id', tripId)
+      .eq('course_id', courseId)
+
     return NextResponse.json({
       success: true,
       selected_courses: nextCourses,
+      vote_cleanup_warning: voteDeleteError?.message || null,
     })
   } catch {
     return NextResponse.json(

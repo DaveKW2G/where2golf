@@ -2,7 +2,13 @@ import { readdir, readFile, writeFile } from 'node:fs/promises'
 import path from 'node:path'
 import ts from 'typescript'
 const app = path.resolve('app')
-const excluded = new Set(['/filters', '/results', '/map', '/region'])
+const excluded = new Set([
+  '/filters',
+  '/results',
+  '/map',
+  '/region',
+  '/ireland/planner/vote',
+])
 const pages = new Set()
 async function scan(directory, segments = []) {
   for (const entry of await readdir(directory, { withFileTypes: true })) {
