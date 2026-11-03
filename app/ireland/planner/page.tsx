@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
+import TripEmailPack from "@/components/TripEmailPack";
 import TripVoteInvite from "@/components/TripVoteInvite";
 
 type GolfIrelandMember = "Yes" | "No" | "Not sure";
@@ -2083,6 +2084,12 @@ export default function PlannerPage() {
                 </p>
               )}
             </div>
+
+            <TripEmailPack
+              tripId={tripId}
+              tripName={tripName}
+              courseCount={selectedCourses.length}
+            />
 
             <div className="min-w-0 max-w-full rounded-3xl bg-white p-5 shadow-sm ring-1 ring-slate-200/70">
               <p className="text-[12px] font-semibold uppercase tracking-[0.18em] text-emerald-800">

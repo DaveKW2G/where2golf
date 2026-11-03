@@ -8,6 +8,7 @@
     "start": "next start",
     "lint": "eslint",
     "test:itinerary": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON --experimental-strip-types scripts/test-itinerary-recommendations.mts",
+    "test:trip-email": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON --experimental-strip-types scripts/test-trip-email.mts",
     "prebuild": "node scripts/generate-sitemap-pages.mjs"
   },
   "dependencies": {
