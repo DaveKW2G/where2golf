@@ -6,7 +6,12 @@ import { useRouter, useSearchParams } from 'next/navigation'
 
 function getPlannerHref(countryParam: string | null, tripId: string) {
   const isSwitzerland = countryParam === 'Switzerland'
-  const basePath = isSwitzerland ? '/switzerland/planner' : '/ireland/planner'
+  const isPortugal = countryParam === 'Portugal'
+  const basePath = isSwitzerland
+    ? '/switzerland/planner'
+    : isPortugal
+      ? '/portugal/planner'
+      : '/ireland/planner'
 
   if (tripId && tripId !== 'undefined' && tripId !== 'null') {
     return `${basePath}?tripId=${encodeURIComponent(tripId)}`
@@ -25,6 +30,7 @@ function FiltersPageContent() {
 
   const isIreland = countryParam === 'Ireland'
   const isSwitzerland = countryParam === 'Switzerland'
+  const isPortugal = countryParam === 'Portugal'
   const isPlannerMode = sourceParam === 'planner' || plannerParam === 'true'
 
   const [where, setWhere] = useState('')
@@ -54,9 +60,10 @@ function FiltersPageContent() {
 
     if (isIreland) return '/ireland'
     if (isSwitzerland) return '/switzerland'
+    if (isPortugal) return '/portugal/algarve'
 
     return '/'
-  }, [countryParam, isIreland, isPlannerMode, isSwitzerland, tripId])
+  }, [countryParam, isIreland, isPlannerMode, isPortugal, isSwitzerland, tripId])
 
   function toggle(value: string, current: string, setter: (v: string) => void) {
     setter(current === value ? '' : value)
@@ -121,7 +128,9 @@ function FiltersPageContent() {
     )
   }
 
-  const priceOptions = isIreland ? ['€', '€€', '€€€', '€€€€', '€€€€€'] : ['€', '€€', '€€€', '€€€€']
+  const priceOptions = isIreland || isPortugal
+    ? ['€', '€€', '€€€', '€€€€', '€€€€€']
+    : ['€', '€€', '€€€', '€€€€']
 
   return (
     <main className="min-h-screen overflow-x-hidden bg-stone-100 text-slate-800">
@@ -145,6 +154,8 @@ function FiltersPageContent() {
             <h1 className="text-[28px] font-bold leading-tight sm:text-[32px] lg:text-[42px] lg:leading-[1.08]">
               {isIreland
                 ? 'Advanced Search Ireland'
+                : isPortugal
+                ? 'Advanced Search Portugal'
                 : isSwitzerland
                 ? 'Advanced Search Switzerland'
                 : 'Advanced Filters'}
@@ -153,6 +164,8 @@ function FiltersPageContent() {
             <p className="mt-4 text-[15px] leading-6 text-emerald-50/90 lg:max-w-[740px] lg:text-[17px] lg:leading-7">
               {isIreland
                 ? 'Refine your search to find Irish golf courses by location, course type, access and price.'
+                : isPortugal
+                ? 'Refine your search to find Portuguese golf courses by location, course type, visitor access and price.'
                 : isSwitzerland
                 ? 'Refine your search to find Swiss golf courses by location, guest access, handicap and price band.'
                 : 'Refine your search to find where you can play as an independent guest.'}
@@ -172,7 +185,11 @@ function FiltersPageContent() {
             type="text"
             value={where}
             onChange={(e) => setWhere(e.target.value)}
-            placeholder={isIreland ? 'Dublin, Cork, Galway, Belfast...' : 'Zurich, Geneva, Zug...'}
+            placeholder={isIreland
+              ? 'Dublin, Cork, Galway, Belfast...'
+              : isPortugal
+                ? 'Vilamoura, Lagos, Faro, Tavira...'
+                : 'Zurich, Geneva, Zug...'}
             className="w-full rounded-xl border border-slate-300 px-4 py-3 text-sm text-slate-700 placeholder:text-slate-400 focus:border-emerald-700 focus:outline-none"
           />
 
@@ -182,7 +199,7 @@ function FiltersPageContent() {
             </h3>
 
             <div className="flex flex-wrap gap-2">
-              {(isIreland ? ['25', '50', '75', '100'] : ['25', '50', '100']).map((option) => (
+              {(isIreland || isPortugal ? ['25', '50', '75', '100'] : ['25', '50', '100']).map((option) => (
                 <Chip
                   key={option}
                   label={`${option} km`}
@@ -195,7 +212,7 @@ function FiltersPageContent() {
           </div>
         </section>
 
-        {isIreland && (
+        {(isIreland || isPortugal) && (
           <section className="rounded-3xl bg-white p-5 shadow-sm ring-1 ring-slate-200/70 lg:p-6">
             <h2 className="mb-3 text-sm font-semibold text-slate-700">
               Course Type
@@ -217,11 +234,11 @@ function FiltersPageContent() {
 
         <section className="rounded-3xl bg-white p-5 shadow-sm ring-1 ring-slate-200/70 lg:p-6">
           <h2 className="mb-3 text-sm font-semibold text-slate-700">
-            Guest Access
+            {isIreland || isPortugal ? 'Visitor Access' : 'Guest Access'}
           </h2>
 
           <div className="flex flex-wrap gap-2">
-            {(isIreland
+            {(isIreland || isPortugal
               ? ['Everyday', 'Weekdays', 'Weekend', 'Limited Access']
               : ['Everyday', 'Weekdays', 'Weekend']
             ).map((option) => (

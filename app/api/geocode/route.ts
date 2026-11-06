@@ -12,6 +12,7 @@ function normaliseCountry(country: string | null) {
   const lowerCountry = country.toLowerCase()
 
   if (lowerCountry === 'ireland') return 'Ireland'
+  if (lowerCountry === 'portugal') return 'Portugal'
   if (lowerCountry === 'switzerland') return 'Switzerland'
 
   return 'Ireland'

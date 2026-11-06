@@ -86,6 +86,13 @@ function getPlannerStorageKeys(countryValue: string) {
     }
   }
 
+  if (countryValue === 'portugal') {
+    return {
+      coursesKey: 'guestplaygolf_portugal_planner_courses',
+      tripIdKey: 'guestplaygolf_portugal_trip_id',
+    }
+  }
+
   return {
     coursesKey: genericPlannerCoursesKey,
     tripIdKey: genericPlannerTripIdKey,
@@ -94,6 +101,7 @@ function getPlannerStorageKeys(countryValue: string) {
 
 function getPlannerBasePath(countryValue: string) {
   if (countryValue === 'switzerland') return '/switzerland/planner'
+  if (countryValue === 'portugal') return '/portugal/planner'
   return '/ireland/planner'
 }
 
@@ -107,20 +115,20 @@ function getPlannerHref(countryValue: string, tripId?: string | null) {
   return basePath
 }
 
-function getAccessLabel(access?: string, isIreland?: boolean) {
+function getAccessLabel(access?: string, useVisitorTerminology?: boolean) {
   if (!access) return null
 
   const cleanAccess = access.trim()
 
   if (cleanAccess === 'Limited Access' || cleanAccess === 'Limited') {
-    return isIreland ? 'Limited Visitor Access' : 'Limited Guest Access'
+    return useVisitorTerminology ? 'Limited Visitor Access' : 'Limited Guest Access'
   }
 
   if (cleanAccess === 'Resort') {
     return 'Resort Access'
   }
 
-  if (isIreland) {
+  if (useVisitorTerminology) {
     if (cleanAccess === 'Everyday') return 'Visitors Everyday'
     if (cleanAccess === 'Weekdays') return 'Visitors Weekdays'
     if (cleanAccess === 'Weekend') return 'Visitors Weekend'
@@ -182,15 +190,16 @@ export default function CourseCard({
 
   const countryValue = getCountryFromParams(country, searchParams)
   const isIreland = countryValue === 'ireland'
+  const isPortugal = countryValue === 'portugal'
   const isSwitzerland = countryValue === 'switzerland'
-  const isPlannerCountry = isIreland || isSwitzerland
+  const isPlannerCountry = isIreland || isSwitzerland || isPortugal
   const plannerStorageKeys = getPlannerStorageKeys(countryValue)
   const isPlannerMode = getSingleParam(searchParams?.planner) === 'true'
   const urlTripId = getSingleParam(searchParams?.tripId)
   const activeTripIdForLink = urlTripId || storedTripIdState
   const plannerHref = getPlannerHref(countryValue, activeTripIdForLink)
 
-  const accessLabel = getAccessLabel(independent_guest_days, isIreland)
+  const accessLabel = getAccessLabel(independent_guest_days, isIreland || isPortugal)
 
   const plannerCourse: PlannerCourse = useMemo(
     () => ({
@@ -292,20 +301,23 @@ export default function CourseCard({
 
       if (
         !isAddedToPlanner &&
-        typeof window !== 'undefined' &&
-        (window as any).gtag
+        typeof window !== 'undefined'
       ) {
-        (window as any).gtag('event', 'course_added_to_trip', {
-          country: countryValue,
-          trip_id: activeTripId,
-          course_id: plannerCourse.id,
-          course_name: plannerCourse.course_name,
-          course_region: plannerCourse.region,
-          course_type: plannerCourse.course_type,
-          price_range: plannerCourse.price_range,
-          selected_course_count: syncedCourses.length,
-          add_source: 'course_card',
-        })
+        const analyticsWindow = window as Window & {
+          gtag?: (command: string, eventName: string, values: Record<string, unknown>) => void
+        }
+
+        analyticsWindow.gtag?.('event', 'course_added_to_trip', {
+            country: countryValue,
+            trip_id: activeTripId,
+            course_id: plannerCourse.id,
+            course_name: plannerCourse.course_name,
+            course_region: plannerCourse.region,
+            course_type: plannerCourse.course_type,
+            price_range: plannerCourse.price_range,
+            selected_course_count: syncedCourses.length,
+            add_source: 'course_card',
+          })
       }
 
       window.localStorage.setItem(plannerStorageKeys.coursesKey, JSON.stringify(syncedCourses))
@@ -357,7 +369,7 @@ export default function CourseCard({
           )}
 
         <div className="mt-3 flex flex-wrap gap-2">
-          {isIreland ? (
+          {isIreland || isPortugal ? (
             <>
               {course_type && (
                 <span className="rounded-full bg-slate-100 px-3 py-1 text-[12px] font-semibold text-slate-700">

@@ -7,7 +7,7 @@ export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
   title: "GuestPlayGolf | Find Courses & Plan Golf Trips",
   description:
-    "Find golf courses you can play as a visiting golfer or independent guest. Compare Ireland and Switzerland golf courses, then use our free Ireland golf trip planner to build, share and vote on your itinerary.",
+    "Find golf courses you can play as a visiting golfer or independent guest. Compare courses in Ireland, Switzerland and Portugal, then plan better golf trips with GuestPlayGolf.",
   alternates: {
     canonical: siteUrl,
   },

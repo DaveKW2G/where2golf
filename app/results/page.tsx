@@ -61,6 +61,8 @@ async function geocodePlace(place: string, country?: string) {
     const countryName =
       country === "ireland"
         ? "Ireland"
+        : country === "portugal"
+        ? "Portugal"
         : country === "switzerland"
         ? "Switzerland"
         : "Switzerland"
@@ -99,12 +101,14 @@ function normaliseCountry(country?: string) {
 
 function displayCountry(country?: string | null) {
   if (country === "ireland") return "Ireland"
+  if (country === "portugal") return "Portugal"
   if (country === "switzerland") return "Switzerland"
   return undefined
 }
 
 function getPlannerBaseHref(country?: string | null) {
   if (country === "switzerland") return "/switzerland/planner"
+  if (country === "portugal") return "/portugal/planner"
   return "/ireland/planner"
 }
 
@@ -183,6 +187,18 @@ export default async function ResultsPage({ searchParams }: ResultsPageProps) {
         params.price
     )
 
+  const hasPortugalAdvancedFilters =
+    selectedCountry === "portugal" &&
+    Boolean(
+      params.where ||
+        params.radius ||
+        params.courseType ||
+        params.guestPlay ||
+        params.holes ||
+        params.handicap ||
+        params.price
+    )
+
   const backHref = isPlannerMode
     ? plannerHref
     : params.source === "home"
@@ -191,8 +207,12 @@ export default async function ResultsPage({ searchParams }: ResultsPageProps) {
     ? buildFiltersHref(params)
     : hasSwitzerlandAdvancedFilters
     ? buildFiltersHref(params)
+    : hasPortugalAdvancedFilters
+    ? buildFiltersHref(params)
     : selectedCountry === "switzerland"
     ? "/switzerland"
+    : selectedCountry === "portugal"
+    ? "/portugal/algarve"
     : selectedCountry === "ireland"
     ? "/ireland"
     : "/filters"
@@ -202,12 +222,18 @@ export default async function ResultsPage({ searchParams }: ResultsPageProps) {
       ? Number(params.handicap)
       : null
 
-  const zurichWeekday = new Intl.DateTimeFormat("en-US", {
+  const countryTimeZone = selectedCountry === "ireland"
+    ? "Europe/Dublin"
+    : selectedCountry === "portugal"
+      ? "Europe/Lisbon"
+      : "Europe/Zurich"
+
+  const localWeekday = new Intl.DateTimeFormat("en-US", {
     weekday: "short",
-    timeZone: "Europe/Zurich",
+    timeZone: countryTimeZone,
   }).format(new Date())
 
-  const isWeekendToday = zurichWeekday === "Sat" || zurichWeekday === "Sun"
+  const isWeekendToday = localWeekday === "Sat" || localWeekday === "Sun"
 
   let query = supabase
     .from("courses")
@@ -243,7 +269,7 @@ export default async function ResultsPage({ searchParams }: ResultsPageProps) {
   } else if (params.guestPlay === "Everyday") {
     query = query.eq("independent_guest_days", "Everyday")
   } else if (params.guestPlay === "Limited Access") {
-    query = query.eq("independent_guest_days", "Limited Access")
+    query = query.in("independent_guest_days", ["Limited Access", "Limited"])
   }
 
   if (params.holes) query = query.eq("holes", Number(params.holes))
@@ -340,6 +366,8 @@ export default async function ResultsPage({ searchParams }: ResultsPageProps) {
   const titleCountry =
     selectedCountry === "ireland"
       ? "Ireland"
+      : selectedCountry === "portugal"
+      ? "Portugal"
       : selectedCountry === "switzerland"
       ? "Switzerland"
       : ""

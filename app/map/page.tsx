@@ -1,5 +1,5 @@
 import { createClient } from '../../lib/supabase/server'
-import CourseMap from '../../components/CourseMap'
+import CourseMapLoader from '../../components/CourseMapLoader'
 
 function toRad(value: number) {
   return (value * Math.PI) / 180
@@ -74,6 +74,8 @@ export default async function MapPage({
   const countryName =
     selectedCountry === 'ireland'
       ? 'Ireland'
+      : selectedCountry === 'portugal'
+      ? 'Portugal'
       : selectedCountry === 'switzerland'
       ? 'Switzerland'
       : 'Switzerland'
@@ -91,12 +93,18 @@ export default async function MapPage({
       ? Number(params.handicap)
       : null
 
-  const zurichWeekday = new Intl.DateTimeFormat('en-US', {
+  const countryTimeZone = selectedCountry === 'ireland'
+    ? 'Europe/Dublin'
+    : selectedCountry === 'portugal'
+      ? 'Europe/Lisbon'
+      : 'Europe/Zurich'
+
+  const localWeekday = new Intl.DateTimeFormat('en-US', {
     weekday: 'short',
-    timeZone: 'Europe/Zurich',
+    timeZone: countryTimeZone,
   }).format(new Date())
 
-  const isWeekendToday = zurichWeekday === 'Sat' || zurichWeekday === 'Sun'
+  const isWeekendToday = localWeekday === 'Sat' || localWeekday === 'Sun'
 
   let query = supabase.from('courses').select('*')
 
@@ -128,7 +136,7 @@ export default async function MapPage({
   } else if (params.guestPlay === 'Everyday') {
     query = query.eq('independent_guest_days', 'Everyday')
   } else if (params.guestPlay === 'Limited Access') {
-    query = query.eq('independent_guest_days', 'Limited Access')
+    query = query.in('independent_guest_days', ['Limited Access', 'Limited'])
   }
 
   if (params.holes) query = query.eq('holes', Number(params.holes))
@@ -190,7 +198,7 @@ export default async function MapPage({
 
   return (
     <div className="h-screen w-full">
-      <CourseMap courses={filteredCourses} />
+      <CourseMapLoader courses={filteredCourses} />
     </div>
   )
 }

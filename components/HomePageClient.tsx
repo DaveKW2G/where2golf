@@ -26,6 +26,13 @@ export default function HomePageClient() {
                 Switzerland
               </Link>
 
+              <Link
+                href="/portugal/algarve"
+                className="hidden no-underline sm:inline"
+              >
+                Portugal
+              </Link>
+
               <Link href="/about" className="no-underline">
                 About
               </Link>
@@ -70,6 +77,13 @@ export default function HomePageClient() {
               </Link>
 
               <Link
+                href="/portugal/algarve"
+                className="rounded-full bg-white/10 px-5 py-3 text-sm font-semibold text-white no-underline ring-1 ring-white/20 transition hover:bg-white/15"
+              >
+                Explore Algarve →
+              </Link>
+
+              <Link
                 href="/about"
                 className="rounded-full bg-emerald-600 px-5 py-3 text-sm font-semibold text-white no-underline transition hover:bg-emerald-500"
               >
@@ -81,7 +95,7 @@ export default function HomePageClient() {
       </section>
 
       <section className="mx-auto w-full max-w-[480px] px-4 py-6 text-left lg:max-w-[1120px] lg:px-5 lg:py-8">
-        <div className="grid gap-6 lg:grid-cols-2 lg:items-stretch">
+        <div className="grid gap-6 lg:grid-cols-3 lg:items-stretch">
           <Link
             href="/ireland"
             className="flex h-full flex-col rounded-3xl bg-emerald-800 p-5 text-white no-underline shadow-sm ring-1 ring-emerald-900/20 transition hover:bg-emerald-900 lg:p-7"
@@ -160,6 +174,46 @@ export default function HomePageClient() {
 
             <span className="mt-auto pt-5 text-sm font-semibold text-emerald-800">
               Explore Switzerland golf →
+            </span>
+          </Link>
+
+          <Link
+            href="/portugal/algarve"
+            className="flex h-full flex-col rounded-3xl border border-slate-200 bg-white p-5 text-slate-900 no-underline shadow-sm transition hover:bg-slate-50 lg:p-7"
+          >
+            <p className="text-[12px] font-semibold uppercase tracking-[0.18em] text-emerald-800">
+              Portugal
+            </p>
+
+            <h2 className="mt-2 text-[24px] font-bold leading-tight lg:text-[30px]">
+              Golf in the Algarve
+            </h2>
+
+            <p className="mt-3 text-sm leading-6 text-slate-600 lg:text-[15px]">
+              Compare Algarve golf courses, visitor access and the latest
+              published tariff guidance, then plan from your chosen base.
+            </p>
+
+            <div className="mt-5 grid gap-2 text-sm font-semibold text-slate-800 sm:grid-cols-2 lg:grid-cols-1 xl:grid-cols-2">
+              <span className="rounded-2xl bg-stone-50 px-4 py-3 ring-1 ring-slate-200">
+                50 courses
+              </span>
+
+              <span className="rounded-2xl bg-stone-50 px-4 py-3 ring-1 ring-slate-200">
+                Visitor access
+              </span>
+
+              <span className="rounded-2xl bg-stone-50 px-4 py-3 ring-1 ring-slate-200">
+                Tariff guidance
+              </span>
+
+              <span className="rounded-2xl bg-stone-50 px-4 py-3 ring-1 ring-slate-200">
+                Portugal planner
+              </span>
+            </div>
+
+            <span className="mt-auto pt-5 text-sm font-semibold text-emerald-800">
+              Explore Algarve golf →
             </span>
           </Link>
         </div>

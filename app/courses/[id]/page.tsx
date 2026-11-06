@@ -227,16 +227,20 @@ export async function generateMetadata({
 
   const country = data.country || "Switzerland";
   const isIreland = country === "Ireland";
+  const isPortugal = country === "Portugal";
+  const usesVisitorLanguage = isIreland || isPortugal;
   const regionName = regionNames[data.region] || data.region;
   const canonicalUrl = `${siteUrl}/courses/${data.id}`;
 
-  const title = isIreland
+  const title = usesVisitorLanguage
     ? `${data.course_name} | Visitor Access & Green Fees | GuestPlayGolf`
     : `${data.course_name} | Guest Play & Handicap | GuestPlayGolf`;
 
   const description = isIreland
     ? `Planning to play ${data.course_name}? Find visitor access, green fees, course information and nearby golf courses. Planning a golf trip? Use GuestPlayGolf's free trip planner to share and vote with friends.`
-    : `Planning to play ${data.course_name}? Find guest play rules, handicap requirements, course information and nearby golf courses. Planning a golf trip? Use GuestPlayGolf's free trip planner to share and vote with friends.`;
+    : isPortugal
+      ? `Planning to play ${data.course_name}? Find visitor access, the latest published tariff guidance, course information and nearby Algarve golf courses.`
+      : `Planning to play ${data.course_name}? Find guest play rules, handicap requirements, course information and nearby golf courses. Planning a golf trip? Use GuestPlayGolf's free trip planner to share and vote with friends.`;
 
   const openGraphDescription = description;
 
@@ -304,9 +308,11 @@ function getCountryFromSearchParams(
 
   if (countryParam === "switzerland") return "Switzerland";
   if (countryParam === "ireland") return "Ireland";
+  if (countryParam === "portugal") return "Portugal";
 
   if (defaultHref.startsWith("/switzerland")) return "Switzerland";
   if (defaultHref.startsWith("/ireland")) return "Ireland";
+  if (defaultHref.startsWith("/portugal")) return "Portugal";
 
   return "Switzerland";
 }
@@ -319,8 +325,11 @@ function getPlannerHrefFromSearchParams(
 ) {
   const country = getCountryFromSearchParams(searchParams, defaultHref);
   const tripId = getSingleParam(searchParams.tripId);
-  const basePath =
-    country === "Ireland" ? "/ireland/planner" : "/switzerland/planner";
+  const basePath = country === "Ireland"
+    ? "/ireland/planner"
+    : country === "Portugal"
+      ? "/portugal/planner"
+      : "/switzerland/planner";
 
   if (isValidTripId(tripId)) {
     return `${basePath}?tripId=${encodeURIComponent(tripId as string)}`;
@@ -363,6 +372,7 @@ function getFallbackHrefFromSource(source?: string) {
     "golf-near-galway": "/golf-near-galway",
     "golf-near-belfast": "/golf-near-belfast",
     "golf-near-adare-manor": "/golf-near-adare-manor",
+    "portugal/algarve": "/portugal/algarve",
     switzerland: "/switzerland",
     "golf-near-zurich": "/golf-near-zurich",
     "golf-near-geneva": "/golf-near-geneva",
@@ -592,9 +602,10 @@ function getWebsiteUrl(website?: string | null) {
 
 function getAccessLabel(access: string, country: string) {
   const cleanAccess = access.trim();
+  const usesVisitorLanguage = country === "Ireland" || country === "Portugal";
 
   if (cleanAccess === "Limited Access" || cleanAccess === "Limited") {
-    return country === "Ireland"
+    return usesVisitorLanguage
       ? "Limited Visitor Access"
       : "Limited Guest Access";
   }
@@ -603,7 +614,7 @@ function getAccessLabel(access: string, country: string) {
     return "Resort Access";
   }
 
-  if (country === "Ireland") {
+  if (usesVisitorLanguage) {
     if (cleanAccess === "Everyday") return "Visitors Everyday";
     if (cleanAccess === "Weekdays") return "Visitors Weekdays";
     if (cleanAccess === "Weekend") return "Visitors Weekend";
@@ -688,6 +699,8 @@ export default async function CoursePage({
   const course = data as Course;
   const country = course.country || "Switzerland";
   const isIreland = country === "Ireland";
+  const isPortugal = country === "Portugal";
+  const usesVisitorLanguage = isIreland || isPortugal;
   const regionName = regionNames[course.region] || course.region;
   const courseBreadcrumbs = isIreland
     ? getIrelandCourseBreadcrumbs(
@@ -696,9 +709,19 @@ export default async function CoursePage({
         course.region,
         getSingleParam(resolvedSearchParams.source),
       )
-    : null;
+    : isPortugal
+      ? [
+          { label: "Home", href: "/" },
+          { label: "Golf in the Algarve", href: "/portugal/algarve" },
+          { label: course.course_name, href: `/courses/${course.id}` },
+        ]
+      : null;
 
-  const countryHref = isIreland ? "/ireland" : "/switzerland";
+  const countryHref = isIreland
+    ? "/ireland"
+    : isPortugal
+      ? "/portugal/algarve"
+      : "/switzerland";
   const fallbackHref = buildFallbackHref(resolvedSearchParams, countryHref);
 
   function getCourseHref(courseId: number) {
@@ -707,27 +730,35 @@ export default async function CoursePage({
 
   const regionHref = isIreland
     ? "/ireland"
-    : `/switzerland/${course.region.toLowerCase()}`;
+    : isPortugal
+      ? "/portugal/algarve"
+      : `/switzerland/${course.region.toLowerCase()}`;
 
   const priceGuideHref = isIreland
     ? "/ireland#pricing-guide"
-    : "/switzerland#pricing-guide";
+    : isPortugal
+      ? "/portugal/algarve#pricing-guide"
+      : "/switzerland#pricing-guide";
 
   const regionLinkText = isIreland
     ? "Explore more golf in Ireland"
-    : `Explore more golf in ${regionName}`;
+    : isPortugal
+      ? "Explore more golf in the Algarve"
+      : `Explore more golf in ${regionName}`;
 
   const nearbyIrelandGuideLinks = isIreland
     ? getNearbyIrelandGuideLinks(course)
     : [];
 
-  const nearbySwitzerlandGuideLinks = !isIreland
+  const nearbySwitzerlandGuideLinks = !isIreland && !isPortugal
     ? getNearbySwitzerlandGuideLinks(course)
     : [];
 
   const nearbyGuideLinks = isIreland
     ? nearbyIrelandGuideLinks
-    : nearbySwitzerlandGuideLinks;
+    : isPortugal
+      ? []
+      : nearbySwitzerlandGuideLinks;
 
   let nearbyCourses: NearbyCourse[] = [];
 
@@ -742,8 +773,8 @@ export default async function CoursePage({
       .not("longitude", "is", null)
       .limit(300);
 
-    if (isIreland) {
-      nearbyCourseQuery = nearbyCourseQuery.eq("country", "Ireland");
+    if (isIreland || isPortugal) {
+      nearbyCourseQuery = nearbyCourseQuery.eq("country", country);
     } else {
       nearbyCourseQuery = nearbyCourseQuery.or(
         "country.eq.Switzerland,country.is.null",
@@ -844,13 +875,15 @@ export default async function CoursePage({
     telephone: course.phone_number || undefined,
     description: isIreland
       ? `Visitor information for ${course.course_name} and free Irish golf trip planning tools from GuestPlayGolf.`
-      : `Guest access, handicap information and nearby Swiss golf courses for ${course.course_name} on GuestPlayGolf.`,
+      : isPortugal
+        ? `Visitor access, the latest published tariff guidance and nearby Algarve golf courses for ${course.course_name} on GuestPlayGolf.`
+        : `Guest access, handicap information and nearby Swiss golf courses for ${course.course_name} on GuestPlayGolf.`,
     address: {
       "@type": "PostalAddress",
       streetAddress: course.full_address || undefined,
       addressLocality: course.town,
       addressRegion: regionName,
-      addressCountry: isIreland ? "IE" : "CH",
+      addressCountry: isIreland ? "IE" : isPortugal ? "PT" : "CH",
     },
     geo:
       course.latitude != null && course.longitude != null
@@ -913,7 +946,11 @@ export default async function CoursePage({
 
             <div className="absolute inset-x-0 bottom-0 hidden px-8 pb-8 text-white lg:block">
               <p className="text-[12px] font-semibold uppercase tracking-[0.18em] text-white/75">
-                {isIreland ? "Irish golf course" : "Swiss golf course"}
+                {isIreland
+                  ? "Irish golf course"
+                  : isPortugal
+                    ? "Algarve golf course"
+                    : "Swiss golf course"}
               </p>
 
               <h1 className="mt-2 max-w-[760px] text-[38px] font-bold leading-tight">
@@ -951,7 +988,7 @@ export default async function CoursePage({
               </div>
 
               <div className="flex flex-wrap gap-2 pt-2 lg:pt-0">
-                {isIreland ? (
+                {usesVisitorLanguage ? (
                   <>
                     {course.course_type && (
                       <span className="rounded-full bg-slate-100 px-3 py-1 text-[12px] font-semibold text-slate-700">
@@ -1016,6 +1053,18 @@ export default async function CoursePage({
                       value={golfIrelandDiscountText}
                     />
                   </>
+                ) : isPortugal ? (
+                  <>
+                    <DetailRow
+                      label="Holes"
+                      value={`${course.holes} holes`}
+                    />
+
+                    <DetailRow
+                      label="GPG price band"
+                      value={course.price_range || "Not listed"}
+                    />
+                  </>
                 ) : (
                   <>
                     <DetailRow
@@ -1035,8 +1084,9 @@ export default async function CoursePage({
             <div className="grid min-w-0 lg:col-span-2 lg:grid-cols-[minmax(0,1fr)_360px] lg:items-start">
               <aside className="order-1 border-b border-slate-200 px-5 py-5 lg:col-start-2 lg:row-start-1 lg:border-b-0 lg:border-l lg:px-6 lg:py-6">
                 <div className="lg:sticky lg:top-6">
-                  {isIreland ? (
+                  {isIreland || isPortugal ? (
                     <CourseAddToTripButton
+                      country={isPortugal ? "Portugal" : "Ireland"}
                       course={{
                         id: course.id,
                         course_name: course.course_name,
@@ -1057,25 +1107,30 @@ export default async function CoursePage({
                   ) : (
                     <div className="rounded-3xl bg-emerald-50 p-5 ring-1 ring-emerald-100">
                       <p className="text-[12px] font-semibold uppercase tracking-[0.18em] text-emerald-800">
-                        Independent guest golf
+                        {isPortugal ? "Algarve trip planning" : "Independent guest golf"}
                       </p>
 
                       <h2 className="mt-2 text-[19px] font-bold text-slate-900">
-                        Compare golf near {course.town}
+                        {isPortugal
+                          ? "Compare courses from your Algarve base"
+                          : `Compare golf near ${course.town}`}
                       </h2>
 
                       <p className="mt-3 text-sm leading-6 text-slate-700">
-                        Review nearby Swiss courses, guest access and handicap
-                        requirements before deciding where to play.
+                        {isPortugal
+                          ? "Choose where you are staying, then compare distances, visitor access and the latest published tariff guidance before booking."
+                          : "Review nearby Swiss courses, guest access and handicap requirements before deciding where to play."}
                       </p>
 
                       <Link
-                        href={`/filters?country=Switzerland&where=${encodeURIComponent(
-                          course.town,
-                        )}`}
+                        href={isPortugal
+                          ? "/portugal/algarve#courses"
+                          : `/filters?country=Switzerland&where=${encodeURIComponent(course.town)}`}
                         className="mt-5 block rounded-full bg-emerald-800 px-5 py-3 text-center text-sm font-semibold text-white no-underline"
                       >
-                        Search Swiss Golf Courses
+                        {isPortugal
+                          ? "Compare Algarve Golf Courses"
+                          : "Search Swiss Golf Courses"}
                       </Link>
                     </div>
                   )}
@@ -1116,13 +1171,17 @@ export default async function CoursePage({
                     <h2 className="text-[17px] font-semibold text-slate-900">
                       {isIreland
                         ? "Explore golf across Ireland"
-                        : `Golf in ${regionName}`}
+                          : isPortugal
+                            ? "Explore golf across the Algarve"
+                            : `Golf in ${regionName}`}
                     </h2>
 
                     <p className="mt-2 text-sm leading-6 text-slate-600">
                       {isIreland
                         ? "Browse more Irish courses, regional guides and trip-planning tools."
-                        : `Browse more golf courses and guest information across ${regionName}.`}
+                          : isPortugal
+                            ? "Compare Algarve courses from your accommodation base and review the latest published tariff guidance."
+                            : `Browse more golf courses and guest information across ${regionName}.`}
                     </p>
 
                     <Link
@@ -1145,7 +1204,9 @@ export default async function CoursePage({
                     <h2 className="mt-1 text-[21px] font-semibold text-slate-900">
                       {isIreland
                         ? "Visitor information"
-                        : "Independent guest information"}
+                        : isPortugal
+                          ? "Visitor information"
+                          : "Independent guest information"}
                     </h2>
 
                     <p className="mt-4 whitespace-pre-line text-[15px] leading-7 text-slate-600">
@@ -1167,7 +1228,9 @@ export default async function CoursePage({
                     <p className="mt-2 text-sm leading-6 text-slate-600">
                       {isIreland
                         ? "Compare nearby courses and add more options to your golf trip itinerary."
-                        : "Compare nearby Swiss courses, guest access and handicap requirements before choosing where to play."}
+                        : isPortugal
+                          ? "Compare nearby Algarve courses, visitor access and the latest published tariff guidance before choosing where to play."
+                          : "Compare nearby Swiss courses, guest access and handicap requirements before choosing where to play."}
                     </p>
 
                     <div className="mt-5 grid gap-4 sm:grid-cols-2">
@@ -1202,7 +1265,7 @@ export default async function CoursePage({
                             </p>
 
                             <div className="mt-3 flex flex-wrap gap-1.5">
-                              {isIreland ? (
+                              {usesVisitorLanguage ? (
                                 <>
                                   {nearbyCourse.course_type && (
                                     <span className="rounded-full bg-white px-2 py-1 text-[10px] font-semibold text-slate-700 ring-1 ring-slate-200">
@@ -1219,7 +1282,7 @@ export default async function CoursePage({
                                   <span className="rounded-full bg-emerald-100 px-2 py-1 text-[10px] font-medium text-emerald-800">
                                     {getAccessLabel(
                                       nearbyCourse.independent_guest_days,
-                                      "Ireland",
+                                      country,
                                     )}
                                   </span>
                                 </>
@@ -1295,7 +1358,11 @@ export default async function CoursePage({
 
                 <section className="px-5 py-5 lg:hidden">
                   <p className="text-[12px] font-semibold uppercase tracking-[0.18em] text-emerald-800">
-                    {isIreland ? "Across Ireland" : regionName}
+                    {isIreland
+                      ? "Across Ireland"
+                      : isPortugal
+                        ? "Across the Algarve"
+                        : regionName}
                   </p>
 
                   <Link

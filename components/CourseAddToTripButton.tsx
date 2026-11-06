@@ -20,14 +20,21 @@ type PlannerCourse = {
 
 type CourseAddToTripButtonProps = {
   course: PlannerCourse;
+  country?: "Ireland" | "Portugal";
 };
-
-const plannerCoursesKey = "guestplaygolf_planner_courses";
-const plannerTripIdKey = "guestplaygolf_trip_id";
 
 export default function CourseAddToTripButton({
   course,
+  country = "Ireland",
 }: CourseAddToTripButtonProps) {
+  const isPortugal = country === "Portugal";
+  const plannerCoursesKey = isPortugal
+    ? "guestplaygolf_portugal_planner_courses"
+    : "guestplaygolf_planner_courses";
+  const plannerTripIdKey = isPortugal
+    ? "guestplaygolf_portugal_trip_id"
+    : "guestplaygolf_trip_id";
+  const plannerHref = isPortugal ? "/portugal/planner" : "/ireland/planner";
   const [activeTripId, setActiveTripId] = useState("");
   const [isAddedToPlanner, setIsAddedToPlanner] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
@@ -60,13 +67,13 @@ export default function CourseAddToTripButton({
     } catch {
       setIsAddedToPlanner(false);
     }
-  }, [course.id]);
+  }, [course.id, plannerCoursesKey, plannerTripIdKey]);
 
   async function handleAddToTrip() {
     if (isSaving) return;
 
     if (!activeTripId) {
-      window.location.href = "/ireland/planner";
+      window.location.href = plannerHref;
       return;
     }
 
@@ -96,13 +103,13 @@ export default function CourseAddToTripButton({
         ? data.selected_courses
         : [cleanCourse];
 
-      if (
-        !isAddedToPlanner &&
-        typeof window !== "undefined" &&
-        (window as any).gtag
-      ) {
-        (window as any).gtag("event", "course_added_to_trip", {
-          country: "Ireland",
+      if (!isAddedToPlanner && typeof window !== "undefined") {
+        const analyticsWindow = window as Window & {
+          gtag?: (command: string, eventName: string, values: Record<string, unknown>) => void;
+        };
+
+        analyticsWindow.gtag?.("event", "course_added_to_trip", {
+          country,
           trip_id: activeTripId,
           course_id: cleanCourse.id,
           course_name: cleanCourse.course_name,

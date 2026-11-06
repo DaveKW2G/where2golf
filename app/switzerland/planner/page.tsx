@@ -1,9 +1,9 @@
 "use client";
 
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
 
-type GolfIrelandMember = "Yes" | "No" | "Not sure";
 type DayType = "Weekday" | "Weekend";
 type PlannerStep = "setup" | "planner";
 type VoteValue = "must_play" | "happy_to_play" | "not_for_me";
@@ -57,16 +57,76 @@ type VoteSummary = Record<
   }
 >;
 
-const quickBases = [
-  "Zurich",
-  "Geneva",
-  "Basel",
-  "Lausanne",
-  "Lucerne",
-  "Interlaken",
-  "Bern",
-  "Lugano",
-];
+const plannerConfigs = {
+  Switzerland: {
+    country: "Switzerland",
+    adjective: "Swiss",
+    route: "/switzerland/planner",
+    storageSlug: "switzerland",
+    quickBases: [
+      "Zurich",
+      "Geneva",
+      "Basel",
+      "Lausanne",
+      "Lucerne",
+      "Interlaken",
+      "Bern",
+      "Lugano",
+    ],
+    basePlaceholder: "Example: Zurich, Geneva, Lausanne, Interlaken",
+    tripNamePlaceholder: "Example: Swiss Golf Weekend",
+    baseError:
+      "We could not find that location in Switzerland. Try a city, town, resort or region name.",
+    heroDescription:
+      "Build a Swiss golf itinerary, compare courses independent guests can play, share your shortlist and vote together on where to play.",
+    baseDescription:
+      "Your base is the anchor of the trip. We use it to help you find nearby Swiss courses and compare distance, access, handicap requirements and seasonality.",
+    guidanceTitle: "Access, handicap and seasonality",
+    guidanceText:
+      "Swiss golf can vary significantly by club. Use the planner to shortlist courses, then check visitor access, handicap requirements and seasonal play before booking.",
+    overviewParagraphs: [
+      "Plan your Switzerland golf trip with our free online tool. Choose a base such as Zurich, Geneva, Basel, Lausanne, Lucerne or Interlaken, then build a shortlist of Swiss golf courses you may be able to play as an independent guest.",
+      "Switzerland is different from many golf destinations because visitor access, handicap requirements and seasonality can vary significantly by club. GuestPlayGolf helps you compare courses before deciding where to play.",
+      "The planner allows golf groups to shortlist courses, compare course types, review visitor access, assign courses to specific days and create a shared itinerary.",
+      "Groups can also share trips and vote on shortlisted courses, making it easier to agree on where to play while keeping all trip information in one place.",
+      "Whether you are planning golf near Zurich, Geneva, Basel, Lausanne, Lucerne or a wider Swiss golf trip, the GuestPlayGolf Trip Planner provides a simple way to organise and compare your options.",
+    ],
+  },
+  Portugal: {
+    country: "Portugal",
+    adjective: "Portuguese",
+    route: "/portugal/planner",
+    storageSlug: "portugal",
+    quickBases: [
+      "Vilamoura",
+      "Albufeira",
+      "Lagos",
+      "Faro",
+      "Tavira",
+      "Portimao",
+      "Alvor",
+      "Quinta do Lago",
+    ],
+    basePlaceholder: "Example: Vilamoura, Lagos, Faro, Tavira",
+    tripNamePlaceholder: "Example: Algarve Golf Trip",
+    baseError:
+      "We could not find that location in Portugal. Try a city, town, resort or region name.",
+    heroDescription:
+      "Build a Portugal golf itinerary, compare courses independent guests can play, share your shortlist and vote together on where to play.",
+    baseDescription:
+      "Your base is the anchor of the trip. We use it to help you find nearby Portuguese courses and compare distance, access, handicap requirements and seasonality.",
+    guidanceTitle: "Access, tariffs and travel time",
+    guidanceText:
+      "Portuguese visitor access, published tariffs and travel times can vary by course and season. Use the planner to shortlist courses, then confirm the live tee-time price and booking conditions with the operator before paying.",
+    overviewParagraphs: [
+      "Plan your Portugal golf trip with our free online tool. Choose a base such as Vilamoura, Albufeira, Lagos, Faro, Tavira or Quinta do Lago, then build a shortlist of Portuguese golf courses you may be able to play as an independent guest.",
+      "The planner starts with all courses in Portugal rather than pre-selecting the Algarve. Your chosen base and the course filters help you narrow the options, so the same planner can support future Portuguese destinations without changing the workflow.",
+      "The planner allows golf groups to shortlist courses, compare course types, review visitor access, assign courses to specific days and create a shared itinerary.",
+      "Groups can also share trips and vote on shortlisted courses, making it easier to agree on where to play while keeping all trip information in one place.",
+      "Whether you are planning golf in the Algarve or a wider Portugal golf trip, the GuestPlayGolf Trip Planner provides a simple way to organise and compare your options before booking directly with the course.",
+    ],
+  },
+} as const;
 
 const months = [
   "January",
@@ -96,12 +156,6 @@ const ICON_KEY = "🔑";
 const ICON_CHECK = "✓";
 const ICON_WARNING = "⚠";
 const SEPARATOR = "\u00B7";
-
-const plannerUserIdKey = "guestplaygolf_switzerland_planner_user_id";
-const participantIdKey = "guestplaygolf_switzerland_participant_id";
-const plannerTripIdKey = "guestplaygolf_switzerland_trip_id";
-const plannerCoursesKey = "guestplaygolf_switzerland_planner_courses";
-const plannerVoteKeyPrefix = "guestplaygolf_switzerland_trip_votes";
 
 function createTripDays(numberOfGolfDays: number, existingDays: TripDay[]) {
   return Array.from({ length: numberOfGolfDays }, (_, index) => {
@@ -136,7 +190,7 @@ function getCourseMix(courses: PlannerCourse[]) {
   return courseTypes.join(" / ");
 }
 
-function formatSwissPriceRange(priceRange?: string) {
+function formatPriceRange(priceRange?: string) {
   const cleanPrice = priceRange?.trim();
 
   if (!cleanPrice) return "-";
@@ -146,7 +200,7 @@ function formatSwissPriceRange(priceRange?: string) {
 
 function getPriceBandSummary(courses: PlannerCourse[]) {
   const priceBands = courses
-    .map((course) => formatSwissPriceRange(course.price_range))
+    .map((course) => formatPriceRange(course.price_range))
     .filter((priceBand) => priceBand !== "-");
 
   if (priceBands.length === 0) return "No price bands yet";
@@ -164,15 +218,13 @@ function generatePlannerUserId() {
   return `GPG-USER-${Math.random().toString(36).substring(2, 10).toUpperCase()}`;
 }
 
-function getOrCreatePlannerUserId() {
-  const existingUserId = window.localStorage.getItem(
-    plannerUserIdKey,
-  );
+function getOrCreatePlannerUserId(storageKey: string) {
+  const existingUserId = window.localStorage.getItem(storageKey);
 
   if (existingUserId) return existingUserId;
 
   const newUserId = generatePlannerUserId();
-  window.localStorage.setItem(plannerUserIdKey, newUserId);
+  window.localStorage.setItem(storageKey, newUserId);
 
   return newUserId;
 }
@@ -181,15 +233,13 @@ function generateParticipantId() {
   return `GPG-P-${Math.random().toString(36).substring(2, 10).toUpperCase()}`;
 }
 
-function getOrCreateParticipantId() {
-  const existingId = window.localStorage.getItem(
-    participantIdKey,
-  );
+function getOrCreateParticipantId(storageKey: string) {
+  const existingId = window.localStorage.getItem(storageKey);
 
   if (existingId) return existingId;
 
   const newId = generateParticipantId();
-  window.localStorage.setItem(participantIdKey, newId);
+  window.localStorage.setItem(storageKey, newId);
 
   return newId;
 }
@@ -312,7 +362,17 @@ function getCourseVoteSummary(voteSummary: VoteSummary, courseId: number) {
   );
 }
 
-export default function SwitzerlandPlannerPage() {
+export default function CountryPlannerPage() {
+  const pathname = usePathname();
+  const config = pathname.startsWith("/portugal")
+    ? plannerConfigs.Portugal
+    : plannerConfigs.Switzerland;
+  const plannerUserIdKey = `guestplaygolf_${config.storageSlug}_planner_user_id`;
+  const participantIdKey = `guestplaygolf_${config.storageSlug}_participant_id`;
+  const plannerTripIdKey = `guestplaygolf_${config.storageSlug}_trip_id`;
+  const plannerCoursesKey = `guestplaygolf_${config.storageSlug}_planner_courses`;
+  const plannerVoteKeyPrefix = `guestplaygolf_${config.storageSlug}_trip_votes`;
+  const quickBases = config.quickBases;
   const [step, setStep] = useState<PlannerStep>("setup");
 
   const [baseInput, setBaseInput] = useState("");
@@ -341,8 +401,6 @@ export default function SwitzerlandPlannerPage() {
 
   const [tripName, setTripName] = useState("");
   const [month, setMonth] = useState("April");
-  const [golfIrelandMember, setGolfIrelandMember] =
-    useState<GolfIrelandMember>("Not sure");
   const [numberOfGolfers, setNumberOfGolfers] = useState(4);
   const [numberOfGolfDays, setNumberOfGolfDays] = useState(3);
 
@@ -378,10 +436,10 @@ export default function SwitzerlandPlannerPage() {
   }, [numberOfGolfDays]);
 
   useEffect(() => {
-    const currentPlannerUserId = getOrCreatePlannerUserId();
+    const currentPlannerUserId = getOrCreatePlannerUserId(plannerUserIdKey);
     setPlannerUserId(currentPlannerUserId);
 
-    const currentParticipantId = getOrCreateParticipantId();
+    const currentParticipantId = getOrCreateParticipantId(participantIdKey);
     setParticipantId(currentParticipantId);
 
     async function loadExistingTrip({
@@ -444,7 +502,6 @@ export default function SwitzerlandPlannerPage() {
         setTripName(trip.trip_name || "");
         setBaseInput(getShortPlaceName(trip.base_location || ""));
         setMonth(trip.month_of_travel || "April");
-        setGolfIrelandMember("Not sure");
         setNumberOfGolfers(trip.number_of_golfers || 4);
         setNumberOfGolfDays(trip.number_of_golf_days || 3);
         setSelectedCourses(courses);
@@ -476,7 +533,7 @@ export default function SwitzerlandPlannerPage() {
           window.history.replaceState(
             null,
             "",
-            `/switzerland/planner?tripId=${encodeURIComponent(trip.trip_id)}`,
+            `${config.route}?tripId=${encodeURIComponent(trip.trip_id)}`,
           );
         }
 
@@ -518,7 +575,14 @@ export default function SwitzerlandPlannerPage() {
     } else {
       loadSavedTrips();
     }
-  }, []);
+  }, [
+    config.route,
+    participantIdKey,
+    plannerCoursesKey,
+    plannerTripIdKey,
+    plannerUserIdKey,
+    plannerVoteKeyPrefix,
+  ]);
 
   const isReadyToStart = useMemo(() => {
     return (
@@ -559,7 +623,7 @@ export default function SwitzerlandPlannerPage() {
     setIsOpeningTripCode(true);
     setOpenTripCode(cleanCode);
 
-    window.location.href = `/switzerland/planner?tripId=${encodeURIComponent(
+    window.location.href = `${config.route}?tripId=${encodeURIComponent(
       cleanCode,
     )}`;
   }
@@ -571,21 +635,22 @@ export default function SwitzerlandPlannerPage() {
     setTripError("");
     setIsCreatingTrip(true);
 
-    const currentPlannerUserId = plannerUserId || getOrCreatePlannerUserId();
+    const currentPlannerUserId =
+      plannerUserId || getOrCreatePlannerUserId(plannerUserIdKey);
     setPlannerUserId(currentPlannerUserId);
 
     try {
       const geocodeResponse = await fetch(
         `/api/geocode?place=${encodeURIComponent(
           baseInput.trim(),
-        )}&country=Switzerland`,
+        )}&country=${encodeURIComponent(config.country)}`,
       );
 
       const geocodeData = await geocodeResponse.json();
 
       if (!geocodeResponse.ok) {
         setBaseError(
-          "We could not find that location in Switzerland. Try a city, town, resort or region name.",
+          config.baseError,
         );
         setIsCreatingTrip(false);
         return;
@@ -755,7 +820,7 @@ export default function SwitzerlandPlannerPage() {
   async function handleCopyShareLink() {
     if (!tripId) return;
 
-    const shareUrl = `${window.location.origin}/switzerland/planner?tripId=${tripId}`;
+    const shareUrl = `${window.location.origin}${config.route}?tripId=${tripId}`;
 
     try {
       await window.navigator.clipboard.writeText(shareUrl);
@@ -832,7 +897,7 @@ export default function SwitzerlandPlannerPage() {
   function getChooseCoursesHref() {
     const params = new URLSearchParams();
 
-    params.set("country", "Switzerland");
+    params.set("country", config.country);
     params.set("source", "planner");
     params.set("planner", "true");
     params.set("where", baseInput.trim());
@@ -869,12 +934,11 @@ export default function SwitzerlandPlannerPage() {
           </p>
 
           <h1 className="mt-4 text-[32px] font-bold leading-[1.08] text-white">
-            Free Switzerland Golf Trip Planner
+            Free {config.country} Golf Trip Planner
           </h1>
 
           <p className="mt-4 max-w-2xl text-[15px] leading-6 text-white/85">
-            Build a Swiss golf itinerary, compare courses independent guests can play,
-            share your shortlist and vote together on where to play.
+            {config.heroDescription}
           </p>
         </div>
       </section>
@@ -887,11 +951,11 @@ export default function SwitzerlandPlannerPage() {
               <div className="flex items-center justify-between gap-3">
                 <div>
                   <h2 className="text-[21px] font-semibold text-slate-900">
-                    My Switzerland Trips
+                    My {config.country} Trips
                   </h2>
 
                   <p className="mt-2 text-sm leading-6 text-slate-600">
-                    Open a saved trip or start a new Switzerland golf trip below.
+                    Open a saved trip or start a new {config.country} golf trip below.
                   </p>
                 </div>
 
@@ -951,7 +1015,7 @@ export default function SwitzerlandPlannerPage() {
                           </div>
 
                           <a
-                            href={`/switzerland/planner?tripId=${savedTrip.trip_id}`}
+                            href={`${config.route}?tripId=${savedTrip.trip_id}`}
                             className="rounded-full bg-emerald-800 px-4 py-2 text-xs font-semibold text-white no-underline"
                           >
                             Open
@@ -1002,12 +1066,11 @@ export default function SwitzerlandPlannerPage() {
 
             <div className="min-w-0 max-w-full rounded-3xl bg-white p-5 shadow-sm ring-1 ring-slate-200/70">
               <h2 className="text-[21px] font-semibold text-slate-900">
-                Tell us about your Switzerland golf trip
+                Tell us about your {config.country} golf trip
               </h2>
 
               <p className="mt-2 text-sm leading-6 text-slate-600">
-                Your base is the anchor of the trip. We use it to help you find nearby
-                Swiss courses and compare distance, access, handicap requirements and seasonality.
+                {config.baseDescription}
               </p>
 
               <div className="mt-5 grid gap-5">
@@ -1023,7 +1086,7 @@ export default function SwitzerlandPlannerPage() {
                       setBaseError("");
                       setTripError("");
                     }}
-                    placeholder="Example: Zurich, Geneva, Lausanne, Interlaken"
+                    placeholder={config.basePlaceholder}
                     className="mt-2 w-full rounded-2xl border border-slate-200 bg-white px-4 py-4 text-sm text-slate-900 outline-none placeholder:text-slate-400 focus:border-emerald-700"
                   />
 
@@ -1066,7 +1129,7 @@ export default function SwitzerlandPlannerPage() {
                       setTripName(event.target.value);
                       setTripError("");
                     }}
-                    placeholder="Example: Swiss Golf Weekend"
+                    placeholder={config.tripNamePlaceholder}
                     className="mt-2 w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none placeholder:text-slate-400 focus:border-emerald-700"
                   />
                 </div>
@@ -1185,7 +1248,7 @@ export default function SwitzerlandPlannerPage() {
                 <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
                   <div className="min-w-0">
                     <p className="text-[12px] font-semibold uppercase tracking-[0.22em] text-emerald-100/80">
-                      My Switzerland Trip
+                      My {config.country} Trip
                     </p>
 
                     <h2 className="mt-2 text-[24px] font-bold leading-tight text-white">
@@ -1223,7 +1286,7 @@ export default function SwitzerlandPlannerPage() {
               </div>
 
               <div className="flex flex-col gap-1 px-5 py-3 text-xs text-slate-500 sm:flex-row sm:items-center sm:justify-between sm:gap-3">
-                <span>Switzerland golf planner</span>
+                <span>{config.country} golf planner</span>
                 {tripCode && (
                   <span className="font-semibold uppercase tracking-wide text-emerald-800">
                     Trip Code: {tripCode}
@@ -1340,7 +1403,7 @@ export default function SwitzerlandPlannerPage() {
                                     <p className="mt-1 text-sm text-slate-600">
                                       {[
                                         assignedCourse.course_type,
-                                        formatSwissPriceRange(assignedCourse.price_range),
+                                        formatPriceRange(assignedCourse.price_range),
                                       ]
                                         .filter(Boolean)
                                         .join(` ${SEPARATOR} `)}
@@ -1401,7 +1464,7 @@ export default function SwitzerlandPlannerPage() {
                                         <p className="mt-1 text-sm text-slate-600">
                                           {[
                                             assignedCourse.course_type,
-                                            formatSwissPriceRange(assignedCourse.price_range),
+                                            formatPriceRange(assignedCourse.price_range),
                                           ]
                                             .filter(Boolean)
                                             .join(` ${SEPARATOR} `)}
@@ -1477,7 +1540,7 @@ export default function SwitzerlandPlannerPage() {
                             {[
                               course.course_type,
                               course.region,
-                              formatSwissPriceRange(course.price_range),
+                              formatPriceRange(course.price_range),
                             ]
                               .filter(Boolean)
                               .join(` ${SEPARATOR} `)}
@@ -1639,7 +1702,7 @@ export default function SwitzerlandPlannerPage() {
                           {course.course_type || "-"}
                         </span>
                         <span className="rounded-full bg-amber-100 px-3 py-1 text-xs font-bold text-amber-800">
-                          {formatSwissPriceRange(course.price_range)}
+                          {formatPriceRange(course.price_range)}
                         </span>
                         <span className="rounded-full bg-emerald-50 px-3 py-1 text-xs font-semibold text-emerald-800 ring-1 ring-emerald-100">
                           {course.independent_guest_days || "-"}
@@ -1699,7 +1762,7 @@ export default function SwitzerlandPlannerPage() {
                           </td>
                           <td className="px-4 py-4">
                             <span className="rounded-full bg-amber-100 px-3 py-1 text-xs font-bold text-amber-800">
-                              {formatSwissPriceRange(course.price_range)}
+                              {formatPriceRange(course.price_range)}
                             </span>
                           </td>
                           <td className="px-4 py-4">
@@ -1802,15 +1865,15 @@ export default function SwitzerlandPlannerPage() {
 
             <div className="min-w-0 max-w-full rounded-3xl bg-white p-5 shadow-sm ring-1 ring-slate-200/70">
               <p className="text-[12px] font-semibold uppercase tracking-[0.18em] text-emerald-800">
-                Swiss golf planning
+                {config.adjective} golf planning
               </p>
 
               <h2 className="mt-1 text-[20px] font-semibold text-slate-900">
-                Access, handicap and seasonality
+                {config.guidanceTitle}
               </h2>
 
               <p className="mt-2 text-sm leading-6 text-slate-600">
-                Swiss golf can vary significantly by club. Use the planner to shortlist courses, then check visitor access, handicap requirements and seasonal play before booking.
+                {config.guidanceText}
               </p>
             </div>
           </div>
@@ -1818,40 +1881,17 @@ export default function SwitzerlandPlannerPage() {
 
         <div className="mt-8 rounded-3xl bg-white p-5 shadow-sm ring-1 ring-slate-200/70 lg:p-8">
           <h2 className="text-[24px] font-semibold text-slate-900">
-            Switzerland Golf Trip Planner
+            {config.country} Golf Trip Planner
           </h2>
 
-          <p className="mt-4 text-sm leading-7 text-slate-600">
-            Plan your Switzerland golf trip with our free online tool. Choose a
-            base such as Zurich, Geneva, Basel, Lausanne, Lucerne or Interlaken,
-            then build a shortlist of Swiss golf courses you may be able to play
-            as an independent guest.
-          </p>
-
-          <p className="mt-4 text-sm leading-7 text-slate-600">
-            Switzerland is different from many golf destinations because visitor
-            access, handicap requirements and seasonality can vary significantly
-            by club. GuestPlayGolf helps you compare courses before deciding
-            where to play.
-          </p>
-
-          <p className="mt-4 text-sm leading-7 text-slate-600">
-            The planner allows golf groups to shortlist courses, compare course
-            types, review visitor access, assign courses to specific days and
-            create a shared itinerary.
-          </p>
-
-          <p className="mt-4 text-sm leading-7 text-slate-600">
-            Groups can also share trips and vote on shortlisted courses, making
-            it easier to agree on where to play while keeping all trip
-            information in one place.
-          </p>
-
-          <p className="mt-4 text-sm leading-7 text-slate-600">
-            Whether you are planning golf near Zurich, Geneva, Basel, Lausanne,
-            Lucerne or a wider Swiss golf trip, the GuestPlayGolf Trip Planner
-            provides a simple way to organise and compare your options.
-          </p>
+          {config.overviewParagraphs.map((paragraph) => (
+            <p
+              key={paragraph}
+              className="mt-4 text-sm leading-7 text-slate-600"
+            >
+              {paragraph}
+            </p>
+          ))}
         </div>
       </section>
     </main>

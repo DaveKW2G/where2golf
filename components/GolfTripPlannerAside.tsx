@@ -5,6 +5,8 @@ type GolfTripPlannerAsideProps = {
   description: string;
   steps: [string, string, string];
   footer: string;
+  plannerHref?: string;
+  buttonLabel?: string;
 };
 
 export default function GolfTripPlannerAside({
@@ -12,6 +14,8 @@ export default function GolfTripPlannerAside({
   description,
   steps,
   footer,
+  plannerHref = "/ireland/planner",
+  buttonLabel = "Start Free Golf Trip Planner",
 }: GolfTripPlannerAsideProps) {
   return (
     <aside className="min-w-0">
@@ -37,10 +41,10 @@ export default function GolfTripPlannerAside({
 
         <div className="mt-auto pt-5">
           <Link
-            href="/ireland/planner"
+            href={plannerHref}
             className="block w-full rounded-full bg-emerald-800 px-5 py-3 text-center text-sm font-semibold text-white no-underline transition hover:bg-emerald-900"
           >
-            Start Free Golf Trip Planner
+            {buttonLabel}
           </Link>
 
           <p className="mt-3 text-center text-xs leading-5 text-slate-600">
