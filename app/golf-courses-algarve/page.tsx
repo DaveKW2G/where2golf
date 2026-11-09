@@ -10,13 +10,13 @@ const algarveCenter: [number, number] = [37.1, -8.15]
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
-  title: 'Golf in the Algarve | Courses, Visitor Access & Prices',
+  title: 'Golf Courses in the Algarve | Green Fees, Maps & Visitor Golf',
   description: 'Explore Algarve golf courses, visitor access and price guidance from the latest published tariffs, including clearly labelled 2025 fallbacks where required.',
-  alternates: { canonical: '/portugal/algarve' },
+  alternates: { canonical: '/golf-courses-algarve' },
   openGraph: {
-    title: 'Golf in the Algarve | Courses, Visitor Access & Prices',
+    title: 'Golf Courses in the Algarve | Green Fees, Maps & Visitor Golf',
     description: 'Compare Algarve golf courses and plan a golf-in-the-sun trip with great food, lively evenings and plenty for groups and families.',
-    url: `${siteUrl}/portugal/algarve`,
+    url: `${siteUrl}/golf-courses-algarve`,
     siteName: 'GuestPlayGolf',
     type: 'website',
   },
@@ -30,7 +30,7 @@ export default async function AlgarveGolfPage() {
     <main className="min-h-screen overflow-x-hidden bg-stone-100 text-slate-800">
       <Breadcrumbs items={[
         { label: 'Home', href: '/' },
-        { label: 'Golf in the Algarve', href: '/portugal/algarve' },
+        { label: 'Golf Courses in the Algarve', href: '/golf-courses-algarve' },
       ]} />
 
       <section className="bg-gradient-to-b from-emerald-950 via-emerald-900 to-emerald-800 px-5 pb-9 pt-6 text-white lg:pb-12 lg:pt-8">
@@ -40,7 +40,7 @@ export default async function AlgarveGolfPage() {
           <div className="mt-6 lg:max-w-[780px]">
             <p className="text-[12px] font-medium uppercase tracking-[0.18em] text-emerald-200">Golf in Portugal</p>
             <h1 className="mt-2 text-[28px] font-bold leading-tight sm:text-[32px] lg:text-[42px] lg:leading-[1.08]">
-              Golf in the Algarve: Find Courses and Plan Your Trip
+              Golf Courses in the Algarve
             </h1>
             <p className="mt-4 text-[15px] leading-6 text-emerald-50/95 lg:max-w-[720px] lg:text-[17px] lg:leading-7">
               Explore <strong>{courseCount} Algarve golf courses</strong> with clear visitor access, course information and price guidance from the latest published tariffs.

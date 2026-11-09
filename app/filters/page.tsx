@@ -60,7 +60,7 @@ function FiltersPageContent() {
 
     if (isIreland) return '/ireland'
     if (isSwitzerland) return '/switzerland'
-    if (isPortugal) return '/portugal/algarve'
+    if (isPortugal) return '/golf-courses-algarve'
 
     return '/'
   }, [countryParam, isIreland, isPlannerMode, isPortugal, isSwitzerland, tripId])

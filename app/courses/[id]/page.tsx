@@ -372,7 +372,7 @@ function getFallbackHrefFromSource(source?: string) {
     "golf-near-galway": "/golf-near-galway",
     "golf-near-belfast": "/golf-near-belfast",
     "golf-near-adare-manor": "/golf-near-adare-manor",
-    "portugal/algarve": "/portugal/algarve",
+    "portugal/algarve": "/golf-courses-algarve",
     switzerland: "/switzerland",
     "golf-near-zurich": "/golf-near-zurich",
     "golf-near-geneva": "/golf-near-geneva",
@@ -712,7 +712,7 @@ export default async function CoursePage({
     : isPortugal
       ? [
           { label: "Home", href: "/" },
-          { label: "Golf in the Algarve", href: "/portugal/algarve" },
+          { label: "Golf in the Algarve", href: "/golf-courses-algarve" },
           { label: course.course_name, href: `/courses/${course.id}` },
         ]
       : null;
@@ -720,7 +720,7 @@ export default async function CoursePage({
   const countryHref = isIreland
     ? "/ireland"
     : isPortugal
-      ? "/portugal/algarve"
+      ? "/golf-courses-algarve"
       : "/switzerland";
   const fallbackHref = buildFallbackHref(resolvedSearchParams, countryHref);
 
@@ -731,13 +731,13 @@ export default async function CoursePage({
   const regionHref = isIreland
     ? "/ireland"
     : isPortugal
-      ? "/portugal/algarve"
+      ? "/golf-courses-algarve"
       : `/switzerland/${course.region.toLowerCase()}`;
 
   const priceGuideHref = isIreland
     ? "/ireland#pricing-guide"
     : isPortugal
-      ? "/portugal/algarve#pricing-guide"
+      ? "/golf-courses-algarve#pricing-guide"
       : "/switzerland#pricing-guide";
 
   const regionLinkText = isIreland
@@ -1124,7 +1124,7 @@ export default async function CoursePage({
 
                       <Link
                         href={isPortugal
-                          ? "/portugal/algarve#courses"
+                          ? "/golf-courses-algarve#courses"
                           : `/filters?country=Switzerland&where=${encodeURIComponent(course.town)}`}
                         className="mt-5 block rounded-full bg-emerald-800 px-5 py-3 text-center text-sm font-semibold text-white no-underline"
                       >

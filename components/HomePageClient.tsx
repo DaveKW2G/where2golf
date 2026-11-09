@@ -27,7 +27,7 @@ export default function HomePageClient() {
               </Link>
 
               <Link
-                href="/portugal/algarve"
+                href="/golf-courses-algarve"
                 className="hidden no-underline sm:inline"
               >
                 Portugal
@@ -77,7 +77,7 @@ export default function HomePageClient() {
               </Link>
 
               <Link
-                href="/portugal/algarve"
+                href="/golf-courses-algarve"
                 className="rounded-full bg-white/10 px-5 py-3 text-sm font-semibold text-white no-underline ring-1 ring-white/20 transition hover:bg-white/15"
               >
                 Explore Algarve →
@@ -178,7 +178,7 @@ export default function HomePageClient() {
           </Link>
 
           <Link
-            href="/portugal/algarve"
+            href="/golf-courses-algarve"
             className="flex h-full flex-col rounded-3xl border border-slate-200 bg-white p-5 text-slate-900 no-underline shadow-sm transition hover:bg-slate-50 lg:p-7"
           >
             <p className="text-[12px] font-semibold uppercase tracking-[0.18em] text-emerald-800">

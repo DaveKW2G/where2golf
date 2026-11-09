@@ -212,7 +212,7 @@ export default async function ResultsPage({ searchParams }: ResultsPageProps) {
     : selectedCountry === "switzerland"
     ? "/switzerland"
     : selectedCountry === "portugal"
-    ? "/portugal/algarve"
+    ? "/golf-courses-algarve"
     : selectedCountry === "ireland"
     ? "/ireland"
     : "/filters"
