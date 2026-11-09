@@ -1,16 +1,16 @@
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Portugal Golf Trip Planner | GuestPlayGolf",
+  title: "Portugal Golf Trip Shortlist | GuestPlayGolf",
   description:
-    "Build a Portugal golf itinerary from your chosen base, compare courses, share the shortlist and vote with your group.",
+    "Choose your base, discover Portuguese golf courses on a map, build a shared shortlist and vote with your group.",
   alternates: {
     canonical: "https://guestplaygolf.com/portugal/planner",
   },
   openGraph: {
-    title: "Portugal Golf Trip Planner | GuestPlayGolf",
+    title: "Portugal Golf Trip Shortlist | GuestPlayGolf",
     description:
-      "Choose your base and build a shared Portugal golf itinerary with GuestPlayGolf.",
+      "Explore Portuguese golf courses, build a shared shortlist, invite friends and vote together.",
     url: "https://guestplaygolf.com/portugal/planner",
     siteName: "GuestPlayGolf",
     type: "website",

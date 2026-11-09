@@ -32,20 +32,16 @@ export async function GET(request: Request) {
       )
     }
 
-    let query = supabase
-      .from('trips')
-      .select(
-        'trip_id, trip_code, trip_name, base_location, base_latitude, base_longitude, month_of_travel, golf_ireland_member, number_of_golfers, number_of_golf_days, selected_courses, itinerary',
-      )
-      .limit(1)
-
-    if (tripId) {
-      query = query.eq('trip_id', tripId)
-    } else if (tripCode) {
-      query = query.ilike('trip_code', tripCode)
+    let resolvedTripId = tripId
+    if (!resolvedTripId && tripCode) {
+      const { data: tripIdFromCode, error: codeError } = await supabase.rpc('planner_v2_trip_id_from_code', { p_trip_code: tripCode })
+      if (codeError) return NextResponse.json({ error: 'Unable to load trip', details: codeError.message }, { status: 500 })
+      resolvedTripId = tripIdFromCode || null
     }
 
-    const { data, error } = await query
+    const { data, error } = resolvedTripId
+      ? await supabase.rpc('planner_v2_get_trip', { p_trip_id: resolvedTripId })
+      : { data: null, error: null }
 
     if (error) {
       return NextResponse.json(
@@ -54,7 +50,7 @@ export async function GET(request: Request) {
       )
     }
 
-    const trip = data?.[0]
+    const trip = data
 
     if (!trip) {
       return NextResponse.json(

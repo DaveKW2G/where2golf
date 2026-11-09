@@ -28,6 +28,8 @@ type MapCourse = {
 type CountyCourseMapProps = {
   courses: MapCourse[];
   initialCenter: [number, number];
+  highlightedCourseIds?: number[];
+  onAddCourse?: (courseId: number) => void;
 };
 
 function FitCourses({
@@ -90,6 +92,8 @@ function FitCourses({
 export default function CountyCourseMap({
   courses,
   initialCenter,
+  highlightedCourseIds = [],
+  onAddCourse,
 }: CountyCourseMapProps) {
   const mappedCourses = courses.filter(
     (course) => {
@@ -134,17 +138,18 @@ export default function CountyCourseMap({
         {mappedCourses.map((course) => {
           const lat = Number(course.latitude);
           const lng = Number(course.longitude);
+          const isShortlisted = highlightedCourseIds.includes(course.id);
 
           return (
             <CircleMarker
               key={course.id}
               center={[lat, lng]}
-              radius={9}
+              radius={isShortlisted ? 12 : 9}
               pathOptions={{
-                color: "#065f46",
-                fillColor: "#10b981",
+                color: isShortlisted ? "#92400e" : "#065f46",
+                fillColor: isShortlisted ? "#fbbf24" : "#10b981",
                 fillOpacity: 0.9,
-                weight: 2,
+                weight: isShortlisted ? 3 : 2,
               }}
             >
               <Popup>
@@ -183,6 +188,15 @@ export default function CountyCourseMap({
                   >
                     View course →
                   </Link>
+                  {!isShortlisted && onAddCourse && (
+                    <button
+                      type="button"
+                      onClick={() => onAddCourse(course.id)}
+                      className="mt-2 block rounded-full bg-emerald-800 px-3 py-2 text-xs font-semibold text-white"
+                    >
+                      Add to Trip
+                    </button>
+                  )}
                 </div>
               </Popup>
             </CircleMarker>

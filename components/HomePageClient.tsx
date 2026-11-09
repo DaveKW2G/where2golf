@@ -279,8 +279,8 @@ export default function HomePageClient() {
               </h3>
 
               <p className="mt-3 text-sm leading-6 text-slate-700">
-                Shortlist courses, organise your route and make group decisions
-                easier before you book.
+                Choose a trip base, discover courses on a map, invite friends
+                and vote together on your shared shortlist.
               </p>
 
               <div className="mt-auto pt-5">
@@ -307,7 +307,7 @@ export default function HomePageClient() {
 
           <p className="mt-3 text-sm leading-6 text-slate-600">
             Start with a regional guide, compare visitor-friendly courses, then
-            add your preferred options to your itinerary.
+            add your preferred options to a shared trip shortlist.
           </p>
 
           <div className="mt-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">

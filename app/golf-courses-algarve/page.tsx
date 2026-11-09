@@ -66,7 +66,7 @@ export default async function AlgarveGolfPage() {
               The Algarve offers more than a strong choice of golf courses. Its coastal scenery, welcoming resort towns and easy-going pace make it a natural setting for golf in the sun, while excellent restaurants and lively evening entertainment give golf groups plenty to enjoy after the final putt.
             </p>
             <p className="mt-4 text-sm leading-7 text-slate-600">
-              It also works well when golf is only part of the holiday. Golfers can build their course itinerary while partners, friends and families enjoy a relaxed Algarve getaway. Use the course list below to compare verified details; full notes and official links are available on each course page.
+              It also works well when golf is only part of the holiday. Golfers can build a shared course shortlist while partners, friends and families enjoy a relaxed Algarve getaway. Use the course list below to compare verified details; full notes and official links are available on each course page.
             </p>
             <p className="mt-4 text-sm leading-7 text-slate-600">
               The price symbols are planning bands based on the latest published adult visitor information available. We use 2026 prices where available; any preserved 2025 tariff, partner rate, event price or stay-and-play package is identified clearly in the course notes. These are not live quotes, so confirm the selected tee-time price before booking.
@@ -81,11 +81,11 @@ export default async function AlgarveGolfPage() {
 
           <GolfTripPlannerAside
             heading="Build your Portugal golf trip"
-            description="Choose your accommodation base, shortlist courses and build a day-by-day Portugal golf itinerary."
+            description="Choose your Portugal base, explore courses on a map and build a shared shortlist with your group."
             steps={[
               'Choose your base anywhere in Portugal.',
               'Filter and add courses from the country-wide list.',
-              'Build the itinerary and follow official booking links.',
+              'Invite your group to add courses, vote and choose where to play.',
             ]}
             footer="The planner covers Portugal as a country; it is not restricted to the Algarve."
             plannerHref="/portugal/planner"

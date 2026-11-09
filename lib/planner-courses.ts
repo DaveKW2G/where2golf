@@ -1,0 +1,19 @@
+import { createClient } from "@/lib/supabase/server";
+import type { Course } from "@/lib/course-explorer";
+
+export async function getPlannerCourses(country: "Ireland" | "Switzerland" | "Portugal") {
+  const supabase = await createClient();
+  const courses: Course[] = [];
+  for (let offset = 0; ; offset += 300) {
+    const { data, error } = await supabase
+      .from("courses")
+      .select("id, country, course_name, town, region, holes, independent_guest_days, season, price_range, course_image, handicap_required, max_handicap, latitude, longitude, course_type")
+      .eq("country", country)
+      .order("course_name", { ascending: true })
+      .range(offset, offset + 299);
+    if (error || !data) return { courses: [] as Course[], error: true };
+    courses.push(...data);
+    if (data.length < 300) break;
+  }
+  return { courses, error: false };
+}

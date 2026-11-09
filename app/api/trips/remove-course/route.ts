@@ -1,73 +1,27 @@
-import { NextResponse } from 'next/server'
-import { createClient } from '@/lib/supabase/server'
+import { createHash } from "node:crypto";
+import { NextResponse } from "next/server";
+import { createClient } from "@/lib/supabase/server";
 
 export async function POST(request: Request) {
   try {
-    const supabase = await createClient()
-    const body = await request.json()
-
-    const tripId = body.trip_id
-    const courseId = body.course_id
-
-    if (!tripId || !courseId) {
-      return NextResponse.json(
-        { error: 'Trip ID and course ID are required' },
-        { status: 400 }
-      )
+    const body = await request.json();
+    const tripId = String(body.trip_id || "").trim();
+    const courseId = Number(body.course_id);
+    const ownerToken = String(body.owner_token || "");
+    const legacyOwnerId = String(body.legacy_owner_id || "");
+    if (!tripId || !Number.isInteger(courseId) || courseId <= 0 || (!ownerToken && !legacyOwnerId)) {
+      return NextResponse.json({ error: "Trip, course and organiser details are required" }, { status: 400 });
     }
-
-    const { data: trips, error: readError } = await supabase
-      .from('trips')
-      .select('selected_courses')
-      .eq('trip_id', tripId)
-      .limit(1)
-
-    if (readError) {
-      return NextResponse.json(
-        { error: 'Unable to read trip', details: readError.message },
-        { status: 500 }
-      )
-    }
-
-    const trip = trips?.[0]
-
-    const existingCourses = Array.isArray(trip?.selected_courses)
-      ? trip.selected_courses
-      : []
-
-    const nextCourses = existingCourses.filter(
-      (course: { id?: number | string }) => Number(course.id) !== Number(courseId)
-    )
-
-    const { error: updateError } = await supabase
-      .from('trips')
-      .update({
-        selected_courses: nextCourses,
-      })
-      .eq('trip_id', tripId)
-
-    if (updateError) {
-      return NextResponse.json(
-        { error: 'Unable to update trip', details: updateError.message },
-        { status: 500 }
-      )
-    }
-
-    const { error: voteDeleteError } = await supabase
-      .from('trip_votes')
-      .delete()
-      .eq('trip_id', tripId)
-      .eq('course_id', courseId)
-
-    return NextResponse.json({
-      success: true,
-      selected_courses: nextCourses,
-      vote_cleanup_warning: voteDeleteError?.message || null,
-    })
+    const supabase = await createClient();
+    const { data, error } = await supabase.rpc("planner_v2_remove_course", {
+      p_trip_id: tripId,
+      p_course_id: courseId,
+      p_owner_token_hash: ownerToken ? createHash("sha256").update(ownerToken).digest("hex") : null,
+      p_legacy_owner_id: legacyOwnerId || null,
+    });
+    if (error) return NextResponse.json({ error: error.message.includes("organiser") ? error.message : "Course could not be removed" }, { status: error.message.includes("organiser") ? 403 : 404 });
+    return NextResponse.json({ success: true, selected_courses: data || [] });
   } catch {
-    return NextResponse.json(
-      { error: 'Unable to remove course from trip' },
-      { status: 500 }
-    )
+    return NextResponse.json({ error: "Unable to remove course from trip" }, { status: 500 });
   }
 }
