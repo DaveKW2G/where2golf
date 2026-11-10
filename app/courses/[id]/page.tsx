@@ -394,14 +394,14 @@ function buildFallbackHref(
   },
   defaultHref: string,
 ) {
-  if (isPlannerSearchContext(searchParams)) {
-    return getPlannerHrefFromSearchParams(searchParams, defaultHref);
-  }
-
   const returnTo = getSingleParam(searchParams.returnTo);
 
-  if (returnTo && returnTo.startsWith("/")) {
+  if (returnTo && returnTo.startsWith("/") && !returnTo.startsWith("//")) {
     return returnTo;
+  }
+
+  if (isPlannerSearchContext(searchParams)) {
+    return getPlannerHrefFromSearchParams(searchParams, defaultHref);
   }
 
   const sourceFallbackHref = getFallbackHrefFromSource(
@@ -725,7 +725,8 @@ export default async function CoursePage({
   const fallbackHref = buildFallbackHref(resolvedSearchParams, countryHref);
 
   function getCourseHref(courseId: number) {
-    return `/courses/${courseId}`;
+    const params = new URLSearchParams({ country: country.toLowerCase(), returnTo: fallbackHref });
+    return `/courses/${courseId}?${params.toString()}`;
   }
 
   const regionHref = isIreland

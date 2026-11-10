@@ -183,10 +183,14 @@ export default function CourseCard({
   const [hasActiveTrip, setHasActiveTrip] = useState(false)
   const [storedTripIdState, setStoredTripIdState] = useState<string | null>(null)
 
-  // Course-detail URLs are indexable. Keep every internal link on the clean
-  // canonical path so filters and navigation state cannot create duplicate
-  // crawlable variants in Search Console.
-  const href = `/courses/${id}`
+  // Carry a return destination for people while keeping the course page's
+  // canonical URL clean for search engines.
+  const detailParams = new URLSearchParams()
+  for (const [key, value] of Object.entries(searchParams || {})) {
+    if (typeof value === 'string' && value.trim()) detailParams.set(key, value)
+    else if (Array.isArray(value)) value.filter(Boolean).forEach(item => detailParams.append(key, item))
+  }
+  const href = detailParams.size ? `/courses/${id}?${detailParams.toString()}` : `/courses/${id}`
 
   const countryValue = getCountryFromParams(country, searchParams)
   const isIreland = countryValue === 'ireland'

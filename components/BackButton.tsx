@@ -17,12 +17,9 @@ export default function BackButton({
   const router = useRouter();
 
   function handleClick() {
-    if (window.history.length > 1) {
-      router.back();
-      return;
-    }
-
-    router.push(fallbackHref);
+    // The browser history may point outside GPG or to an unfiltered listing.
+    // Replace the course page with its explicit return destination instead.
+    router.replace(fallbackHref);
   }
 
   return (

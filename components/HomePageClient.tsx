@@ -80,7 +80,7 @@ export default function HomePageClient() {
                 href="/golf-courses-algarve"
                 className="rounded-full bg-white/10 px-5 py-3 text-sm font-semibold text-white no-underline ring-1 ring-white/20 transition hover:bg-white/15"
               >
-                Explore Algarve →
+                Explore Portugal →
               </Link>
 
               <Link
@@ -186,12 +186,12 @@ export default function HomePageClient() {
             </p>
 
             <h2 className="mt-2 text-[24px] font-bold leading-tight lg:text-[30px]">
-              Golf in the Algarve
+              Golf in Portugal
             </h2>
 
             <p className="mt-3 text-sm leading-6 text-slate-600 lg:text-[15px]">
-              Compare Algarve golf courses, visitor access and the latest
-              published tariff guidance, then plan from your chosen base.
+              Start with the Algarve course guide, compare visitor access and
+              published tariff guidance, then plan from a base anywhere in Portugal.
             </p>
 
             <div className="mt-5 grid gap-2 text-sm font-semibold text-slate-800 sm:grid-cols-2 lg:grid-cols-1 xl:grid-cols-2">
@@ -213,7 +213,7 @@ export default function HomePageClient() {
             </div>
 
             <span className="mt-auto pt-5 text-sm font-semibold text-emerald-800">
-              Explore Algarve golf →
+              Explore Portugal golf →
             </span>
           </Link>
         </div>
@@ -222,7 +222,7 @@ export default function HomePageClient() {
           <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_360px] lg:items-stretch">
             <div>
               <p className="text-[12px] font-semibold uppercase tracking-[0.18em] text-emerald-800">
-                Free Ireland golf trip planner
+                Free golf trip planner
               </p>
 
               <h2 className="mt-1 text-[24px] font-bold leading-tight text-slate-900 lg:text-[30px]">
@@ -230,10 +230,9 @@ export default function HomePageClient() {
               </h2>
 
               <p className="mt-4 text-sm leading-7 text-slate-600 lg:text-[15px]">
-                Build a golf itinerary, add courses to each day, share the trip
-                with your group and vote on where to play. The planner is built
-                for golfers organising Ireland trips without needing another
-                spreadsheet or group chat mess.
+                Choose a base, discover courses on a map, build a shared
+                shortlist, invite your group and vote together. Start planning
+                in Ireland, Switzerland or Portugal.
               </p>
 
               <div className="mt-6 grid gap-3 sm:grid-cols-3">
@@ -243,7 +242,7 @@ export default function HomePageClient() {
                   </div>
 
                   <p className="mt-1 text-xs leading-5 text-slate-500">
-                    Add courses and organise them by golf day.
+                    Find courses and add them to your shortlist.
                   </p>
                 </div>
 
@@ -288,7 +287,21 @@ export default function HomePageClient() {
                   href="/ireland/planner"
                   className="block rounded-full bg-emerald-800 px-5 py-3 text-center text-sm font-semibold text-white no-underline transition hover:bg-emerald-900"
                 >
-                  Open Free Golf Trip Planner
+                  Plan an Ireland trip
+                </Link>
+
+                <Link
+                  href="/switzerland/planner"
+                  className="mt-2 block rounded-full border border-emerald-800 px-5 py-3 text-center text-sm font-semibold text-emerald-900 no-underline transition hover:bg-emerald-100"
+                >
+                  Plan a Switzerland trip
+                </Link>
+
+                <Link
+                  href="/portugal/planner"
+                  className="mt-2 block rounded-full border border-emerald-800 px-5 py-3 text-center text-sm font-semibold text-emerald-900 no-underline transition hover:bg-emerald-100"
+                >
+                  Plan a Portugal trip
                 </Link>
 
                 <p className="mt-3 text-center text-xs leading-5 text-slate-600">
