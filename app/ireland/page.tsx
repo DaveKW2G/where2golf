@@ -32,6 +32,12 @@ const golfNearGuides = [
       "Compare top links, parkland and resort courses within easy reach of Ireland’s main international gateway.",
   },
   {
+    title: "Affordable Golf Near Dublin",
+    href: "/affordable-golf-near-dublin",
+    description:
+      "Compare courses within 100 km of Dublin in GPG’s two lowest published visitor price bands, up to €100.",
+  },
+  {
     title: "Golf Near Cork",
     href: "/golf-near-cork",
     description:
