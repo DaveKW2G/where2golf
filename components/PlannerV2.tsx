@@ -11,6 +11,16 @@ const CourseMap = dynamic(() => import("@/components/CountyCourseMap"), { ssr: f
 
 type Country = "Ireland" | "Switzerland" | "Portugal";
 type TripCourse = Course & { distance?: number | null };
+type PlannerAnalyticsParams = Record<string, string | number | boolean>;
+
+function trackPlannerEvent(eventName: string, parameters: PlannerAnalyticsParams = {}) {
+  if (typeof window === "undefined") return;
+  const analyticsWindow = window as Window & {
+    gtag?: (command: "event", name: string, values?: PlannerAnalyticsParams) => void;
+  };
+  analyticsWindow.gtag?.("event", eventName, parameters);
+}
+
 type Trip = {
   trip_id: string;
   trip_code?: string;
@@ -222,6 +232,7 @@ export default function PlannerV2({ country: initialCountry, courses }: { countr
       setCoordinates([data.latitude, data.longitude]);
       setBase(data.label?.split(",")[0] || base.trim());
       setNotice("");
+      trackPlannerEvent("planner_base_located", { destination_country: country });
     } catch (error) { setNotice(error instanceof Error ? error.message : "Location not found."); }
     finally { setBusy(false); }
   }
@@ -235,6 +246,10 @@ export default function PlannerV2({ country: initialCountry, courses }: { countr
       const response = await fetch("/api/trips", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ country, planner_user_id: plannerUserId || getPlannerUserId(country), trip_name: `${base.trim()} Golf Trip`, base_location: base.trim(), base_latitude: coordinates[0], base_longitude: coordinates[1], courses_wanted: target ? Number(target) : null, owner_token: freshOwnerToken }) });
       const data = await response.json();
       if (!response.ok) throw new Error(data.details || data.error || "Could not create trip.");
+      trackPlannerEvent("planner_trip_created", {
+        destination_country: country,
+        course_target_set: Boolean(target),
+      });
       setOwnerToken(freshOwnerToken);
       setTripId(data.trip_id);
       window.localStorage.setItem(tokenKey(country, data.trip_id), freshOwnerToken);
@@ -256,7 +271,14 @@ export default function PlannerV2({ country: initialCountry, courses }: { countr
     setVotes(next);
     const response = await fetch("/api/trips/vote", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ trip_id: tripId, participant_id: participantId, course_id: courseId, vote: next[courseId] || null }) });
     const data = await response.json();
-    if (response.ok) { setSummary(data.summary || {}); setVotes(data.participant_votes || {}); }
+    if (response.ok) {
+      setSummary(data.summary || {});
+      setVotes(data.participant_votes || {});
+      trackPlannerEvent("planner_vote_saved", {
+        destination_country: country,
+        vote_choice: next[courseId] || "cleared",
+      });
+    }
     else setNotice(data.details || data.error || "Vote could not be saved.");
   }
 
@@ -270,6 +292,10 @@ export default function PlannerV2({ country: initialCountry, courses }: { countr
     if (!response.ok) { setNotice(data.error || "Course could not be added."); return; }
     setTrip((current) => current ? { ...current, selected_courses: data.selected_courses } : current);
     window.localStorage.setItem(activeCoursesKey(country), JSON.stringify(data.selected_courses));
+    trackPlannerEvent("planner_course_added", {
+      destination_country: country,
+      shortlist_size: Array.isArray(data.selected_courses) ? data.selected_courses.length : 0,
+    });
     setNotice("Course added to the shared shortlist.");
   }
 
@@ -307,6 +333,10 @@ export default function PlannerV2({ country: initialCountry, courses }: { countr
   async function share(mode: "whatsapp" | "email" | "copy" | "more") {
     const url = `${window.location.origin}${window.location.pathname}?tripId=${encodeURIComponent(tripId)}`;
     const message = `Join ${trip?.trip_name || `${base} Golf Trip`} on GuestPlayGolf: ${url}`;
+    trackPlannerEvent("planner_share_action", {
+      destination_country: country,
+      share_method: mode,
+    });
     if (mode === "whatsapp") { window.open(`https://wa.me/?text=${encodeURIComponent(message)}`, "_blank", "noopener,noreferrer"); return; }
     if (mode === "email") { window.location.href = `mailto:?subject=${encodeURIComponent(trip?.trip_name || "Golf trip shortlist")}&body=${encodeURIComponent(message)}`; return; }
     if (mode === "more" && navigator.share) { await navigator.share({ title: trip?.trip_name || "Golf trip shortlist", text: message, url }); return; }
