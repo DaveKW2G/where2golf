@@ -36,6 +36,7 @@ for (const [slug, county] of Object.entries(countyPages)) {
 
 const irelandGuidePages: Record<string, string> = {
   "/golf-near-adare-manor": "Golf Near Adare Manor",
+  "/affordable-golf-near-dublin": "Affordable Golf Near Dublin",
   "/golf-near-belfast": "Golf Near Belfast",
   "/golf-near-cork": "Golf Near Cork",
   "/golf-near-dublin": "Golf Near Dublin",

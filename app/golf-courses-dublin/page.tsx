@@ -60,6 +60,13 @@ function RelatedGolfLinks() {
 
       <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
         <Link
+          href="/affordable-golf-near-dublin"
+          className="rounded-2xl bg-emerald-50 px-4 py-3 text-sm font-semibold text-emerald-900 no-underline ring-1 ring-emerald-100 transition hover:bg-emerald-100"
+        >
+          Affordable Golf Near Dublin →
+        </Link>
+
+        <Link
           href="/golf-near-dublin"
           className="rounded-2xl bg-emerald-50 px-4 py-3 text-sm font-semibold text-emerald-900 no-underline ring-1 ring-emerald-100 transition hover:bg-emerald-100"
         >

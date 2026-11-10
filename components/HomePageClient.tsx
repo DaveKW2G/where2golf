@@ -332,6 +332,13 @@ export default function HomePageClient() {
             </Link>
 
             <Link
+              href="/affordable-golf-near-dublin"
+              className="rounded-2xl bg-slate-50 px-4 py-3 text-sm font-semibold text-slate-800 no-underline ring-1 ring-slate-200 transition hover:bg-slate-100"
+            >
+              Affordable Golf Near Dublin →
+            </Link>
+
+            <Link
               href="/links-golf-near-dublin"
               className="rounded-2xl bg-slate-50 px-4 py-3 text-sm font-semibold text-slate-800 no-underline ring-1 ring-slate-200 transition hover:bg-slate-100"
             >
