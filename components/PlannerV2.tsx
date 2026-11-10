@@ -292,9 +292,10 @@ export default function PlannerV2({ country: initialCountry, courses }: { countr
     if (!response.ok) { setNotice(data.error || "Course could not be added."); return; }
     setTrip((current) => current ? { ...current, selected_courses: data.selected_courses } : current);
     window.localStorage.setItem(activeCoursesKey(country), JSON.stringify(data.selected_courses));
-    trackPlannerEvent("planner_course_added", {
+    trackPlannerEvent("course_added_to_trip", {
       destination_country: country,
       shortlist_size: Array.isArray(data.selected_courses) ? data.selected_courses.length : 0,
+      add_source: "planner_map",
     });
     setNotice("Course added to the shared shortlist.");
   }
