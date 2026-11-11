@@ -22,7 +22,11 @@ export default function BackButton({
   function handleClick() {
     const rememberedReturnTo = consumeCourseReturnTo(courseId);
     if (rememberedReturnTo) {
-      router.replace(rememberedReturnTo);
+      if (window.history.length > 1) {
+        router.back();
+      } else {
+        router.replace(rememberedReturnTo);
+      }
       return;
     }
 
