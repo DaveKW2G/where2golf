@@ -60,9 +60,13 @@ export default function CountyCourseExplorer({ courses, countyName, source, init
   function change(key: keyof Filters, value: string) { setFilters(current => ({...current, [key]: value})); setVisibleCount(24) }
   const filtered = useMemo(() => filterCourses(courses,filters,origin,sort), [courses,filters,origin,sort])
   const returnParams = new URLSearchParams()
-  for (const [key, value] of Object.entries(filters)) if (value) returnParams.set(key, value)
-  if (origin) { returnParams.set('lat', String(origin[0])); returnParams.set('lng', String(origin[1])) }
-  if (locationLabel) returnParams.set('location', locationLabel)
+  for (const [key, value] of Object.entries(filters)) {
+    const isDefaultRadius = key === 'radius' && initialRadiusKm && value === String(initialRadiusKm)
+    if (value && !isDefaultRadius) returnParams.set(key, value)
+  }
+  const originMatchesDefault = origin && initialOrigin && origin[0] === initialOrigin[0] && origin[1] === initialOrigin[1]
+  if (origin && !originMatchesDefault) { returnParams.set('lat', String(origin[0])); returnParams.set('lng', String(origin[1])) }
+  if (locationLabel && locationLabel !== originName) returnParams.set('location', locationLabel)
   if (sort !== (initialOrigin ? 'distance' : pricingFocus ? 'price' : 'name')) returnParams.set('sort', sort)
   if (view === 'map') returnParams.set('view', 'map')
   if (visibleCount > 24) returnParams.set('count', String(visibleCount))
@@ -72,7 +76,9 @@ export default function CountyCourseExplorer({ courses, countyName, source, init
 
   useEffect(() => {
     const nextUrl = `${window.location.pathname}${returnQuery ? `?${returnQuery}` : ''}`
-    window.history.replaceState(window.history.state, '', nextUrl)
+    if (`${window.location.pathname}${window.location.search}` !== nextUrl) {
+      window.history.replaceState(window.history.state, '', nextUrl)
+    }
   }, [returnQuery])
   const counties = [...new Set(courses.map(c => c.region?.trim()).filter((x): x is string => Boolean(x)))].sort()
   const types = [...new Set(courses.map(c => c.course_type?.trim()).filter((x): x is string => Boolean(x)))].sort()

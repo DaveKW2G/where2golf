@@ -4,6 +4,7 @@ import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet'
 import L from 'leaflet'
 import { useEffect } from 'react'
 import 'leaflet/dist/leaflet.css'
+import { rememberCourseReturnTo } from '@/lib/course-navigation'
 
 type Course = {
   id: number
@@ -68,7 +69,7 @@ export default function CourseMap({ courses }: Props) {
             <br />
             {course.town}, {course.region}
             <br />
-            <a href={`/courses/${course.id}`}>
+            <a href={`/courses/${course.id}`} onClick={() => rememberCourseReturnTo(course.id)}>
               View Course
             </a>
           </Popup>

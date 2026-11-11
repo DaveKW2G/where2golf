@@ -1,8 +1,10 @@
 import type { Metadata } from "next";
+import { permanentRedirect } from "next/navigation";
 import Script from "next/script";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import BackButton from "@/components/BackButton";
+import CourseNavigationLink from "@/components/CourseNavigationLink";
 import Breadcrumbs, {
   getIrelandCourseBreadcrumbs,
 } from "@/components/Breadcrumbs";
@@ -662,6 +664,10 @@ export default async function CoursePage({
   const resolvedParams = await params;
   const resolvedSearchParams = searchParams ? await searchParams : {};
 
+  if (Object.keys(resolvedSearchParams).length > 0) {
+    permanentRedirect(`/courses/${encodeURIComponent(resolvedParams.id)}`);
+  }
+
   const supabase = await createClient();
 
   const { data, error } = await supabase
@@ -683,6 +689,7 @@ export default async function CoursePage({
         <div className="mx-auto max-w-[480px] rounded-[28px] bg-white p-6 shadow-sm lg:max-w-[1120px]">
           <BackButton
             fallbackHref={fallbackHref}
+            courseId={Number(resolvedParams.id)}
             className="inline-block text-slate-700"
           >
             ← Back
@@ -723,11 +730,6 @@ export default async function CoursePage({
       ? "/golf-courses-algarve"
       : "/switzerland";
   const fallbackHref = buildFallbackHref(resolvedSearchParams, countryHref);
-
-  function getCourseHref(courseId: number) {
-    const params = new URLSearchParams({ country: country.toLowerCase(), returnTo: fallbackHref });
-    return `/courses/${courseId}?${params.toString()}`;
-  }
 
   const regionHref = isIreland
     ? "/ireland"
@@ -937,6 +939,7 @@ export default async function CoursePage({
             <div className="absolute inset-x-0 top-0 p-4 lg:p-6">
               <BackButton
                 fallbackHref={fallbackHref}
+                courseId={course.id}
                 className="rounded-full bg-white px-3 py-2 text-[14px] font-medium text-slate-800 shadow-sm"
               >
                 ← Back
@@ -1236,9 +1239,9 @@ export default async function CoursePage({
 
                     <div className="mt-5 grid gap-4 sm:grid-cols-2">
                       {nearbyCourses.map((nearbyCourse) => (
-                        <Link
+                        <CourseNavigationLink
                           key={nearbyCourse.id}
-                          href={getCourseHref(nearbyCourse.id)}
+                          courseId={nearbyCourse.id}
                           className="group overflow-hidden rounded-3xl bg-slate-50 no-underline ring-1 ring-slate-200 transition hover:-translate-y-0.5 hover:shadow-md"
                         >
                           <div className="h-40 w-full bg-slate-200">
@@ -1315,7 +1318,7 @@ export default async function CoursePage({
                               View course →
                             </p>
                           </div>
-                        </Link>
+                        </CourseNavigationLink>
                       ))}
                     </div>
                   </section>

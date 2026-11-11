@@ -2,6 +2,7 @@
 
 import Link from 'next/link'
 import { useEffect, useMemo, useState } from 'react'
+import { rememberCourseReturnTo } from '@/lib/course-navigation'
 
 interface CourseCardProps {
   id: number
@@ -190,7 +191,9 @@ export default function CourseCard({
     if (typeof value === 'string' && value.trim()) detailParams.set(key, value)
     else if (Array.isArray(value)) value.filter(Boolean).forEach(item => detailParams.append(key, item))
   }
-  const href = detailParams.size ? `/courses/${id}?${detailParams.toString()}` : `/courses/${id}`
+  const href = `/courses/${id}`
+  const handleCourseClick = () =>
+    rememberCourseReturnTo(id, detailParams.get('returnTo') || undefined)
 
   const countryValue = getCountryFromParams(country, searchParams)
   const isIreland = countryValue === 'ireland'
@@ -427,7 +430,7 @@ export default function CourseCard({
 
   return (
     <div className="group overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm transition hover:shadow-md">
-      <Link href={href} className="block no-underline">
+      <Link href={href} onClick={handleCourseClick} className="block no-underline">
         {cardContent}
       </Link>
 
@@ -474,6 +477,7 @@ export default function CourseCard({
           <div className="grid grid-cols-2 gap-2">
             <Link
               href={href}
+              onClick={handleCourseClick}
               className="rounded-full border border-slate-200 bg-white px-4 py-3 text-center text-sm font-semibold text-slate-700 no-underline"
             >
               View Course

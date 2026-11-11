@@ -4,6 +4,7 @@ import { distanceKm, hasCoordinates, type Course } from "@/lib/course-explorer";
 import { getIrelandCourses } from "@/lib/ireland-courses";
 import type { Metadata } from "next";
 import Link from "next/link";
+import { permanentRedirect } from "next/navigation";
 import { cache } from "react";
 
 const siteUrl = "https://guestplaygolf.com";
@@ -53,7 +54,34 @@ export async function generateMetadata(): Promise<Metadata> {
   };
 }
 
-export default async function AffordableGolfNearDublinPage() {
+export default async function AffordableGolfNearDublinPage({
+  searchParams,
+}: {
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
+}) {
+  const params = await searchParams;
+  const defaults: Record<string, string> = {
+    radius: String(dublinRadiusKm),
+    lat: String(dublinBase[0]),
+    lng: String(dublinBase[1]),
+    location: "Dublin",
+    sort: "distance",
+  };
+  const queryEntries = Object.entries(params).flatMap(([key, value]) =>
+    Array.isArray(value)
+      ? value.map((item) => [key, item] as const)
+      : value === undefined
+        ? []
+        : [[key, value] as const],
+  );
+
+  if (
+    queryEntries.length > 0 &&
+    queryEntries.every(([key, value]) => defaults[key] === value)
+  ) {
+    permanentRedirect("/affordable-golf-near-dublin");
+  }
+
   const { courses, coursesWithinRadius, error } = await getAffordableDublinCourses();
 
   return (

@@ -4,6 +4,7 @@ import "leaflet/dist/leaflet.css";
 
 import Link from "next/link";
 import { hasCoordinates } from "@/lib/course-explorer";
+import { rememberCourseReturnTo } from "@/lib/course-navigation";
 import { useEffect } from "react";
 import {
   CircleMarker,
@@ -184,6 +185,7 @@ export default function CountyCourseMap({
 
                   <Link
                     href={`/courses/${course.id}`}
+                    onClick={() => rememberCourseReturnTo(course.id)}
                     className="mt-3 inline-block font-semibold text-emerald-700 no-underline"
                   >
                     View course →
