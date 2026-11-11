@@ -56,6 +56,7 @@ export default function CountyCourseExplorer({ courses, countyName, source, init
   const [locationError, setLocationError] = useState('')
   const [busy, setBusy] = useState(false)
   const [visibleCount, setVisibleCount] = useState(initialQuery.visibleCount)
+  const [restoringFromHistory, setRestoringFromHistory] = useState(false)
   const [selectedBase, setSelectedBase] = useState(baseLocations.some(base => base.name === initialQuery.locationLabel) ? initialQuery.locationLabel : '')
   function change(key: keyof Filters, value: string) { setFilters(current => ({...current, [key]: value})); setVisibleCount(24) }
   const filtered = useMemo(() => filterCourses(courses,filters,origin,sort), [courses,filters,origin,sort])
@@ -75,11 +76,53 @@ export default function CountyCourseExplorer({ courses, countyName, source, init
   const returnTo = `${returnPath}${returnQuery ? `?${returnQuery}` : ''}`
 
   useEffect(() => {
+    if (restoringFromHistory) {
+      setRestoringFromHistory(false)
+      return
+    }
+
     const nextUrl = `${window.location.pathname}${returnQuery ? `?${returnQuery}` : ''}`
     if (`${window.location.pathname}${window.location.search}` !== nextUrl) {
       window.history.replaceState(window.history.state, '', nextUrl)
     }
-  }, [returnQuery])
+  }, [returnQuery, restoringFromHistory])
+
+  useEffect(() => {
+    function restoreFromUrl() {
+      const params = new URLSearchParams(window.location.search)
+      const lat = Number(params.get('lat'))
+      const lng = Number(params.get('lng'))
+      const queryOrigin: [number, number] | null = Number.isFinite(lat) && Number.isFinite(lng) && params.has('lat') && params.has('lng') ? [lat, lng] : null
+      const restoredLocation = params.get('location') || originName
+      const restoredRadius = params.get('radius') || (initialOrigin && initialRadiusKm ? String(initialRadiusKm) : '')
+
+      setRestoringFromHistory(true)
+      setFilters({
+        ...empty,
+        search: params.get('search') || '',
+        price: params.get('price') || '',
+        courseType: params.get('courseType') || '',
+        holes: params.get('holes') || '',
+        county: params.get('county') || '',
+        when: params.get('when') || '',
+        radius: restoredRadius,
+      })
+      setOrigin(queryOrigin || initialOrigin || null)
+      setPlace(restoredLocation)
+      setLocationLabel(restoredLocation)
+      setSelectedBase(baseLocations.some(base => base.name === restoredLocation) ? restoredLocation : '')
+      setSort(params.get('sort') || (initialOrigin ? 'distance' : pricingFocus ? 'price' : 'name'))
+      setView(params.get('view') === 'map' ? 'map' : 'list')
+      setVisibleCount(Math.max(24, Number(params.get('count')) || 24))
+      setLocationError('')
+      setBusy(false)
+    }
+
+    window.addEventListener('popstate', restoreFromUrl)
+    return () => window.removeEventListener('popstate', restoreFromUrl)
+    // These route-level defaults stay fixed for this mounted explorer.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
   const counties = [...new Set(courses.map(c => c.region?.trim()).filter((x): x is string => Boolean(x)))].sort()
   const types = [...new Set(courses.map(c => c.course_type?.trim()).filter((x): x is string => Boolean(x)))].sort()
   const availablePriceBands = allowedPriceBands ? priceBands.filter(b => allowedPriceBands.includes(b.value)) : priceBands
